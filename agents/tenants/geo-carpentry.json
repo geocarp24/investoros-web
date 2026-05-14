@@ -1,0 +1,208 @@
+{
+  "tenant_id": "geo-carpentry",
+  "tenant_name": "Geo Carpentry LLC",
+  "industry": "construction-contractor",
+  "primary_language": "en",
+  "secondary_languages": ["es"],
+  "website": "https://geocarpentry.com",
+  "phone": "(920) 367-1272",
+  "whatsapp": "+19209340351",
+  "email": "admin@geocarpentry.com",
+  "address": "735 E Walnut St Suite 3, Green Bay, WI",
+  "service_radius_miles": 100,
+  "year_founded": 2014,
+  "owner": "Jorge Cruz",
+  "structure": "LLC",
+
+  "brand": {
+    "navy_primary": "#1B2A4A",
+    "orange_accent": "#FF6B00",
+    "tagline": "Built to Last. Crafted with Pride.",
+    "voice": "warm + professional + bilingual-friendly",
+    "logo_url": "https://geocarpentry.com/wp-content/uploads/logo.png"
+  },
+
+  "markets": [
+    {
+      "state": "WI",
+      "scope": "northeast-wisconsin",
+      "cities_primary": [
+        "Green Bay",
+        "Howard",
+        "De Pere",
+        "Allouez",
+        "Bellevue",
+        "Suamico",
+        "Ashwaubenon",
+        "Appleton",
+        "Oshkosh",
+        "Sheboygan",
+        "Manitowoc",
+        "Fond du Lac",
+        "Wausau",
+        "Marinette",
+        "Oconto",
+        "Shawano",
+        "Pulaski"
+      ]
+    }
+  ],
+
+  "regional_scope": {
+    "primary": "Northeast WI (100mi radius from Green Bay)",
+    "secondary": ["UP Michigan"],
+    "primary_weight": 0.85,
+    "secondary_weight": 0.15
+  },
+
+  "search_engines": [
+    "google",
+    "bing",
+    "duckduckgo",
+    "brave",
+    "chatgpt-search",
+    "perplexity",
+    "ai-overviews",
+    "google-sge"
+  ],
+
+  "seo_goals": {
+    "per_page_target_rank": 1,
+    "primary_priority": "Local SEO Green Bay + NE Wisconsin contractor Google Maps dominance",
+    "secondary_priority": "Service-specific long-tail keywords (kitchen/bathroom/deck remodel + city combinations)"
+  },
+
+  "services": [
+    {
+      "slug": "custom-carpentry",
+      "name": "Custom Carpentry & Woodwork",
+      "ticket_range_usd": [500, 8000],
+      "keywords": ["custom carpentry green bay", "custom woodwork wisconsin", "built-in shelving green bay", "crown molding contractor"]
+    },
+    {
+      "slug": "kitchen-remodeling",
+      "name": "Kitchen Remodeling",
+      "ticket_range_usd": [5000, 30000],
+      "keywords": ["kitchen remodel green bay", "kitchen renovation wisconsin", "kitchen cabinet installer green bay"]
+    },
+    {
+      "slug": "bathroom-remodeling",
+      "name": "Bathroom Remodeling",
+      "ticket_range_usd": [3000, 15000],
+      "keywords": ["bathroom remodel green bay", "shower installation wisconsin", "bathroom renovation contractor"]
+    },
+    {
+      "slug": "deck-building",
+      "name": "Deck Building",
+      "ticket_range_usd": [2000, 12000],
+      "keywords": ["deck builder green bay", "deck construction wisconsin", "composite deck contractor green bay", "wood deck builder"]
+    },
+    {
+      "slug": "home-renovation",
+      "name": "Home Renovation",
+      "ticket_range_usd": [5000, 50000],
+      "keywords": ["home renovation green bay", "house remodel wisconsin", "home addition contractor"]
+    },
+    {
+      "slug": "general-construction",
+      "name": "General Construction",
+      "ticket_range_usd": [3000, 100000],
+      "keywords": ["general contractor green bay", "construction company wisconsin", "home addition builder"]
+    }
+  ],
+
+  "content_goals": {
+    "articles_per_week": 2,
+    "target_word_count_min": 800,
+    "target_word_count_max": 1500,
+    "tone": "homeowner-friendly + educational + Wisconsin local",
+    "languages": ["en", "es"],
+    "publish_to_wordpress": true,
+    "wp_default_status": "draft",
+    "content_types": [
+      {"type": "blog_post", "weight": 0.5},
+      {"type": "service_page", "weight": 0.3},
+      {"type": "q_and_a_page", "weight": 0.15},
+      {"type": "pillar_page", "weight": 0.05}
+    ],
+    "topic_pillars": [
+      "How to choose a contractor in Green Bay",
+      "Kitchen remodeling costs Wisconsin 2026",
+      "Deck building permits Brown County WI",
+      "Bathroom remodel ROI in Northeast Wisconsin",
+      "Custom carpentry vs IKEA — Green Bay homeowner guide",
+      "Wisconsin weather and exterior carpentry — material choices",
+      "Home addition vs renovation — what makes sense?",
+      "DIY vs hiring contractor — when to call a pro"
+    ]
+  },
+
+  "competitors": [
+    {
+      "name": "TBD — research with /seo audit local",
+      "url": null,
+      "notes": "El Posicionador identifica top 5 competitors locales en primer seo_deep run"
+    }
+  ],
+
+  "airtable": {
+    "base_id": "TBD_CREATE_GEO_CARPENTRY_CRM_BASE",
+    "table_id": "TBD_marketing_audits",
+    "seo_table_id": "TBD_seo_audits",
+    "leads_table_id": "TBD_leads",
+    "jobs_table_id": "TBD_jobs",
+    "token_env": "AIRTABLE_TOKEN"
+  },
+
+  "telegram": {
+    "bot_token_env": "TELEGRAM_BOT_TOKEN",
+    "chat_id_env": "TELEGRAM_CHAT_ID_GEO",
+    "fallback_chat_id_env": "TELEGRAM_CHAT_ID"
+  },
+
+  "alert_thresholds": {
+    "critical_score": 60,
+    "warn_score": 75,
+    "regression_delta_points": 10,
+    "improvement_delta_points": 10
+  },
+
+  "skills": {
+    "seo_health": ["seo-audit"],
+    "seo_deep": ["seo-audit", "seo-technical", "seo-local", "seo-maps", "seo-content"]
+  },
+
+  "google_business_profile": {
+    "place_id": "TBD",
+    "url": "TBD",
+    "categories": [
+      "General contractor",
+      "Carpenter",
+      "Kitchen remodeler",
+      "Bathroom remodeler",
+      "Deck builder",
+      "Construction company"
+    ]
+  },
+
+  "social_media": {
+    "facebook_page": "https://www.facebook.com/profile.php?id=61578160947198",
+    "instagram": "https://www.instagram.com/geocarpentryllc2026",
+    "tiktok": null,
+    "linkedin": null
+  },
+
+  "hostinger": {
+    "wp_path": "$HOME/domains/geocarpentry.com/public_html",
+    "ssh_host": "156.67.74.243",
+    "ssh_port": 65002,
+    "ssh_user": "u433637438"
+  },
+
+  "_meta": {
+    "created": "2026-05-14",
+    "created_by": "ALEX",
+    "phase": "F1 — Identidad parcial, awaiting F2-F8 buildout",
+    "notes": "Tenant 1 de InvestorOS. Pinnacle = tenant 0. Schema validado vs Pinnacle. Falta: brand colors confirmados (workflows aún usan viejos), Airtable base IDs, GBP place_id."
+  }
+}
