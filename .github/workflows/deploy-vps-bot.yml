@@ -1,0 +1,165 @@
+name: Deploy ALEX Bot to VPS
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'telegram_bot/**'
+      - 'secretario/**'
+      - 'agents/**'
+      - 'memoria_ALex.md'
+      - '.github/workflows/deploy-vps-bot.yml'
+  workflow_dispatch:   # allows manual trigger from GitHub UI
+
+jobs:
+  deploy:
+    name: Deploy Bot to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create bot directory and install dependencies
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            # Create directory structure
+            mkdir -p /opt/alex-bot/telegram_bot
+            mkdir -p /opt/alex-bot/agents
+            mkdir -p /opt/alex-bot/telegram_bot/sessions
+
+            # Install Python and dependencies
+            apt-get update -qq
+            apt-get install -y -qq python3 python3-pip python3-venv ffmpeg
+
+            # Create virtual environment if it doesn't exist
+            if [ ! -d /opt/alex-bot/venv ]; then
+              python3 -m venv /opt/alex-bot/venv
+            fi
+
+            # Install Python packages
+            /opt/alex-bot/venv/bin/pip install -q --upgrade pip
+            /opt/alex-bot/venv/bin/pip install -q \
+              python-telegram-bot==21.6 \
+              anthropic \
+              requests \
+              openai \
+              python-dotenv
+
+            echo "Dependencies installed OK"
+
+      - name: Copy bot files via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "telegram_bot/alex_bot.py,telegram_bot/telegram_memory.md,agents/,memoria_ALex.md,secretario/email_monitor.py,secretario/calendar_manager.py,secretario/auth_google.py,secretario/requirements.txt,secretario/secretario-email.service"
+          target: /opt/alex-bot/
+
+      - name: Write .env and create systemd service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            # Write .env file with all API keys
+            cat > /opt/alex-bot/.env << 'ENVEOF'
+            TELEGRAM_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
+            ANTHROPIC_KEY=${{ secrets.ANTHROPIC_KEY }}
+            AIRTABLE_TOKEN=${{ secrets.AIRTABLE_TOKEN }}
+            TRACERFY_TOKEN=${{ secrets.TRACERFY_TOKEN }}
+            ALEX_SECRET=${{ secrets.ALEX_SECRET }}
+            BRIDGE_URL=https://pinnaclegroupwi.com/agents
+            SECRETARIO_EMAIL=deals@pinnaclegroupwi.com
+            SECRETARIO_PASSWORD=${{ secrets.SECRETARIO_EMAIL_PASSWORD }}
+            IMAP_HOST=imap.hostinger.com
+            IMAP_PORT=993
+            SMTP_HOST=smtp.hostinger.com
+            SMTP_PORT=465
+            ENVEOF
+
+            # Install Secretario-specific Python packages
+            /opt/alex-bot/venv/bin/pip install -q \
+              anthropic requests python-dotenv \
+              google-auth google-auth-oauthlib google-api-python-client
+
+            # Ensure telegram_memory.md exists
+            touch /opt/alex-bot/telegram_bot/telegram_memory.md
+
+            # Create systemd service for alex-bot (Telegram)
+            cat > /etc/systemd/system/alex-bot.service << 'SVCEOF'
+            [Unit]
+            Description=ALEX Telegram Bot — Real Estate AI
+            After=network-online.target
+            Wants=network-online.target
+
+            [Service]
+            Type=simple
+            User=root
+            WorkingDirectory=/opt/alex-bot
+            ExecStart=/opt/alex-bot/venv/bin/python3 /opt/alex-bot/telegram_bot/alex_bot.py
+            Restart=always
+            RestartSec=15
+            StandardOutput=journal
+            StandardError=journal
+            Environment=PYTHONUNBUFFERED=1
+
+            [Install]
+            WantedBy=multi-user.target
+            SVCEOF
+
+            # Create systemd service for El Secretario (email monitor) — install if missing.
+            # Override User=root so it works without alexuser setup.
+            cat > /etc/systemd/system/secretario-email.service << 'SECEOF'
+            [Unit]
+            Description=El Secretario — Monitor de Email Pinnacle Holdings
+            Documentation=https://github.com/geocarp24/alex-real-estate-system
+            After=network-online.target alex-bot.service
+            Wants=network-online.target
+
+            [Service]
+            Type=simple
+            User=root
+            WorkingDirectory=/opt/alex-bot
+            EnvironmentFile=/opt/alex-bot/.env
+            ExecStart=/opt/alex-bot/venv/bin/python3 /opt/alex-bot/secretario/email_monitor.py --daemon
+            Restart=always
+            RestartSec=30
+            StandardOutput=journal
+            StandardError=journal
+            StartLimitIntervalSec=300
+            StartLimitBurst=5
+
+            [Install]
+            WantedBy=multi-user.target
+            SECEOF
+
+            # Enable and restart services
+            systemctl daemon-reload
+            systemctl enable alex-bot
+            systemctl enable secretario-email
+
+            # Restart the bot process
+            systemctl restart alex-bot
+            sleep 5
+            systemctl status alex-bot --no-pager | head -15
+            echo "=== alex-bot LAST 30 LOG LINES ==="
+            journalctl -u alex-bot -n 30 --no-pager
+
+            # Restart El Secretario
+            echo "=== RESTARTING secretario-email ==="
+            systemctl restart secretario-email
+            sleep 5
+            systemctl status secretario-email --no-pager | head -15
+            echo "=== secretario-email LAST 30 LOG LINES ==="
+            journalctl -u secretario-email -n 30 --no-pager

@@ -1,0 +1,270 @@
+name: Export agents to investoros-web
+
+# ===============================================================
+# Workflow manual que copia los agentes desde alex-real-estate-system
+# al repo geocarp24/investoros-web bajo `agents/` y abre un PR.
+#
+# Requisitos:
+#   - Secret `INVESTOROS_PAT` con scope `repo` (settings → Secrets → Actions).
+#
+# Trigger: Actions tab → "Export agents to investoros-web" → "Run workflow".
+# ===============================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch en investoros-web (vacío = import/agents-from-alex-YYYY-MM-DD)'
+        required: false
+        default: ''
+      create_pr:
+        description: 'Crear PR automáticamente'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout source (alex-real-estate-system)
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout target (investoros-web)
+        uses: actions/checkout@v4
+        with:
+          repository: geocarp24/investoros-web
+          token: ${{ secrets.INVESTOROS_PAT }}
+          path: target
+          fetch-depth: 0
+
+      - name: Determine branch name + default base
+        id: meta
+        working-directory: target
+        run: |
+          BRANCH="${{ inputs.target_branch }}"
+          if [ -z "$BRANCH" ]; then
+            BRANCH="import/agents-from-alex-$(date -u +%Y-%m-%d)"
+          fi
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+          echo "default_branch=$DEFAULT_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "Target default branch: $DEFAULT_BRANCH"
+          echo "Working branch:        $BRANCH"
+
+      - name: Create working branch in target
+        working-directory: target
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "${{ steps.meta.outputs.branch }}" "origin/${{ steps.meta.outputs.default_branch }}"
+
+      - name: Copy agent files
+        run: |
+          set -euo pipefail
+          SOURCE="$GITHUB_WORKSPACE/source"
+          DEST="$GITHUB_WORKSPACE/target"
+          mkdir -p "$DEST/agents"
+
+          # Prompt files (.md / configs)
+          MD_FILES=(
+            scout.md scout.agent.md
+            matematico.md matematico.agent.md
+            fact-checker.md fact-checker.agent.md
+            tracy.md social_media.md creativo.md director.md
+            programador.md secretario.md airtable.md
+            PROTOCOLO_EJECUCION.md protocolo_seguro.md
+            AGENTS.md CLAUDE.md canva_templates.md
+            cloudinary_config.md MODEL_CONFIG.yaml
+            VALIDATION_DASHBOARD.md
+          )
+          for f in "${MD_FILES[@]}"; do
+            [ -f "$SOURCE/agents/$f" ] && cp "$SOURCE/agents/$f" "$DEST/agents/$f" && echo "  md  ✓ $f"
+          done
+
+          # Infra (Python / JSON / sh)
+          INFRA_FILES=(
+            model_assignment.py
+            model_router_config.json
+            airtable_escalation_logger.py
+            alerta_telegram.sh
+          )
+          for f in "${INFRA_FILES[@]}"; do
+            [ -f "$SOURCE/agents/$f" ] && cp "$SOURCE/agents/$f" "$DEST/agents/$f" && echo "  infra ✓ $f"
+          done
+
+          # Sub-agent directories (.mjs code + assets)
+          DIRS=(
+            _shared _setup
+            analista analitico auditor
+            cartografo cazador clasificador
+            creativo creativo_runner director_v2
+            escriba espia mercader
+            oraculo oraculo_inputs posicionador
+            tenants
+          )
+          for d in "${DIRS[@]}"; do
+            if [ -d "$SOURCE/agents/$d" ]; then
+              rsync -a \
+                --exclude='node_modules' \
+                --exclude='runs/' \
+                --exclude='*.log' \
+                --exclude='secrets/' \
+                --exclude='.cache/' \
+                "$SOURCE/agents/$d/" "$DEST/agents/$d/"
+              echo "  dir   ✓ $d/"
+            fi
+          done
+
+      - name: Generate AGENTS_INDEX.md
+        working-directory: target
+        run: |
+          NOW="$(date -u +'%Y-%m-%d %H:%M UTC')"
+          cat > agents/AGENTS_INDEX.md <<INDEXEOF
+          # Agentes — Índice consolidado
+
+          Importados desde \`geocarp24/alex-real-estate-system\` el $NOW.
+
+          ## Análisis de inversión inmobiliaria
+
+          | Agente | Archivos | Función |
+          |---|---|---|
+          | El Scout | scout.md, scout.agent.md | Market research — comps, tendencias zip-code |
+          | El Matemático | matematico.md, matematico.agent.md | Underwriting — ARV, rehab, ROI, cap rate |
+          | El Fact-Checker | fact-checker.md, fact-checker.agent.md | Auditoría + Confidence Score 1-10 |
+          | Tracy | tracy.md | Skip Tracing via Tracerfy |
+
+          ## Pipeline Social Media
+
+          | Agente | Archivos | Función |
+          |---|---|---|
+          | Social Media Manager | social_media.md | Ideas + captions ES/EN + hashtags |
+          | El Oráculo | oraculo/oraculo.mjs | Quality gate — aprueba o rechaza ideas |
+          | El Creativo | creativo/, creativo_runner/themes.mjs | Render PNG carruseles (Puppeteer, 5 temas) |
+          | El Director v2 | director_v2/director_v2.mjs | Render Reels 15s, 5 slides x 3s |
+          | El Programador | programador.md | Publish FB+IG via Meta Graph API |
+
+          ## Lead Generation / Ops
+
+          | Agente | Archivo | Función |
+          |---|---|---|
+          | El Cartógrafo | cartografo/mcp_server | MCP server compartido |
+          | El Espía | espia/espia.mjs | Scraping (probate, foreclosure) |
+          | El Cazador | cazador/cazador.mjs | Identifica leads cualificados |
+          | El Clasificador | clasificador/clasificador.mjs | Categoriza por estrategia |
+          | El Analista | analista/analista.mjs | Análisis cuantitativo |
+          | El Mercader | mercader/mercader.mjs | Underwriting de deals en pipeline |
+          | El Posicionador | posicionador/posicionador.mjs | SEO + content positioning |
+
+          ## Quality & Audit
+
+          | Agente | Archivo | Función |
+          |---|---|---|
+          | El Auditor | auditor/auditor.mjs | Audita decisiones de otros agentes |
+          | El Analítico | analitico/analitico.mjs | Métricas + scoring post-execution |
+          | El Escriba | escriba/escriba.mjs | Logs estructurados de runs |
+
+          ## Comunicación con leads
+
+          | Agente | Archivo | Función |
+          |---|---|---|
+          | El Secretario | secretario.md | Email + calendar |
+
+          ## Infraestructura compartida
+
+          | Archivo | Para qué |
+          |---|---|
+          | PROTOCOLO_EJECUCION.md | 7 fases obligatorias |
+          | protocolo_seguro.md | Autonomía + seguridad |
+          | airtable.md | Mapa de campos Airtable |
+          | model_assignment.py | Smart escalation Haiku→Sonnet→Opus |
+          | model_router_config.json | Routing por tarea |
+          | _shared/ | Tools compartidos (sm_tables.mjs, etc.) |
+          | MODEL_CONFIG.yaml | Config legacy |
+          | VALIDATION_DASHBOARD.md | KPIs de validación |
+
+          ## NO importado (intencional)
+
+          - memoria_*.md (privada por tenant)
+          - shared_conversation.json (historial cross-channel)
+          - claude_inbox/outbox JSON (colas runtime)
+          - audit_meta/, cola_mensajes.md
+          - node_modules/, runs/, *.log
+
+          Regenerar memoria por tenant desde el repo origen cuando se onboardee un cliente nuevo.
+          INDEXEOF
+
+      - name: Commit + push branch
+        id: commit
+        working-directory: target
+        run: |
+          git add agents/
+          if git diff --staged --quiet; then
+            echo "no_changes=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::No changes to commit"
+            exit 0
+          fi
+          git commit -m "import: agents from alex-real-estate-system
+
+          Automated import via workflow_dispatch.
+          Source SHA: ${{ github.sha }}
+          Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push -u origin "${{ steps.meta.outputs.branch }}"
+          echo "no_changes=false" >> "$GITHUB_OUTPUT"
+
+      - name: Create PR
+        if: ${{ inputs.create_pr && steps.commit.outputs.no_changes != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.INVESTOROS_PAT }}
+        working-directory: target
+        run: |
+          gh pr create \
+            --repo geocarp24/investoros-web \
+            --base "${{ steps.meta.outputs.default_branch }}" \
+            --head "${{ steps.meta.outputs.branch }}" \
+            --title "import: agents from alex-real-estate-system" \
+            --body "$(cat <<'PRBODY'
+          ## Automated import
+
+          Sub-agentes copiados desde \`geocarp24/alex-real-estate-system\` via GitHub Actions.
+
+          ## Contenido
+
+          21 agentes consolidados en \`agents/\`:
+
+          - Real estate analysis (Scout, Matemático, Fact-Checker, Tracy)
+          - Social media pipeline (SM Manager, Oráculo, Creativo, Director v2, Programador)
+          - Lead generation / Ops (7 agentes)
+          - Quality & Audit (3 agentes)
+          - Infraestructura compartida (\`_shared/\`, \`_setup/\`, model_assignment, protocolos)
+
+          Ver \`agents/AGENTS_INDEX.md\` para la tabla completa.
+
+          ## No incluido
+
+          Memorias, colas runtime, audit_meta — regenerable por tenant.
+
+          ## Próximo paso
+
+          Decidir ubicación final dentro del SaaS multi-tenant (\`services/agents/\` o root \`agents/\`) e integrar con la lógica multi-tenant del repo.
+          PRBODY
+          )"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Export result" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Branch creada en investoros-web: \`${{ steps.meta.outputs.branch }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Base branch: \`${{ steps.meta.outputs.default_branch }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- PR creado: \`${{ inputs.create_pr }}\`" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.commit.outputs.no_changes }}" = "true" ]; then
+            echo "- ⚠️ Sin cambios — no se hizo commit" >> "$GITHUB_STEP_SUMMARY"
+          fi

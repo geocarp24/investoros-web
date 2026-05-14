@@ -1,0 +1,147 @@
+name: Deploy Modal video-toolkit endpoints
+
+# Parallel deploy of the 8 Modal apps used by the Director v2 video_toolkit
+# branch (Plan A — faceless premium Reels via cloud GPU).
+#
+# Strategy: matrix → one job per app → each gets its own 30 min budget.
+# Total wall time: ~10-15 min (slowest single app sets the bound).
+#
+# After a successful run, copy each printed URL into GHA secrets:
+#   MODAL_QWEN3_TTS_ENDPOINT_URL, MODAL_FLUX2_ENDPOINT_URL,
+#   MODAL_IMAGE_EDIT_ENDPOINT_URL, MODAL_UPSCALE_ENDPOINT_URL,
+#   MODAL_MUSIC_GEN_ENDPOINT_URL, MODAL_SADTALKER_ENDPOINT_URL,
+#   MODAL_DEWATERMARK_ENDPOINT_URL, MODAL_LTX2_ENDPOINT_URL.
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "Which app to deploy ('all' fan-outs to matrix; or one name)"
+        type: choice
+        required: true
+        default: "all"
+        options:
+          - all
+          - qwen3-tts
+          - flux2
+          - image-edit
+          - upscale
+          - music-gen
+          - sadtalker
+          - dewatermark
+          - ltx2
+
+concurrency:
+  group: modal-deploy-${{ inputs.app }}
+  cancel-in-progress: false
+
+jobs:
+  # Fan-out: when 'all' is selected, deploy all 8 in parallel via matrix.
+  # When a specific app is selected, only its leg runs.
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - qwen3-tts
+          - flux2
+          - image-edit
+          - upscale
+          - music-gen
+          - sadtalker
+          - dewatermark
+          - ltx2
+    steps:
+      - name: Checkout video toolkit repo
+        run: |
+          git clone --depth 1 https://github.com/digitalsamba/claude-code-video-toolkit.git toolkit
+          test -d "toolkit/docker/modal-${{ matrix.app }}" || { echo "::error::docker/modal-${{ matrix.app }} not found"; exit 1; }
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Modal CLI
+        run: pip install -q modal
+
+      - name: Authenticate Modal
+        env:
+          MODAL_TOKEN_ID:     ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          if [ -z "$MODAL_TOKEN_ID" ] || [ -z "$MODAL_TOKEN_SECRET" ]; then
+            echo "::error::MODAL_TOKEN_ID or MODAL_TOKEN_SECRET secret missing"
+            exit 1
+          fi
+          modal token set --token-id "$MODAL_TOKEN_ID" --token-secret "$MODAL_TOKEN_SECRET"
+
+      - name: Create HuggingFace secret on Modal (only for ltx2 leg)
+        if: matrix.app == 'ltx2'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          if [ -n "$HF_TOKEN" ]; then
+            modal secret create huggingface-token HF_TOKEN="$HF_TOKEN" 2>&1 | tail -2 || echo "::warning::secret may already exist"
+          else
+            echo "::warning::HF_TOKEN missing — ltx2 build will fail without it. Set HF_TOKEN secret to enable."
+          fi
+
+      - name: Deploy modal-${{ matrix.app }}
+        run: |
+          cd toolkit
+          modal deploy "docker/modal-${{ matrix.app }}/app.py" 2>&1 | tee /tmp/deploy.log
+          echo
+          echo "--- URLs detected ---"
+          grep -Eo 'https://[a-z0-9-]+--[a-z0-9-]+(-[a-z0-9-]+)*\.modal\.run' /tmp/deploy.log | sort -u | tee /tmp/urls.txt || echo "(no URL detected)"
+
+      - name: Compute env-var name + summary line
+        if: always()
+        id: summary
+        run: |
+          name=$(echo "${{ matrix.app }}" | tr '[:lower:]-' '[:upper:]_')
+          env_name="MODAL_${name}_ENDPOINT_URL"
+          url=$(head -1 /tmp/urls.txt 2>/dev/null || echo "")
+          echo "env_name=$env_name" >> "$GITHUB_OUTPUT"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Endpoint::${env_name}=${url:-<deploy failed or no URL>}"
+
+      - name: Upload URL artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: modal-url-${{ matrix.app }}
+          path: /tmp/urls.txt
+          if-no-files-found: ignore
+          retention-days: 30
+
+  # Aggregate all per-app URLs into a single readable summary.
+  summary:
+    needs: deploy
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ./urls
+          pattern: modal-url-*
+
+      - name: Print final summary
+        run: |
+          echo "=========================================="
+          echo " ALL MODAL ENDPOINT URLs"
+          echo " Copy these into GHA Secrets:"
+          echo "=========================================="
+          for d in ./urls/modal-url-*; do
+            [ -d "$d" ] || continue
+            app=$(basename "$d" | sed 's/^modal-url-//')
+            url=$(head -1 "$d/urls.txt" 2>/dev/null || echo "")
+            env_name="MODAL_$(echo "$app" | tr '[:lower:]-' '[:upper:]_')_ENDPOINT_URL"
+            if [ -n "$url" ]; then
+              echo "$env_name=$url"
+            else
+              echo "# $env_name=<DEPLOY FAILED — check matrix leg log>"
+            fi
+          done
+          echo "=========================================="

@@ -1,0 +1,324 @@
+name: R9 Agents — Scheduled runs
+
+# All R9 agents run every 3 days (low contact volume — 2026-04-29 Jorge directive).
+# Each cron is offset 30 min from neighbors to avoid GHA queue collision.
+# Reference window (UTC, summer CDT = UTC-5):
+#   12:00-13:30 UTC (07:00-08:30 CT) — classifier + analista
+#   14:00-15:30 UTC (09:00-10:30 CT) — health audits
+#   16:00-18:30 UTC (11:00-13:30 CT) — deep audits + escriba + remitente
+#   19:00-20:00 UTC (14:00-15:00 CT) — espia + auditor
+#
+# Each cron line maps to exactly one agent+mode via the determine_job step.
+
+on:
+  # ── KILL-SWITCH GLOBAL — TODOS LOS CRONS PAUSADOS (Jorge 2026-05-09) ─────────
+  # Razón: stack de outreach (Telnyx) en setup. No corremos nada hasta tener
+  # el nuevo número de teléfono vivo y el flow chateado punta a punta.
+  # Sigue activo workflow_dispatch para runs manuales bajo aprobación de Jorge.
+  # Reactivar: descomentar el bloque `schedule:` completo cuando Jorge dé luz verde.
+  # ─────────────────────────────────────────────────────────────────────────────
+  # schedule:
+  #   # Classifier
+  #   - cron:  "0 12 */3 * *"           # clasificador:score_batch
+  #   - cron:  "30 12 */3 * *"          # clasificador:rescore_hot
+  #   # Analista
+  #   - cron:  "0 13 */3 * *"           # analista:weekly
+  #   # Health audits
+  #   - cron:  "0 14 */3 * *"           # mercader:quick_health
+  #   - cron:  "30 14 */3 * *"          # posicionador:seo_health
+  #   - cron:  "0 15 */3 * *"           # cazador:ads_health
+  #   # Deep audits
+  #   - cron:  "30 15 */3 * *"          # mercader:deep_audit
+  #   - cron:  "0 16 */3 * *"           # posicionador:seo_deep
+  #   - cron:  "30 16 */3 * *"          # cazador:ads_deep
+  #   # Content
+  #   - cron:  "0 17 */3 * *"           # escriba:content_plan_week
+  #   # Email engine
+  #   - cron:  "30 17 */3 * *"          # remitente:process_welcome
+  #   - cron:  "0 18 */3 * *"           # remitente:process_drip
+  #   - cron:  "30 18 */3 * *"          # remitente:weekly_report
+  #   # Intelligence
+  #   - cron:  "0 19 */3 * *"           # espia:daily
+  #   - cron:  "30 19 */3 * *"          # espia:weekly_deep
+  #   # Compliance
+  #   - cron:  "0 20 */3 * *"           # auditor:weekly
+  #   # Social Media — batch_weekly idea generation (Sprint A6 Jorge 2026-05-08).
+  #   - cron:  "0 23 * * 0"             # social_media batch_weekly (Sun 18:00 CDT)
+  #   # Social Media — slot-driven publisher (Sprint A4 Jorge 2026-05-08).
+  #   - cron:  "30 11 * * *"            # social_media IG Post  06:30 CT
+  #   - cron:  "0 12 * * *"             # social_media FB Post  07:00 CT
+  #   - cron:  "30 16 * * *"            # social_media FB Post  11:30 CT
+  #   - cron:  "30 17 * * *"            # social_media FB Reel  12:30 CT
+  #   - cron:  "0 18 * * *"             # social_media IG Post  13:00 CT
+  #   - cron:  "0 21 * * *"             # social_media IG Reel  16:00 CT
+  #   - cron:  "50 22 * * *"            # social_media FB Post  17:50 CT
+  #   - cron:  "0 0 * * *"              # social_media IG Post  19:00 CT (next UTC day)
+  #   - cron:  "0 1 * * *"              # social_media FB Reel  20:00 CT (next UTC day)
+  #   - cron:  "30 1 * * 1,2,4,6"       # social_media IG Video 20:30 CT Mon/Wed/Fri/Sun
+  #   - cron:  "0 2 * * 1,2,4,6"        # social_media FB Video 21:00 CT Mon/Wed/Fri/Sun
+  #   - cron:  "0 2 * * *"              # social_media IG Reel  21:00 CT (next UTC day)
+  #   # Sprint A14 (Jorge 2026-05-08): pipeline every 4-6h to keep up with batch_weekly.
+  #   - cron:  "0 */4 * * *"            # oraculo:batch (every 4h)
+  #   - cron:  "30 */4 * * *"           # reescritor:batch (every 4h, 30min after oraculo)
+  #   - cron:  "0 */6 * * *"            # creativo:batch (every 6h)
+  #   - cron:  "15 */6 * * *"           # director_v2:batch (every 6h - Reels + Videos)
+  #   # El Analítico — daily engagement metrics + lessons feedback to SM Manager
+  #   - cron:  "0 6 * * *"              # analitico:batch (every day at 06:00 UTC)
+  #   # El Rastreador — web scraper for lead research (Sprint F2 Jorge 2026-05-08)
+  #   - cron:  "0 3 * * *"              # rastreador:legal_records (daily 3am UTC)
+  #   - cron:  "30 3 * * 1"             # rastreador:fsbo_listings (Monday 3:30am UTC)
+  #   - cron:  "0 4 * * 0"              # rastreador:allies_directory (Sunday 4am UTC)
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: "Which agent to run"
+        type: choice
+        required: true
+        default: "mercader"
+        options: [mercader, posicionador, escriba, cazador, clasificador, analista, espia, auditor, remitente, social_media, oraculo, reescritor, creativo, director_v2, analitico, audit_meta, rastreador]
+      mode:
+        description: "Mode (depends on agent)"
+        type: string
+        required: true
+        default: "quick_health"
+      record_id:
+        description: "(creativo mode=one) Airtable record_id to (re)generate"
+        type: string
+        required: false
+        default: ""
+      target_platform:
+        description: "(social_media mode=process_posts) FB or IG"
+        type: choice
+        required: false
+        default: ""
+        options: ["", "FB", "IG"]
+      target_format:
+        description: "(social_media mode=process_posts) Post / Reel / Video"
+        type: choice
+        required: false
+        default: ""
+        options: ["", "Post", "Reel", "Video"]
+
+concurrency:
+  group: agents-${{ github.event.schedule || inputs.agent || 'manual' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine agent + mode from trigger
+        id: job
+        run: |
+          case "${{ github.event.schedule }}" in
+            "0 12 */3 * *")      agent=clasificador; mode=score_batch ;;
+            "30 12 */3 * *")     agent=clasificador; mode=rescore_hot ;;
+            "0 13 */3 * *")      agent=analista;     mode=weekly ;;
+            "0 14 */3 * *")      agent=mercader;     mode=quick_health ;;
+            "30 14 */3 * *")     agent=posicionador; mode=seo_health ;;
+            "0 15 */3 * *")      agent=cazador;      mode=ads_health ;;
+            "30 15 */3 * *")     agent=mercader;     mode=deep_audit ;;
+            "0 16 */3 * *")      agent=posicionador; mode=seo_deep ;;
+            "30 16 */3 * *")     agent=cazador;      mode=ads_deep ;;
+            "0 17 */3 * *")      agent=escriba;      mode=content_plan_week ;;
+            "30 17 */3 * *")     agent=remitente;    mode=process_welcome ;;
+            "0 18 */3 * *")      agent=remitente;    mode=process_drip ;;
+            "30 18 */3 * *")     agent=remitente;    mode=weekly_report ;;
+            "0 19 */3 * *")      agent=espia;        mode=daily ;;
+            "30 19 */3 * *")     agent=espia;        mode=weekly_deep ;;
+            "0 20 */3 * *")      agent=auditor;      mode=weekly ;;
+            "30 20 */3 * *")     agent=social_media; mode=full_pipeline ;;
+            # Sprint A14 — pipeline cadence every 4-6 hours.
+            "0 */4 * * *")       agent=oraculo;      mode=batch ;;
+            "30 */4 * * *")      agent=reescritor;   mode=batch ;;
+            "0 */6 * * *")       agent=creativo;     mode=batch ;;
+            "15 */6 * * *")      agent=director_v2;  mode=batch ;;
+            "0 6 * * *")         agent=analitico;    mode=batch ;;
+            # Sprint F2 — El Rastreador web scraper for lead research.
+            "0 3 * * *")         agent=rastreador;   mode=legal_records ;;
+            "30 3 * * 1")        agent=rastreador;   mode=fsbo_listings ;;
+            "0 4 * * 0")         agent=rastreador;   mode=allies_directory ;;
+            # Sprint A6 — batch_weekly idea generation (Sun 18:00 CDT).
+            "0 23 * * 0")        agent=social_media; mode=batch_weekly ;;
+            # Sprint A4 — slot-driven publisher (12 cron entries, one per CT slot).
+            "30 11 * * *")       agent=social_media; mode=process_posts; tp=IG; tf=Post ;;
+            "0 12 * * *")        agent=social_media; mode=process_posts; tp=FB; tf=Post ;;
+            "30 16 * * *")       agent=social_media; mode=process_posts; tp=FB; tf=Post ;;
+            "30 17 * * *")       agent=social_media; mode=process_posts; tp=FB; tf=Reel ;;
+            "0 18 * * *")        agent=social_media; mode=process_posts; tp=IG; tf=Post ;;
+            "0 21 * * *")        agent=social_media; mode=process_posts; tp=IG; tf=Reel ;;
+            "50 22 * * *")       agent=social_media; mode=process_posts; tp=FB; tf=Post ;;
+            "0 0 * * *")         agent=social_media; mode=process_posts; tp=IG; tf=Post ;;
+            "0 1 * * *")         agent=social_media; mode=process_posts; tp=FB; tf=Reel ;;
+            "30 1 * * 1,2,4,6")  agent=social_media; mode=process_posts; tp=IG; tf=Video ;;
+            "0 2 * * 1,2,4,6")   agent=social_media; mode=process_posts; tp=FB; tf=Video ;;
+            "0 2 * * *")         agent=social_media; mode=process_posts; tp=IG; tf=Reel ;;
+            *)                   agent="${{ inputs.agent || 'mercader' }}"; mode="${{ inputs.mode || 'quick_health' }}" ;;
+          esac
+          if [ -z "$tp" ] && [ -n "${{ inputs.target_platform }}" ]; then tp="${{ inputs.target_platform }}"; fi
+          if [ -z "$tf" ] && [ -n "${{ inputs.target_format }}" ]; then tf="${{ inputs.target_format }}"; fi
+          echo "agent=$agent" >> $GITHUB_OUTPUT
+          echo "mode=$mode"   >> $GITHUB_OUTPUT
+          echo "target_platform=${tp:-}" >> $GITHUB_OUTPUT
+          echo "target_format=${tf:-}"   >> $GITHUB_OUTPUT
+          echo "Selected: $agent --mode $mode${tp:+ --target-platform $tp}${tf:+ --target-format $tf}"
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
+      - name: Load secrets from Doppler into GITHUB_ENV
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          if [ -z "$DOPPLER_TOKEN" ]; then
+            echo "::warning::DOPPLER_TOKEN not set — using GHA secrets only"
+            exit 0
+          fi
+          doppler secrets download --no-file --format env-no-quotes --token "$DOPPLER_TOKEN" \
+            | while IFS= read -r line; do
+                [ -z "$line" ] && continue
+                case "$line" in DOPPLER_*) continue ;; esac
+                echo "$line" >> "$GITHUB_ENV"
+              done
+          echo "::notice::Doppler secrets loaded"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Claude Code CLI
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      - name: Install Playwright Chromium (for Creativo HTML render)
+        if: steps.job.outputs.agent == 'creativo' || steps.job.outputs.agent == 'social_media'
+        run: |
+          cd "${{ github.workspace }}"
+          npm install playwright-chromium --no-save --silent
+          npx playwright install chromium --with-deps
+
+      - name: Install ffmpeg
+        if: steps.job.outputs.agent == 'director_v2'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version | head -1
+
+      - name: Director v2 npm deps
+        if: steps.job.outputs.agent == 'director_v2'
+        timeout-minutes: 8
+        run: |
+          cd "${{ github.workspace }}/agents/director_v2"
+          npm ci
+
+      - name: Puppeteer Chrome
+        if: steps.job.outputs.agent == 'director_v2'
+        timeout-minutes: 5
+        run: |
+          cd "${{ github.workspace }}/agents/director_v2"
+          npx puppeteer browsers install chrome | tail -3
+
+      - name: Clone video_toolkit + Python deps (Modal cloud GPU branch)
+        if: steps.job.outputs.agent == 'director_v2'
+        timeout-minutes: 5
+        run: |
+          mkdir -p "$HOME/.openclaw/workspace"
+          if [ ! -d "$HOME/.openclaw/workspace/claude-code-video-toolkit" ]; then
+            git clone --depth 1 https://github.com/digitalsamba/claude-code-video-toolkit.git \
+              "$HOME/.openclaw/workspace/claude-code-video-toolkit"
+          fi
+          pip3 install --break-system-packages -r "$HOME/.openclaw/workspace/claude-code-video-toolkit/tools/requirements.txt"
+
+      - name: Override claude binary path for GHA
+        run: |
+          node -e "
+            const fs=require('fs');
+            const p='agents/tenants/pinnacle.json';
+            const c=JSON.parse(fs.readFileSync(p,'utf8'));
+            c.claude=c.claude||{};
+            c.claude.binary_path='claude';
+            fs.writeFileSync(p, JSON.stringify(c,null,2));
+          "
+
+      - name: Run ${{ steps.job.outputs.agent }} --mode ${{ steps.job.outputs.mode }}
+        env:
+          QUO_API_KEY:              ${{ secrets.QUO_API_KEY }}
+          TELEGRAM_BOT_TOKEN:       ${{ secrets.FER_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:         ${{ secrets.TELEGRAM_CHAT_ID }}
+          ANTHROPIC_API_KEY:        ${{ secrets.ANTHROPIC_API_KEY }}
+          META_USER_TOKEN:          ${{ secrets.META_USER_TOKEN }}
+          META_PAGE_ACCESS_TOKEN:   ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+          ORACULO_BATCH_MAX:        "20"
+          REESCRITOR_BATCH_MAX:     "15"
+          CREATIVO_BATCH_MAX:       "15"
+          POSTS_PER_RUN:            "3"
+          AIRTABLE_SM_BASE_ID:      "appU9s3kGkVpdrJkw"
+          AIRTABLE_SM_POSTS_TABLE_ID:  "tblE3lz6XNcBNgpg5"
+          AIRTABLE_SM_REELS_TABLE_ID:  "tblhbg4JSm2iND3Cs"
+          AIRTABLE_SM_VIDEOS_TABLE_ID: "tblbjYosR1tpnjRV0"
+          MODAL_QWEN3_TTS_ENDPOINT_URL:    ${{ secrets.MODAL_QWEN3_TTS_ENDPOINT_URL }}
+          MODAL_FLUX2_ENDPOINT_URL:        ${{ secrets.MODAL_FLUX2_ENDPOINT_URL }}
+          MODAL_MUSIC_GEN_ENDPOINT_URL:    ${{ secrets.MODAL_MUSIC_GEN_ENDPOINT_URL }}
+          MODAL_SADTALKER_ENDPOINT_URL:    ${{ secrets.MODAL_SADTALKER_ENDPOINT_URL }}
+          MODAL_LTX2_ENDPOINT_URL:         ${{ secrets.MODAL_LTX2_ENDPOINT_URL }}
+          MODAL_IMAGE_EDIT_ENDPOINT_URL:   ${{ secrets.MODAL_IMAGE_EDIT_ENDPOINT_URL }}
+          MODAL_UPSCALE_ENDPOINT_URL:      ${{ secrets.MODAL_UPSCALE_ENDPOINT_URL }}
+          MODAL_DEWATERMARK_ENDPOINT_URL:  ${{ secrets.MODAL_DEWATERMARK_ENDPOINT_URL }}
+          MODAL_TOKEN_ID:                  ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET:              ${{ secrets.MODAL_TOKEN_SECRET }}
+          HEYGEN_API_KEY:           ${{ secrets.HEYGEN_API_KEY }}
+          HEYGEN_AVATAR_ID_JORGE:   ${{ secrets.HEYGEN_AVATAR_ID_JORGE }}
+          HEYGEN_VOICE_ID_JORGE_EN: ${{ secrets.HEYGEN_VOICE_ID_JORGE_EN }}
+          HEYGEN_VOICE_ID_JORGE_ES: ${{ secrets.HEYGEN_VOICE_ID_JORGE_ES }}
+          MERCADER_TRIGGER:         "gha"
+          POSICIONADOR_TRIGGER:     "gha"
+          ESCRIBA_TRIGGER:          "gha"
+          CAZADOR_TRIGGER:          "gha"
+          CLASIFICADOR_TRIGGER:     "gha"
+          ANALISTA_TRIGGER:         "gha"
+          ESPIA_TRIGGER:            "gha"
+          AUDITOR_TRIGGER:          "gha"
+          REMITENTE_TRIGGER:        "gha"
+          RECORD_ID:                ${{ inputs.record_id }}
+        run: |
+          EXTRA=""
+          if [ -n "$RECORD_ID" ]; then EXTRA="$EXTRA --record-id $RECORD_ID"; fi
+          TP="${{ steps.job.outputs.target_platform }}"
+          TF="${{ steps.job.outputs.target_format }}"
+          if [ -n "$TP" ]; then EXTRA="$EXTRA --target-platform $TP"; fi
+          if [ -n "$TF" ]; then EXTRA="$EXTRA --target-format $TF"; fi
+          node agents/${{ steps.job.outputs.agent }}/${{ steps.job.outputs.agent }}.mjs \
+            --tenant pinnacle \
+            --mode ${{ steps.job.outputs.mode }} \
+            $EXTRA
+
+      - name: Commit + push generated artifacts (any agent that writes lessons or references)
+        if: success()
+        run: |
+          cd "${{ github.workspace }}"
+          if [ -n "$(git status --porcelain agents/oraculo_inputs/sm_lessons.md references/ 2>/dev/null)" ]; then
+            git config user.name  "ALEX-${{ steps.job.outputs.agent }}"
+            git config user.email "alex@pinnaclegroupwi.com"
+            git add agents/oraculo_inputs/sm_lessons.md references/ 2>/dev/null || true
+            git commit -m "${{ steps.job.outputs.agent }}: artifacts (run ${{ github.run_number }})"
+            git pull --rebase origin master 2>/dev/null || true
+            git push origin HEAD:master || echo "::warning::push failed"
+          else
+            echo "::notice::no artifacts changed"
+          fi
+
+      - name: Upload run artifacts (if any)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.job.outputs.agent }}-${{ steps.job.outputs.mode }}-${{ github.run_number }}
+          path: agents/${{ steps.job.outputs.agent }}/runs/
+          if-no-files-found: ignore
+          retention-days: 14
