@@ -73,7 +73,7 @@ jobs:
           script: |
             # Write .env file with all API keys
             cat > /opt/alex-bot/.env << 'ENVEOF'
-            TELEGRAM_TOKEN=[REDACTED_TELEGRAM_BOT_TOKEN]
+            TELEGRAM_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
             ANTHROPIC_KEY=${{ secrets.ANTHROPIC_KEY }}
             AIRTABLE_TOKEN=${{ secrets.AIRTABLE_TOKEN }}
