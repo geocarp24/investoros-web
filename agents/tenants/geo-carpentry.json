@@ -146,12 +146,15 @@
   ],
 
   "airtable": {
-    "base_id": "TBD_CREATE_GEO_CARPENTRY_CRM_BASE",
-    "table_id": "TBD_marketing_audits",
-    "seo_table_id": "TBD_seo_audits",
-    "leads_table_id": "TBD_leads",
-    "jobs_table_id": "TBD_jobs",
-    "token_env": "AIRTABLE_TOKEN"
+    "base_id": "appAQpveuAec077jF",
+    "contacts_table_id": "tbldetnRGCnmHDgFw",
+    "leads_table_id": "tblVqrROrVspFXniG",
+    "jobs_table_id": "tblRlPhcwiGP7J8LS",
+    "subs_table_id": "tbldciY36E08UEEua",
+    "activities_table_id": "tblWbxNNyGzRhdIwF",
+    "permits_table_id": "tblz1qVWHJZFjQzqX",
+    "seo_table_id": "tbl53FPGfpa4OtafX",
+    "token_env": "AIRTABLE_TOKEN_GEO"
   },
 
   "telegram": {
