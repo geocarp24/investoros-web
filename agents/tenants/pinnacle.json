@@ -1,0 +1,231 @@
+{
+  "tenant_id": "pinnacle",
+  "tenant_name": "Pinnacle Holdings Group LLC",
+  "industry": "real-estate",
+  "primary_language": "en",
+  "markets": [
+    {
+      "state": "WI",
+      "scope": "state-wide",
+      "cities_primary": [
+        "Milwaukee",
+        "Madison",
+        "Green Bay",
+        "Kenosha",
+        "Racine",
+        "Appleton",
+        "Waukesha",
+        "Eau Claire",
+        "Oshkosh",
+        "Janesville",
+        "West Allis",
+        "La Crosse",
+        "Sheboygan",
+        "Wauwatosa",
+        "Fond du Lac"
+      ]
+    }
+  ],
+  "regional_scope": {
+    "primary": "WI",
+    "secondary": [
+      "MN",
+      "IL",
+      "IA",
+      "MI"
+    ],
+    "primary_weight": 0.75,
+    "secondary_weight": 0.25
+  },
+  "search_engines": [
+    "google",
+    "bing",
+    "duckduckgo",
+    "brave",
+    "chatgpt-search",
+    "perplexity",
+    "ai-overviews",
+    "google-sge"
+  ],
+  "seo_goals": {
+    "per_page_target_rank": 1,
+    "primary_priority": "WI state-wide local SEO + Google Maps dominance",
+    "secondary_priority": "Regional US ranking for 'Wisconsin' intent queries from IL/MN/IA/MI"
+  },
+  "content_goals": {
+    "articles_per_week": 3,
+    "target_word_count_min": 900,
+    "target_word_count_max": 1800,
+    "tone": "empathic + educational + locally credible (Wisconsin homeowner voice)",
+    "languages": [
+      "en",
+      "es"
+    ],
+    "publish_to_wordpress": true,
+    "wp_default_status": "draft",
+    "content_types": [
+      {
+        "type": "blog_post",
+        "weight": 0.5
+      },
+      {
+        "type": "q_and_a_page",
+        "weight": 0.3
+      },
+      {
+        "type": "news_article",
+        "weight": 0.1
+      },
+      {
+        "type": "pillar_page",
+        "weight": 0.1
+      }
+    ],
+    "topic_pillars": [
+      "Foreclosure help Wisconsin",
+      "Inherited property sale (probate Wisconsin)",
+      "Divorce and real estate Wisconsin",
+      "Cash home buyers vs realtors comparison",
+      "Selling rental property Wisconsin (landlord exits)",
+      "Back taxes property sale Wisconsin",
+      "Fast home sale relocation",
+      "Wisconsin housing market updates"
+    ],
+    "backlink_strategy": {
+      "target_types": [
+        "local news",
+        "real estate directories",
+        "legal partnerships (probate/divorce attorneys)",
+        "WI community sites",
+        "Reddit r/Wisconsin / r/Milwaukee"
+      ],
+      "monthly_target": 10
+    },
+    "atp_mining": {
+      "enabled": true,
+      "method": "claude_knowledge",
+      "fallback_browser": true,
+      "seed_queries": [
+        "sell my house fast wisconsin",
+        "foreclosure help milwaukee",
+        "inherited house wisconsin probate",
+        "cash home buyer madison",
+        "avoid foreclosure wisconsin",
+        "sell house as is wisconsin"
+      ]
+    }
+  },
+  "website": "https://pinnaclegroupwi.com",
+  "secondary_sites": [],
+  "brand": {
+    "primary_color": "#0D3B2E",
+    "secondary_color": "#C9A84C",
+    "accent_color": "#E83E8C",
+    "logo_url": "https://pinnaclegroupwi.com/wp-content/uploads/2026/03/logo-pinnacle.png",
+    "phone": "(920) 777-9886",
+    "email": "deals@pinnaclegroupwi.com"
+  },
+  "competitors": [
+    {
+      "name": "We Buy Ugly Houses Wisconsin",
+      "url": "https://www.webuyuglyhouses.com/wisconsin"
+    },
+    {
+      "name": "HomeVestors Milwaukee",
+      "url": "https://www.homevestors.com/wisconsin/"
+    },
+    {
+      "name": "Sell My House Fast Milwaukee",
+      "url": "https://www.sellmyhousefast.com/we-buy-houses-milwaukee-wi/"
+    }
+  ],
+  "schedules": {
+    "quick_health": "0 14 */3 * *",
+    "deep_audit": "0 15 * * 1"
+  },
+  "airtable": {
+    "base_id": "[REDACTED_AIRTABLE_BASE_ID]",
+    "table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "seo_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "ads_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "oracle_table_id": "",
+    "content_queue_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "gmb_queue_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "gmb_audit_log_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "email_subscribers_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "email_templates_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "email_campaigns_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "email_events_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "lead_scores_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "weekly_dashboards_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "competitor_intel_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "compliance_audits_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "ops_health_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "ops_insights_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "lessons_learned_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "leads_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "contacts_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "deals_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "notes_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "token_env": "AIRTABLE_TOKEN"
+  },
+  "telegram": {
+    "chat_id_env": "TELEGRAM_CHAT_ID",
+    "bot_token_env": "TELEGRAM_BOT_TOKEN"
+  },
+  "claude": {
+    "binary_path": "claude",
+    "model": "claude-sonnet-4-6"
+  },
+  "alert_thresholds": {
+    "critical_score": 50,
+    "warn_score": 70
+  },
+  "supervisor": {
+    "backlog_new_warn_threshold": 500,
+    "backlog_new_critical_threshold": 2000,
+    "ghost_autoreset_max_per_run": 25,
+    "cron_stale_warn_hours": 4,
+    "seg_stale_warn_hours": 30
+  },
+  "skills": {
+    "quick_health": [
+      "market-quick"
+    ],
+    "deep_audit": [
+      "market-audit",
+      "market-competitors"
+    ],
+    "seo_health": [
+      "seo-audit"
+    ],
+    "seo_deep": [
+      "seo-audit",
+      "seo-local",
+      "seo-maps"
+    ],
+    "ads_health": [
+      "ads-quick"
+    ],
+    "ads_deep": [
+      "ads-audit"
+    ],
+    "content_plan_week": [
+      "seo-content",
+      "content-strategy",
+      "copywriting"
+    ],
+    "content_draft_article": [
+      "copywriting",
+      "content-humanizer",
+      "seo-content"
+    ],
+    "content_atp_mine": [
+      "content-strategy"
+    ]
+  },
+  "output": {
+    "retain_reports_days": 90,
+    "upload_pdfs_to": "hostinger"
+  }
+}

@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* InvestorOS design tokens — editorial + warmth (Pinnacle aesthetic).
+   Sprint B1 placeholder; B2 will refine with brandkit skill output. */
+@theme {
+  --color-background: oklch(0.99 0.005 80);          /* warm off-white */
+  --color-foreground: oklch(0.18 0.02 270);          /* deep ink */
+  --color-muted: oklch(0.93 0.01 80);
+  --color-muted-foreground: oklch(0.45 0.02 270);
+  --color-accent: oklch(0.55 0.15 25);                /* terracotta accent */
+  --color-accent-foreground: oklch(0.99 0.005 80);
+  --color-border: oklch(0.88 0.01 80);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.18 0.02 270);
+  --color-primary: oklch(0.25 0.05 270);
+  --color-primary-foreground: oklch(0.99 0.005 80);
+
+  --font-sans: "Inter", "system-ui", -apple-system, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, serif;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11", "calt";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-first utilities (regla 1.b CLAUDE.md). All tap targets ≥ 44px. */
+@layer utilities {
+  .tap-target { min-height: 44px; min-width: 44px; }
+}

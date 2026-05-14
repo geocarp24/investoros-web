@@ -1,0 +1,163 @@
+{
+  "_comment": "Scraping config multi-tenant para El Rastreador. Sprint F2 (Jorge 2026-05-08). Cada tenant tiene su propia config con fuentes especificas a su vertical y geografia. El Rastreador lee este file via tenant slug.",
+
+  "tenant_id": "pinnacle",
+  "vertical": "real-estate-cash-buyer",
+  "scraping_enabled": true,
+  "schema_version": "1.0.0",
+
+  "compliance": {
+    "respect_robots_txt": true,
+    "rate_limit_seconds": 10,
+    "user_agent": "Pinnacle Holdings Research Bot 1.0 (deals@pinnaclegroupwi.com)",
+    "tcpa_consent_check_before_outreach": true,
+    "blocked_sources_tos_prohibited": [
+      "zillow.com",
+      "redfin.com",
+      "realtor.com"
+    ],
+    "_note": "Zillow/Redfin/Realtor ToS prohibe scraping. Para esos datos requiere API oficial o partnership."
+  },
+
+  "sources": {
+    "legal_records": {
+      "frequency": "daily",
+      "cron_hint": "0 3 * * *",
+      "max_records_per_run": 100,
+      "endpoints": [
+        {
+          "id": "wi_circuit_court_foreclosure",
+          "name": "Wisconsin Circuit Court Access — Foreclosure (NOD)",
+          "base_url": "https://wcca.wicourts.gov",
+          "search_path": "/case.html",
+          "case_types": ["FA", "FC"],
+          "counties": ["Milwaukee", "Brown", "Dane", "Outagamie", "Winnebago", "Racine", "Kenosha", "Waukesha"],
+          "robots_compliant": true,
+          "extracted_fields": ["case_number", "filing_date", "defendant_name", "property_address", "case_status"]
+        },
+        {
+          "id": "milwaukee_tax_delinquent",
+          "name": "Milwaukee County Tax Delinquent Properties",
+          "base_url": "https://county.milwaukee.gov",
+          "search_path": "/EN/Treasurer/Tax-Delinquent-Properties",
+          "frequency_override": "weekly",
+          "robots_compliant": true,
+          "extracted_fields": ["property_address", "owner_name", "amount_owed", "tax_year"]
+        },
+        {
+          "id": "brown_county_tax_delinquent",
+          "name": "Brown County (Green Bay) Tax Delinquent Properties",
+          "base_url": "https://www.browncountywi.gov",
+          "search_path": "/i-want-to/find/tax-delinquent-properties.php",
+          "frequency_override": "weekly",
+          "robots_compliant": true,
+          "extracted_fields": ["property_address", "owner_name", "amount_owed", "tax_year"]
+        },
+        {
+          "id": "wi_probate_filings",
+          "name": "Wisconsin Circuit Court — Probate (Estate)",
+          "base_url": "https://wcca.wicourts.gov",
+          "search_path": "/case.html",
+          "case_types": ["IN", "PR"],
+          "counties": ["Milwaukee", "Brown", "Dane", "Outagamie", "Winnebago"],
+          "robots_compliant": true,
+          "extracted_fields": ["case_number", "filing_date", "decedent_name", "estate_value", "personal_rep_name"]
+        }
+      ]
+    },
+
+    "fsbo_listings": {
+      "frequency": "weekly",
+      "cron_hint": "30 3 * * 1",
+      "max_records_per_run": 50,
+      "endpoints": [
+        {
+          "id": "craigslist_wi_reo",
+          "name": "Craigslist Wisconsin — Real Estate by Owner",
+          "base_url": "https://wisconsin.craigslist.org",
+          "regions": [
+            { "slug": "milwaukee", "name": "Milwaukee, WI" },
+            { "slug": "madison", "name": "Madison, WI" },
+            { "slug": "greenbay", "name": "Green Bay, WI" },
+            { "slug": "appleton", "name": "Appleton, WI" },
+            { "slug": "racine", "name": "Racine, WI" },
+            { "slug": "lacrosse", "name": "La Crosse, WI" }
+          ],
+          "search_paths": ["/search/reo", "/search/ree"],
+          "robots_compliant": true,
+          "extracted_fields": ["title", "price", "location", "post_url", "post_date", "phone_in_body"]
+        },
+        {
+          "id": "reddit_wisconsin_real_estate",
+          "name": "Reddit r/wisconsin r/Milwaukee real estate posts",
+          "base_url": "https://www.reddit.com",
+          "search_paths": [
+            "/r/wisconsin/search.json?q=selling+house&restrict_sr=1&sort=new",
+            "/r/Milwaukee/search.json?q=sell+my+house&restrict_sr=1&sort=new"
+          ],
+          "robots_compliant": true,
+          "rate_limit_override": 30,
+          "extracted_fields": ["title", "body_excerpt", "post_url", "post_date", "subreddit"]
+        }
+      ]
+    },
+
+    "allies_directory": {
+      "frequency": "weekly",
+      "cron_hint": "0 4 * * 0",
+      "max_records_per_run": 30,
+      "endpoints": [
+        {
+          "id": "wi_state_bar_probate",
+          "name": "Wisconsin State Bar — Probate Attorneys",
+          "base_url": "https://www.wisbar.org",
+          "search_path": "/forPublic/INeedaLawyer",
+          "filter_areas": ["Probate, Trusts & Estates", "Estate Planning"],
+          "robots_compliant": true,
+          "extracted_fields": ["attorney_name", "firm_name", "city", "phone", "email", "specialties"]
+        },
+        {
+          "id": "wi_state_bar_divorce",
+          "name": "Wisconsin State Bar — Family Law (Divorce) Attorneys",
+          "base_url": "https://www.wisbar.org",
+          "search_path": "/forPublic/INeedaLawyer",
+          "filter_areas": ["Family Law", "Divorce"],
+          "robots_compliant": true,
+          "extracted_fields": ["attorney_name", "firm_name", "city", "phone", "email", "specialties"]
+        },
+        {
+          "id": "wi_state_bar_bankruptcy",
+          "name": "Wisconsin State Bar — Bankruptcy Attorneys",
+          "base_url": "https://www.wisbar.org",
+          "search_path": "/forPublic/INeedaLawyer",
+          "filter_areas": ["Bankruptcy", "Consumer Bankruptcy"],
+          "robots_compliant": true,
+          "extracted_fields": ["attorney_name", "firm_name", "city", "phone", "email", "specialties"]
+        }
+      ]
+    }
+  },
+
+  "fer_integration": {
+    "auto_send_to_fer": true,
+    "min_phone_required": true,
+    "min_consent_check": true,
+    "delay_minutes_after_scrape": 60,
+    "max_messages_per_day": 20,
+    "_note": "Leads con phone Y consent_check pasado se envian a Fer SMS automatico tras 60min cooling period. TCPA requires explicit consent — para court records publicos, solo enviar info, no marketing message hasta que respondan."
+  },
+
+  "output": {
+    "airtable_base_id": "[REDACTED_AIRTABLE_BASE_ID]",
+    "airtable_table_name": "Scraping_Results",
+    "airtable_table_id": "[REDACTED_AIRTABLE_TABLE_ID]",
+    "airtable_token_env": "AIRTABLE_TOKEN"
+  },
+
+  "deduplication": {
+    "by_address": true,
+    "by_phone": true,
+    "by_case_number": true,
+    "lookback_days": 90
+  }
+}

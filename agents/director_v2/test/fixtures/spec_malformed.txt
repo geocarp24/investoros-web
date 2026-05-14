@@ -1,0 +1,1 @@
+This is not JSON { it's plain text that should break parseVisualPrompt.

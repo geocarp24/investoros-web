@@ -1,0 +1,15 @@
+{
+  "media_type": "reel",
+  "theme": "T1",
+  "aspect": "9:16",
+  "narrative": "B",
+  "duration": 10,
+  "mood": "upbeat",
+  "hook": { "en": "3 REASONS TO SELL OFF-MARKET", "es": "3 RAZONES PARA VENDER OFF-MARKET", "badge": "WISCONSIN" },
+  "points": [
+    { "headingEn": "Faster Than Banks", "headingEs": "Más Rápido Que Los Bancos", "bodyEn": "No waiting", "bodyEs": "Sin esperar" },
+    { "headingEn": "No Commissions",    "headingEs": "Sin Comisiones",             "bodyEn": "Keep 100%",  "bodyEs": "Quedate 100%" },
+    { "headingEn": "No Showings",       "headingEs": "Sin Visitas",                "bodyEn": "Sell as-is", "bodyEs": "Como está" }
+  ],
+  "cta": { "en": "Get your cash offer today", "es": "Reciba su oferta en efectivo hoy" }
+}

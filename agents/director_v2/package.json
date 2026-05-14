@@ -1,0 +1,19 @@
+{
+  "name": "@pinnacle/director-v2",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "test":             "node --test test/*.test.mjs",
+    "test:smoke":       "RUN_SMOKE=1 node --test test/smoke.test.mjs",
+    "prod":             "doppler run --project pinnacle-social-publisher --config dev_personal -- node director_v2.mjs",
+    "prod:dry-run":     "doppler run --project pinnacle-social-publisher --config dev_personal -- node director_v2.mjs --dry-run",
+    "poc":              "doppler run --project pinnacle-social-publisher --config dev_personal -- node render_poc.mjs",
+    "schema":           "doppler run --project pinnacle-social-publisher --config dev_personal -- node scripts/airtable_schema_setup.mjs",
+    "schema:dry-run":   "doppler run --project pinnacle-social-publisher --config dev_personal -- node scripts/airtable_schema_setup.mjs --dry-run"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}

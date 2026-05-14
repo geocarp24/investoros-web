@@ -1,0 +1,20 @@
+[
+  {
+    "task_id": "a76aae00-ee9a-4e83-91e9-5f7af8dcb113",
+    "prompt": "Responde solo: PUENTE ACTIVO - El worker de Claude Code está funcionando correctamente.",
+    "response": "PUENTE ACTIVO - El worker de Claude Code está funcionando correctamente.",
+    "success": true,
+    "chat_id": "8402370952",
+    "source": "test",
+    "completed_at": "2026-04-05T16:20:33.594205"
+  },
+  {
+    "task_id": "719d7418-3fb3-4286-9dce-0790ce567845",
+    "prompt": "dime que hora es en el servidor",
+    "response": "La hora en el servidor es **4:29 PM UTC** (domingo 5 de abril de 2026).\n\nSi estás en zona horaria Central (Wisconsin), son las **11:29 AM CDT**.",
+    "success": true,
+    "chat_id": 8402370952,
+    "source": "telegram",
+    "completed_at": "2026-04-05T16:29:50.457576"
+  }
+]

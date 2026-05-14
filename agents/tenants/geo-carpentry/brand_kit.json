@@ -1,0 +1,217 @@
+{
+  "_comment": "Brand Kit Geo Carpentry LLC. Sprint F1 (Jorge 2026-05-08). Replicado del schema Pinnacle. Validacion multi-tenant: si funciona aqui, schema esta listo para FC, Nica, T4, Essenthia.",
+
+  "tenant_id": "geo-carpentry",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-05-08",
+  "approved_by": "Jorge",
+
+  "company": {
+    "legal_name": "Geo Carpentry LLC",
+    "trading_name": "Geo Carpentry",
+    "founded": 2014,
+    "industry": "construction",
+    "subindustry": "general-contractor-residential",
+    "experience_years": 10,
+    "projects_completed": 500,
+    "service_radius_miles": 100,
+    "service_radius_origin": "Green Bay, WI"
+  },
+
+  "messaging": {
+    "tagline_short": "Built Right. Built Once.",
+    "tagline_long": "Custom Carpentry, Remodeling, and Construction in Northeast Wisconsin. Bilingual, Licensed, 500+ Projects Strong.",
+    "mission": "Deliver craftsmanship that lasts decades — custom carpentry, kitchen and bath remodeling, deck building, and full home renovations across Northeast Wisconsin, with bilingual service and transparent pricing.",
+    "vision": "Be the contractor Wisconsin homeowners trust for life — the team that families call back for every project, every time.",
+    "values": ["craftsmanship", "transparency", "punctuality", "bilingual service", "local Wisconsin pride"],
+    "elevator_pitch": "We're Geo Carpentry — 10+ years, 500+ projects, 100-mile radius from Green Bay. Custom carpentry, kitchens, baths, decks, and full renovations. Bilingual, licensed, and locally owned.",
+    "_GAP_messaging": "Tagline + mission + vision drafted by ALEX based on memory facts — Jorge to approve or refine wording"
+  },
+
+  "voice": {
+    "tone": "skilled craftsman who explains the work simply, takes pride in details, treats homeowners as partners",
+    "personality": "experienced foreman who's proud of his crew, his quality, and his Wisconsin roots",
+    "reading_level": "8th grade (homeowners need clarity on scope + pricing)",
+    "principles": {
+      "do": [
+        "Show before/after when possible — visual proof of craftsmanship",
+        "Quote precisely (line-item by material + labor) — no surprises",
+        "Acknowledge customer concerns (budget, timeline, mess) before pitching",
+        "Cite Wisconsin context (winter timing, cedar vs PT, permit lead times)",
+        "Speak to the homeowner directly, in second person",
+        "Use plain numbers (sq ft, days, $)"
+      ],
+      "dont": [
+        "Pressure tactics, fake urgency, unrealistic timelines",
+        "Construction jargon without explanation",
+        "Pretend to be a national chain or franchise",
+        "Promise specific delivery dates we can't guarantee with weather/permits",
+        "Lowball quotes that balloon mid-project"
+      ]
+    },
+    "languages": ["en", "es"],
+    "language_note": "Spanish content for hispanic homeowners + crew communication. WhatsApp primary channel for ES."
+  },
+
+  "colors": {
+    "primary": {
+      "hex": null,
+      "name": "TBD",
+      "_GAP": "Brand primary color — Jorge to confirm. Suggestion: a warm wood-tone or deep forest green (matches construction/carpentry industry)"
+    },
+    "secondary": {
+      "hex": null,
+      "name": "TBD",
+      "_GAP": "Brand secondary color — Jorge to confirm"
+    },
+    "accent": {
+      "hex": null,
+      "name": "TBD",
+      "_GAP": "Brand accent color — Jorge to confirm"
+    },
+    "neutral_dark": { "hex": "#1F2937", "name": "Body Text Dark" },
+    "neutral_light": { "hex": "#F8FAFC", "name": "Background Light" },
+    "white": { "hex": "#FFFFFF" },
+    "_aesthetic": "Solid + craftsman + warmth. NO trendy/tech. Audience: WI homeowners considering renovation — they want trust + skill, not flash. Construction industry default: woods, earth tones, dark green or navy."
+  },
+
+  "typography": {
+    "primary_font": {
+      "family": "Inter",
+      "fallback": "system-ui, -apple-system, sans-serif",
+      "weights_used": ["400", "500", "600", "700"]
+    },
+    "secondary_font": {
+      "family": null,
+      "_GAP": "Optional editorial font for testimonials/long-form. Default fallback to Inter if not set."
+    },
+    "display_font": {
+      "family": "Inter",
+      "weight_default": 800,
+      "usage": "hero headlines, project showcase titles"
+    }
+  },
+
+  "logo": {
+    "primary_url": null,
+    "local_path": "geo-budget/logo.png",
+    "dimensions_local": "277x156 px PNG RGBA",
+    "variations": {
+      "horizontal_full": "geo-budget/logo.png",
+      "stacked": null,
+      "icon_only": null,
+      "white_version": null,
+      "monochrome_dark": null
+    },
+    "usage_rules": {
+      "min_width_px": 80,
+      "default_width_social_slide_px": 540,
+      "default_position": "top-left with drop-shadow on photo backgrounds",
+      "clear_space_factor": 0.5
+    },
+    "_TODO": "Logo variations + cloud-hosted public URL — generate via brandkit skill once primary colors confirmed."
+  },
+
+  "contact": {
+    "phone_primary": "(920) 367-1272",
+    "phone_whatsapp": "(920) 934-0351",
+    "phone_display": "(920) 367-1272",
+    "email_primary": "admin@geocarpentry.com",
+    "email_general": null,
+    "website": "https://geocarpentry.com",
+    "form_url": null,
+    "physical_address": {
+      "street": "735 East Walnut St., Suite 3",
+      "city": "Green Bay",
+      "state": "WI",
+      "zip": "54301",
+      "country": "US",
+      "_note": "Office shared with Pinnacle Holdings (different tenant, same physical location). Geo uses Suite 3 specifically."
+    }
+  },
+
+  "social_media": {
+    "facebook": {
+      "page_id": "723873447473999",
+      "page_name": "Geo Carpentry",
+      "url": "https://www.facebook.com/profile.php?id=723873447473999",
+      "_status": "Page reserved per memoria, may need activation/setup before publishing"
+    },
+    "instagram": {
+      "handle": null,
+      "user_id": null,
+      "_GAP": "IG account — Jorge to confirm if exists or create new"
+    },
+    "linkedin": null,
+    "youtube": null,
+    "tiktok": null,
+    "_decision": "FB primary platform. IG to be set up. LinkedIn opcional (B2B contractor-architect partnerships)."
+  },
+
+  "asset_library": {
+    "cloudinary_cloud_name": "dzzlhhk0m",
+    "cloudinary_folder": "geo-carpentry",
+    "_note": "Shared Cloudinary account with Pinnacle (same Doppler creds, different folder).",
+    "categories_planned": [
+      "logo-variations",
+      "before-after-projects",
+      "custom-carpentry-portfolio",
+      "kitchen-remodels",
+      "bathroom-remodels",
+      "decks",
+      "renovations",
+      "crew-team-photos",
+      "wisconsin-job-sites"
+    ],
+    "_TODO": "Asset categorization + tagging — depends on Sprint A9 (Pinnacle Cloudinary)."
+  },
+
+  "compliance": {
+    "fair_housing_disclaimer": "Geo Carpentry LLC complies with Federal Fair Housing Act. We provide construction services without regard to race, color, religion, sex, handicap, familial status, or national origin.",
+    "contractor_disclosure": "Geo Carpentry LLC is a licensed Wisconsin general contractor providing carpentry, remodeling, and construction services within 100 miles of Green Bay, WI.",
+    "license_number": null,
+    "insurance_disclosure": "Fully insured for liability and worker's compensation",
+    "tcpa_consent_required": true,
+    "_GAP": "Wisconsin contractor license number — Jorge to provide for compliance + transparency"
+  },
+
+  "services": {
+    "primary_services": [
+      "Custom Carpentry",
+      "Kitchen Remodeling",
+      "Bathroom Remodeling",
+      "Deck Building",
+      "Home Renovation",
+      "General Construction"
+    ],
+    "specialties": [
+      "Custom built-ins (bookshelves, mudrooms, entertainment centers)",
+      "Wisconsin winter-resilient deck construction (cedar, PT, composite)",
+      "Full-kitchen gut + reno (1-4 weeks typical)",
+      "Bathroom waterproofing + tile",
+      "Insurance restoration carpentry"
+    ],
+    "_note": "6 servicios oficiales confirmed in memoria. Specialties drafted by ALEX — Jorge to approve."
+  },
+
+  "competitors": {
+    "_TODO": "Local Wisconsin contractor competitors (general contractors within 100mi Green Bay) — populate via El Rastreador allies_directory mode + manual research"
+  },
+
+  "differentiation": {
+    "vs_national_chains_handyman": [
+      "Local Wisconsin owner (not franchise)",
+      "Bilingual EN/ES (crew + customer service)",
+      "10+ years, 500+ projects track record",
+      "100-mile dedicated service radius (not stretched thin)",
+      "Owner on every job site"
+    ],
+    "vs_solo_contractors": [
+      "Full crew (faster completion vs 1-person operation)",
+      "Insured + licensed (vs uninsured cheap quotes)",
+      "Office at 735 E Walnut St Green Bay (real business, not truck-and-toolbox)",
+      "Bilingual support",
+      "Web presence + transparent quotes"
+    ]
+  }
+}

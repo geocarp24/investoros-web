@@ -1,0 +1,12 @@
+{
+  "records": [
+    {
+      "id": "recABC123",
+      "fields": {
+        "Formato": "Reel",
+        "Status": "Nueva",
+        "Visual_Prompt": "{\"theme\":\"T1\",\"aspect\":\"9:16\",\"narrative\":\"B\",\"duration\":10,\"hook\":{\"en\":\"x\",\"es\":\"y\"},\"points\":[{\"headingEn\":\"a\",\"headingEs\":\"b\"},{\"headingEn\":\"c\",\"headingEs\":\"d\"},{\"headingEn\":\"e\",\"headingEs\":\"f\"}],\"cta\":{\"en\":\"x\",\"es\":\"y\"}}"
+      }
+    }
+  ]
+}
