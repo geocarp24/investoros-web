@@ -1,0 +1,87 @@
+name: Supervisor — Autonomous Ops Watchdog
+
+on:
+  # ── KILL-SWITCH GLOBAL — TODOS LOS CRONS PAUSADOS (Jorge 2026-05-09) ─────────
+  # Razón: stack de outreach (Telnyx) en setup. No corremos nada hasta tener
+  # el nuevo número de teléfono vivo y el flow chateado punta a punta.
+  # Sigue activo workflow_dispatch para runs manuales bajo aprobación de Jorge.
+  # Reactivar: descomentar el bloque `schedule:` completo cuando Jorge dé luz verde.
+  # ─────────────────────────────────────────────────────────────────────────────
+  # schedule:
+  #   # 2026-04-29 Jorge directive (low contact volume):
+  #   #   heartbeat — every 6 hours (lightweight watchdog, 4/day)
+  #   #   deep     — every 3 days  (auto-repair + Learning + Diagnosis Phase 2)
+  #   #   evolve   — every 3 days  (pattern recognition)
+  #   - cron: "0 */6 * * *"            # heartbeat
+  #   - cron: "30 21 */3 * *"          # deep
+  #   - cron: "0 22 */3 * *"            # evolve
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Supervisor mode"
+        required: true
+        default: "deep"
+        type: choice
+        options: [heartbeat, deep, evolve, incident]
+
+concurrency:
+  group: supervisor-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
+
+# Phase 4 self-modification needs to push branches and open PRs.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  supervise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Choose mode from trigger
+        id: mode
+        run: |
+          case "${{ github.event.schedule }}" in
+            "0 */6 * * *")    echo "mode=heartbeat" >> $GITHUB_OUTPUT ;;
+            "30 21 */3 * *")  echo "mode=deep"      >> $GITHUB_OUTPUT ;;
+            "0 22 */3 * *")   echo "mode=evolve"    >> $GITHUB_OUTPUT ;;
+            *)                echo "mode=${{ inputs.mode || 'heartbeat' }}" >> $GITHUB_OUTPUT ;;
+          esac
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Claude Code CLI
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      - name: Run Supervisor
+        env:
+          AIRTABLE_TOKEN:     ${{ secrets.AIRTABLE_TOKEN }}
+          QUO_API_KEY:        ${{ secrets.QUO_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.FER_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY:  ${{ github.repository }}
+          SUPERVISOR_TRIGGER: "gha_${{ steps.mode.outputs.mode }}"
+        run: |
+          # For modes that invoke Claude (evolve, incident) the binary path in
+          # pinnacle.json points to a local path that GHA doesn't have.
+          # Override to the GHA-installed claude.
+          node -e "
+            const fs = require('fs');
+            const p = 'agents/tenants/pinnacle.json';
+            const cfg = JSON.parse(fs.readFileSync(p,'utf8'));
+            cfg.claude = cfg.claude || {};
+            cfg.claude.binary_path = 'claude';
+            fs.writeFileSync(p, JSON.stringify(cfg, null, 2));
+          "
+          node agents/supervisor/supervisor.mjs --tenant pinnacle --mode ${{ steps.mode.outputs.mode }}

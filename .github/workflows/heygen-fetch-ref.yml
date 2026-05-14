@@ -1,0 +1,66 @@
+name: HeyGen — Fetch reference video metadata
+
+# One-shot helper: fetches a HeyGen video's metadata so we can study its style
+# (motion, transitions, duration, template) and document it in memoria_ALex.md.
+# Used to learn from videos Jorge flags as "eye-catching" references for future
+# Director v2 templates.
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_id:
+        description: "HeyGen video_id (32-char hex)"
+        required: true
+        type: string
+      note:
+        description: "Optional context note (why this is a reference)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch video status from HeyGen
+        env:
+          HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
+          VID: ${{ inputs.video_id }}
+          NOTE: ${{ inputs.note }}
+        run: |
+          if [ -z "$HEYGEN_API_KEY" ]; then
+            echo "::error::HEYGEN_API_KEY not loaded from Doppler"
+            exit 1
+          fi
+          mkdir -p references
+          OUT="references/heygen_${VID}.json"
+          curl -sS "https://api.heygen.com/v1/video_status.get?video_id=${VID}" \
+            -H "X-Api-Key: $HEYGEN_API_KEY" \
+            -o "$OUT"
+          echo "::notice::Fetched metadata to $OUT"
+          # Pretty print first 50 lines for log visibility.
+          head -100 "$OUT"
+          # Append a memoria entry.
+          DATE=$(date -u +%Y-%m-%d)
+          {
+            echo ""
+            echo "### HeyGen ref video $VID — fetched $DATE"
+            if [ -n "$NOTE" ]; then echo "Note: $NOTE"; fi
+            echo "Metadata: \`references/heygen_${VID}.json\`"
+            echo "Direct URL: https://app.heygen.com/videos/$VID"
+          } >> agents/oraculo_inputs/heygen_ref_videos.md
+
+      - name: Commit + push reference data
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name  "ALEX-RefFetcher"
+            git config user.email "alex@pinnaclegroupwi.com"
+            git add references/ agents/oraculo_inputs/heygen_ref_videos.md
+            git commit -m "ref: fetch HeyGen video ${{ inputs.video_id }}"
+            git push origin HEAD:master || echo "::warning::push failed"
+          fi
