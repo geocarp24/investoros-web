@@ -1,0 +1,221 @@
+{
+  "_comment": "Brand Kit estructurado multi-tenant. Sprint F1.1 (Jorge 2026-05-08). Replicable a Geo/FC/Nica/Tenant4/Essenthia copiando este file y ajustando valores. El Creativo, Director v2, SM Manager, Fer y todos los agentes con output visible al cliente leen este archivo para mantener brand consistency.",
+
+  "tenant_id": "pinnacle",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-05-08",
+  "approved_by": "Jorge",
+
+  "company": {
+    "legal_name": "Pinnacle Holdings Group LLC",
+    "trading_name": "Pinnacle Holdings",
+    "founded": 2026,
+    "industry": "real-estate",
+    "subindustry": "cash-home-buyer-investor"
+  },
+
+  "messaging": {
+    "tagline_short": "Cash Offers Fast in Wisconsin",
+    "tagline_long": "Sell Your Wisconsin House for Cash. No Realtor Fees. Close on Your Timeline.",
+    "mission": "Help Wisconsin homeowners in difficult situations sell their houses quickly, fairly, and without the burden of traditional sale processes — no commissions, no repairs, no judgment.",
+    "vision": "Be the most trusted cash home buyer in Wisconsin and the model for honest real estate investing in the Midwest.",
+    "values": ["transparency", "speed", "no judgment", "fair offers", "local Wisconsin pride"],
+    "elevator_pitch": "We buy houses in Wisconsin for cash. As-is, no realtor fees, close on your timeline. Locally owned in Green Bay, not a national chain."
+  },
+
+  "voice": {
+    "tone": "empathic, educational, locally credible (Wisconsin homeowner voice)",
+    "personality": "friendly Wisconsin neighbor who happens to know real estate inside out",
+    "reading_level": "8th grade (homeowners under stress, need clarity)",
+    "principles": {
+      "do": [
+        "Acknowledge the situation first (foreclosure, divorce, inheritance) before pitching",
+        "Explain options clearly — including ones we don't profit from",
+        "Speak to the homeowner directly, in second person",
+        "Cite specific Wisconsin context (cities, laws, seasons)",
+        "Be transparent about how we calculate offers (ARV minus repairs minus margin)",
+        "Use plain numbers and timelines (not vague phrases)"
+      ],
+      "dont": [
+        "Pressure tactics, urgency manipulation, fake scarcity",
+        "Legal/finance jargon without explanation",
+        "Pretend to be a national chain or claim 'best in country'",
+        "Promise specific timelines we can't legally enforce (cleared by R1g 2026-05-07)",
+        "Use engagement bait ('comment if you agree' style)",
+        "Claim we're better than realtors universally — situation-dependent"
+      ]
+    },
+    "languages": ["en", "es"],
+    "language_note": "Spanish content not auto-translated — culturally adapted for hispanic homeowners (60% of WI distressed-property leads)"
+  },
+
+  "colors": {
+    "primary": {
+      "hex": "#0D3B2E",
+      "rgb": "13, 59, 46",
+      "name": "Pinnacle Green",
+      "usage": "headers, CTAs, brand emphasis, dominant backgrounds"
+    },
+    "secondary": {
+      "hex": "#C9A84C",
+      "rgb": "201, 168, 76",
+      "name": "Pinnacle Gold",
+      "usage": "accents, callouts, premium markers, dividers"
+    },
+    "accent": {
+      "hex": "#E83E8C",
+      "rgb": "232, 62, 140",
+      "name": "Pinnacle Pink",
+      "usage": "highlights, hashtag karaoke in social slides (matches logo accent), CTA buttons high-contrast",
+      "_note": "Cambio de fucsia 2026-05-07 — usar #FF1493 si hay regresión visual"
+    },
+    "neutral_dark": {
+      "hex": "#1F2937",
+      "rgb": "31, 41, 55",
+      "name": "Body Text Dark",
+      "usage": "body text, headings on light backgrounds"
+    },
+    "neutral_light": {
+      "hex": "#F8FAFC",
+      "rgb": "248, 250, 252",
+      "name": "Background Light",
+      "usage": "page backgrounds, section dividers"
+    },
+    "white": { "hex": "#FFFFFF" },
+    "_aesthetic": "Editorial limpio + warmth (Pinnacle default per CLAUDE.md regla 1e). NO brutalist, NO cyberpunk, NO tech-cold. Audience: distressed homeowners, not devs."
+  },
+
+  "typography": {
+    "primary_font": {
+      "family": "Inter",
+      "fallback": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "usage": "all UI text, body, headings, buttons",
+      "weights_used": ["400 regular", "500 medium", "600 semibold", "700 bold"]
+    },
+    "secondary_font": {
+      "family": "Source Serif 4",
+      "fallback": "Georgia, serif",
+      "usage": "editorial headlines, testimonial pull quotes (warmth touch)",
+      "weights_used": ["400", "600"]
+    },
+    "display_font": {
+      "family": "Inter",
+      "fallback": "sans-serif",
+      "weight_default": 800,
+      "usage": "hero headlines (h1), large numerals, CTA emphasis"
+    },
+    "social_slide_font": {
+      "family": "Bebas Neue",
+      "fallback": "Impact, Arial Black, sans-serif",
+      "usage": "Director v2 Reels overlay text (high readability mobile)",
+      "_note": "Verificar disponibilidad en stack actual"
+    }
+  },
+
+  "logo": {
+    "primary_url": "https://pinnaclegroupwi.com/wp-content/uploads/2026/03/logo-pinnacle.png",
+    "local_path": "agents/creativo/assets/logo-pinnacle.png",
+    "variations": {
+      "horizontal_full": "agents/creativo/assets/logo-pinnacle.png",
+      "stacked": null,
+      "icon_only": null,
+      "white_version": null,
+      "monochrome_dark": null
+    },
+    "usage_rules": {
+      "min_width_px": 80,
+      "default_width_social_slide_px": 540,
+      "default_position": "top-left with drop-shadow on photo backgrounds",
+      "clear_space_factor": 0.5,
+      "approved_backgrounds": ["white", "light gray", "dark green primary", "photo with overlay"]
+    },
+    "_TODO": "Logo variations (stacked, icon-only, white, monochrome, SVG) — to be generated via brandkit skill in Sprint F1.3 or F1 polish phase. Not blocking — horizontal_full works for current social slides + website."
+  },
+
+  "contact": {
+    "phone_primary": "(920) 777-9886",
+    "phone_display": "(920) 777-9886",
+    "email_primary": "deals@pinnaclegroupwi.com",
+    "email_general": null,
+    "website": "https://pinnaclegroupwi.com",
+    "form_url": "https://pinnaclegroupwi.com/get-my-offer/",
+    "physical_address": {
+      "street": "735 East Walnut St.",
+      "city": "Green Bay",
+      "state": "WI",
+      "zip": "54301",
+      "country": "US",
+      "_note": "Office shared with Geo Carpentry (different tenant, same physical location). Pinnacle uses suite for cash buyer ops; Geo uses Suite 3 for carpentry ops."
+    }
+  },
+
+  "social_media": {
+    "facebook": {
+      "page_id": "965320503341457",
+      "page_name": "Pinnacle Holdings Group",
+      "url": "https://www.facebook.com/profile.php?id=965320503341457"
+    },
+    "instagram": {
+      "handle": "@pinnacle.groupwi",
+      "user_id": "17841441469416547",
+      "url": "https://www.instagram.com/pinnacle.groupwi/"
+    },
+    "linkedin": null,
+    "youtube": null,
+    "tiktok": null,
+    "_decision": "LinkedIn / YouTube / TikTok — not in current scope. Pinnacle focuses on FB+IG for distressed homeowner audience. Re-evaluate in Phase 2 (B2B realtor partnerships could justify LinkedIn)."
+  },
+
+  "asset_library": {
+    "cloudinary_cloud_name": "dzzlhhk0m",
+    "cloudinary_folder": "pinnacle",
+    "cloudinary_secrets_doppler": {
+      "name_var": "CLOUDINARY_NAME",
+      "key_var": "CLOUDINARY_API_KEY",
+      "secret_var": "CLOUDINARY_API_SECRET",
+      "project": "pinnacle-social-publisher",
+      "config": "dev_personal"
+    },
+    "categories_planned": [
+      "logo-variations",
+      "exteriors-wisconsin-homes",
+      "interiors-modern",
+      "interiors-vintage",
+      "jorge-portraits",
+      "wisconsin-locations",
+      "family-homeowners",
+      "before-after-rehabs"
+    ],
+    "_TODO": "Asset categorization + tagging — Sprint A9 dependency. Cloudinary already configured."
+  },
+
+  "compliance": {
+    "fair_housing_disclaimer": "Pinnacle Holdings Group LLC complies with Federal Fair Housing Act. We make offers without regard to race, color, religion, sex, handicap, familial status, or national origin.",
+    "investor_disclosure": "Pinnacle Holdings is a real estate investor, not a licensed real estate brokerage. We make cash offers to purchase property directly from owners. No real estate license required for direct property purchase by an investor.",
+    "real_estate_license": "N/A — real estate investor, not agent",
+    "tcpa_consent_required": true
+  },
+
+  "competitors": [
+    { "name": "We Buy Ugly Houses Wisconsin", "url": "https://www.webuyuglyhouses.com/wisconsin", "type": "national_chain" },
+    { "name": "HomeVestors Milwaukee", "url": "https://www.homevestors.com/wisconsin/", "type": "national_chain_local" },
+    { "name": "Sell My House Fast Milwaukee", "url": "https://www.sellmyhousefast.com/we-buy-houses-milwaukee-wi/", "type": "national_chain_local" }
+  ],
+
+  "differentiation": {
+    "vs_national_chains": [
+      "Local Wisconsin owner (not franchisee)",
+      "Bilingual EN/ES support",
+      "Transparent ARV/rehab/offer math",
+      "Flexible move-out timing",
+      "We pay all closing costs"
+    ],
+    "vs_realtors": [
+      "Cash close in 7 days vs 60-90 days listed",
+      "Zero commissions (vs 5-6%)",
+      "No staging, showings, or open houses",
+      "As-is purchase (no inspection contingency)",
+      "Certainty of close (no buyer financing fall-through)"
+    ]
+  }
+}

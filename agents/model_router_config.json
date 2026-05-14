@@ -1,0 +1,160 @@
+{
+  "meta": {
+    "version": "1.0",
+    "created": "2026-04-10",
+    "description": "Router de modelos con escalamiento automático para máximo ahorro + calidad",
+    "currency": "USD",
+    "monthly_budget": 1236.90
+  },
+  "pricing": {
+    "haiku": {
+      "input_per_1m": 0.80,
+      "output_per_1m": 2.40,
+      "cost_ratio": 1.0,
+      "tier": "economy"
+    },
+    "sonnet": {
+      "input_per_1m": 3.00,
+      "output_per_1m": 15.00,
+      "cost_ratio": 3.75,
+      "tier": "balanced"
+    },
+    "opus": {
+      "input_per_1m": 15.00,
+      "output_per_1m": 45.00,
+      "cost_ratio": 18.75,
+      "tier": "premium"
+    }
+  },
+  "task_routing": {
+    "skip_tracing": {
+      "task_type": "data_formatting",
+      "initial_model": "haiku",
+      "escalation_triggers": [
+        { "condition": "error_rate > 0.1", "escalate_to": "sonnet" },
+        { "condition": "confidence_score < 5", "escalate_to": "sonnet" }
+      ],
+      "max_model": "sonnet",
+      "description": "Tracy — búsqueda y formatting de datos públicos"
+    },
+    "market_research": {
+      "task_type": "data_analysis",
+      "initial_model": "sonnet",
+      "escalation_triggers": [
+        { "condition": "tokens_estimated > 8000", "escalate_to": "opus" },
+        { "condition": "contains_keywords: ['complex', 'edge_case', 'unusual_pattern']", "escalate_to": "opus" },
+        { "condition": "confidence_score < 6", "escalate_to": "opus" }
+      ],
+      "max_model": "opus",
+      "description": "El Scout — investigación de mercado y análisis de datos"
+    },
+    "financial_analysis": {
+      "task_type": "reasoning_analysis",
+      "initial_model": "sonnet",
+      "escalation_triggers": [
+        { "condition": "tokens_estimated > 6000", "escalate_to": "opus" },
+        { "condition": "contains_keywords: ['complex_calculation', 'multi_scenario', 'projection']", "escalate_to": "opus" },
+        { "condition": "error_detected_in_calculations", "escalate_to": "opus" }
+      ],
+      "max_model": "opus",
+      "description": "El Matemático — análisis financiero y underwriting"
+    },
+    "fact_checking": {
+      "task_type": "verification",
+      "initial_model": "sonnet",
+      "escalation_triggers": [
+        { "condition": "disagreement_between_sources", "escalate_to": "opus" },
+        { "condition": "confidence_score < 6.5", "escalate_to": "opus" },
+        { "condition": "contains_contradiction", "escalate_to": "opus" }
+      ],
+      "max_model": "opus",
+      "description": "El Fact-Checker — auditoría y validación"
+    },
+    "code_development": {
+      "task_type": "software_engineering",
+      "initial_model": "sonnet",
+      "escalation_triggers": [
+        { "condition": "type in ['refactoring', 'debugging', 'architecture']", "escalate_to": "opus" },
+        { "condition": "tokens_estimated > 10000", "escalate_to": "opus" },
+        { "condition": "involves_production_code", "escalate_to": "opus" },
+        { "condition": "test_failures_detected", "escalate_to": "opus" }
+      ],
+      "max_model": "opus",
+      "description": "El Programador — desarrollo de software, fixes, refactoring"
+    },
+    "creative_content": {
+      "task_type": "creative",
+      "initial_model": "sonnet",
+      "escalation_triggers": [
+        { "condition": "requires_novel_concept", "escalate_to": "opus" },
+        { "condition": "visual_complexity_high", "escalate_to": "opus" }
+      ],
+      "max_model": "sonnet",
+      "description": "El Creativo/Director — contenido creativo y visual"
+    }
+  },
+  "escalation_policy": {
+    "enabled": true,
+    "auto_retry_on_escalation": true,
+    "retry_delay_seconds": 2,
+    "log_escalations_to_airtable": true,
+    "escalation_table": "Model Usage Escalation",
+    "max_escalation_cost_per_task": 500,
+    "cost_monitoring": {
+      "enabled": true,
+      "alert_on_cost_overrun": true,
+      "monthly_budget_alert_threshold_usd": 1200,
+      "daily_budget_alert_threshold_usd": 41
+    }
+  },
+  "metrics_tracking": {
+    "enabled": true,
+    "track_fields": [
+      "task_id",
+      "task_type",
+      "initial_model",
+      "final_model",
+      "escalated",
+      "escalation_reason",
+      "tokens_input",
+      "tokens_output",
+      "cost_usd",
+      "confidence_score",
+      "execution_time_ms",
+      "timestamp"
+    ],
+    "dashboard_table": "Model Router Metrics",
+    "airtable_base": "[REDACTED_AIRTABLE_BASE_ID]"
+  },
+  "fallback_strategy": {
+    "if_sonnet_fails": "escalate_to_opus",
+    "if_opus_fails": "alert_user_and_log",
+    "retry_count": 2,
+    "exponential_backoff": true
+  },
+  "cost_optimization_rules": {
+    "never_use_opus_for": [
+      "simple_confirmations",
+      "data_formatting",
+      "basic_web_searches",
+      "straightforward_calculations"
+    ],
+    "always_use_haiku_for": [
+      "confirmations",
+      "skip_tracing_basic",
+      "simple_telegram_responses"
+    ],
+    "always_use_sonnet_for": [
+      "market_research_standard",
+      "financial_analysis_standard",
+      "content_generation"
+    ],
+    "opus_only_when": [
+      "task_exceeds_token_threshold",
+      "low_confidence_detected",
+      "error_in_previous_attempt",
+      "task_involves_complex_reasoning",
+      "production_code_involved"
+    ]
+  }
+}

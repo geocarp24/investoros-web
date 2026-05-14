@@ -1,0 +1,285 @@
+{
+  "doc-77019a2c937bbf2972a6906b1c403997": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-1586e3be1fdda26b39569d82162119b0",
+      "chunk-355b8b3f8410d2d1f764047930a63962"
+    ],
+    "content_summary": "=== Leads ===\n[Leads ID:rec21O7g2IR6EwdAP] Address: 3146 LAKEVIEW DR | Stage: To be Contacted | Max Offer: 180792.30000000002 | ARV: 278142 | Flip Profit: 66754.07999999997 | Lead Source: Deal Driven | Dated Added: 2026-03-16 | City: SUAMICO | Estate...",
+    "content_length": 3505,
+    "created_at": "2026-04-06T21:43:54.694061+00:00",
+    "updated_at": "2026-04-06T21:47:50.250394+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214354_82b816f6",
+    "metadata": {
+      "processing_start_time": 1775511871,
+      "processing_end_time": 1775512070
+    }
+  },
+  "doc-3efa513145987277dcb948cb9f5eebe6": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-3efa513145987277dcb948cb9f5eebe6"
+    ],
+    "content_summary": "=== Deals ===\n[Deals ID:recKCNUdSewtIIt5A] Property Address: Via Croce Rossa 84 | Projected Profit: -10000 | ROI %: {'specialValue': '-Infinity'} | Lead Qualification Summary (Agent): {'state': 'error', 'errorType': 'emptyDependency', 'value': None, ...",
+    "content_length": 2181,
+    "created_at": "2026-04-06T21:43:54.694065+00:00",
+    "updated_at": "2026-04-06T21:44:59.683185+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214354_82b816f6",
+    "metadata": {
+      "processing_start_time": 1775511871,
+      "processing_end_time": 1775511899
+    }
+  },
+  "doc-5ce2616986aa75ba61c4ee538342372a": {
+    "status": "processed",
+    "chunks_count": 22,
+    "chunks_list": [
+      "chunk-c596cc967ef5998ce2db5a1da5902015",
+      "chunk-dc9c8892db76489f775e4bafba3b4573",
+      "chunk-3418c246caa4f1264e1ac2c0d0d0290c",
+      "chunk-bac957d207c7b94aed19fda9c59453c0",
+      "chunk-1ebc17f08d578247874158c41bf95964",
+      "chunk-2dcec5bbd52bc4512a40342f1bfde243",
+      "chunk-8a1e36649b6695df81836ffc82945701",
+      "chunk-bcaf6fc79740f57a8a16575bee5e9955",
+      "chunk-f90775d3d3e87f44c5faf72432843252",
+      "chunk-9f78473811a1bbb7d28a0046e4915688",
+      "chunk-74378d8355e556d02ba5b6466c49dd84",
+      "chunk-241acf4604830fbe81c295e7f9c6a7d9",
+      "chunk-0140fd3b1127c271fade621f8b31cec8",
+      "chunk-570bb79cebc263e4858f0465fb382b94",
+      "chunk-62ad05910b665edcdcec39264a9a2ed3",
+      "chunk-90e6e1bf3650213000b0b51a4246a3a0",
+      "chunk-a75bdc0bb8e8445a0a78c75dd2798032",
+      "chunk-f909e947c1e458ba8b0cf736ae82fd4b",
+      "chunk-a0c430a64acf1cfdadb5b23dd9f17d27",
+      "chunk-86ab94e7e456fc30f252af8a6ff7740c",
+      "chunk-1742d1f0b47241be836c6f6cf2834be8",
+      "chunk-47d5f8782d66ff14f9321d979ddb10a3"
+    ],
+    "content_summary": "=== Contacts ===\n[Contacts ID:rec05qmB3BGWGgX5F] Full Name: Jorge Chuc | Phone1: 12627055689 | Category: Seller | Stage: To Be Contacted | Lead Source: Skip Trace - Tracerfy | Owner Address: 6030 24th Ave | Created Time: 2026-03-29T21:40:16.000Z | La...",
+    "content_length": 70829,
+    "created_at": "2026-04-06T21:43:54.694056+00:00",
+    "updated_at": "2026-04-06T21:51:36.541502+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214354_82b816f6",
+    "metadata": {
+      "processing_start_time": 1775512180,
+      "processing_end_time": 1775512296
+    }
+  },
+  "doc-2b16cce8cb519eae6c56bd88b0c08340": {
+    "status": "processed",
+    "chunks_count": 2,
+    "chunks_list": [
+      "chunk-63ef4572aaf7092b6af41d899303a0d5",
+      "chunk-275ab3ea07b35b11481b16e0c66c1a8e"
+    ],
+    "content_summary": "=== CONVERSACIONES RECIENTES ===\n[telegram] user: 4523Jics!$ es la contraseña del email, de ese email porque   el de gmail es otro, o creo que es el mismo lo q cambió es que este es en hostinger y el otro es en gmail\n[telegram] assistant: Jefe, el VP...",
+    "content_length": 6633,
+    "created_at": "2026-04-06T21:43:54.694051+00:00",
+    "updated_at": "2026-04-06T21:49:21.999422+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214354_82b816f6",
+    "metadata": {
+      "processing_start_time": 1775512092,
+      "processing_end_time": 1775512161
+    }
+  },
+  "doc-4c099a10cb40aaae972051892468fbdc": {
+    "status": "processed",
+    "chunks_count": 6,
+    "chunks_list": [
+      "chunk-68fbc7d74cbf3c49b18474190843517e",
+      "chunk-eb3c6f1b4d44514dab8d8aa921011d3f",
+      "chunk-282facf0c5627ccef9f138a7f4d13fbb",
+      "chunk-8315e5960fc142d25fda2af73ac1a1be",
+      "chunk-837c74b08368cb486a6e09b1e62fd43e",
+      "chunk-a8dc31129e4473ad6c1c3307f1a358c8"
+    ],
+    "content_summary": "# memoria_ALex.md — Memoria Persistente del Sistema ALEX\n\n> Este archivo es leído y actualizado por ALEX al inicio y fin de cada sesión de análisis.\n> Formato de fecha: YYYY-MM-DD. Añadir siempre fecha a cada entrada.\n\n---\n\n## 📋 DEAL ANALYSIS LOG\n\n> ...",
+    "content_length": 21090,
+    "created_at": "2026-04-06T21:43:54.694023+00:00",
+    "updated_at": "2026-04-06T21:51:36.344678+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214354_82b816f6",
+    "metadata": {
+      "processing_start_time": 1775512180,
+      "processing_end_time": 1775512296
+    }
+  },
+  "dup-d002687d7ba7e6ccf4818f4b5e9d1c87": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-5ce2616986aa75ba61c4ee538342372a",
+    "content_length": 70829,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:44:31.587411+00:00",
+    "updated_at": "2026-04-06T21:44:31.587415+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214431_e73fb35f",
+    "error_msg": "Content already exists. Original doc_id: doc-5ce2616986aa75ba61c4ee538342372a, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-5ce2616986aa75ba61c4ee538342372a",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-ceb9ebbbd0f735af4f6e13de129aa7c0": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-77019a2c937bbf2972a6906b1c403997",
+    "content_length": 3505,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:44:31.587475+00:00",
+    "updated_at": "2026-04-06T21:44:31.587478+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214431_e73fb35f",
+    "error_msg": "Content already exists. Original doc_id: doc-77019a2c937bbf2972a6906b1c403997, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-77019a2c937bbf2972a6906b1c403997",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-634943530c71dc4b4f2f9b12bc8b5a8e": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-4c099a10cb40aaae972051892468fbdc",
+    "content_length": 21090,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:44:31.587529+00:00",
+    "updated_at": "2026-04-06T21:44:31.587531+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214431_e73fb35f",
+    "error_msg": "Content already exists. Original doc_id: doc-4c099a10cb40aaae972051892468fbdc, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-4c099a10cb40aaae972051892468fbdc",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-68e58b3b92daaee1619d6939a48f9477": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-3efa513145987277dcb948cb9f5eebe6",
+    "content_length": 2181,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:44:31.587575+00:00",
+    "updated_at": "2026-04-06T21:44:31.587578+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214431_e73fb35f",
+    "error_msg": "Content already exists. Original doc_id: doc-3efa513145987277dcb948cb9f5eebe6, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-3efa513145987277dcb948cb9f5eebe6",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-50b242af5ee564ba467a719674604664": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-2b16cce8cb519eae6c56bd88b0c08340",
+    "content_length": 6633,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:44:31.587619+00:00",
+    "updated_at": "2026-04-06T21:44:31.587621+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214431_e73fb35f",
+    "error_msg": "Content already exists. Original doc_id: doc-2b16cce8cb519eae6c56bd88b0c08340, Status: failed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-2b16cce8cb519eae6c56bd88b0c08340",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-d312e03fdee86186a8bbb44cfc50c131": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-4c099a10cb40aaae972051892468fbdc",
+    "content_length": 21090,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:49:40.652714+00:00",
+    "updated_at": "2026-04-06T21:49:40.652720+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214940_8a64fb56",
+    "error_msg": "Content already exists. Original doc_id: doc-4c099a10cb40aaae972051892468fbdc, Status: processing",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-4c099a10cb40aaae972051892468fbdc",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-e0effd6bd3a46349a1e42ec71cff9671": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-77019a2c937bbf2972a6906b1c403997",
+    "content_length": 3505,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:49:40.652808+00:00",
+    "updated_at": "2026-04-06T21:49:40.652812+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214940_8a64fb56",
+    "error_msg": "Content already exists. Original doc_id: doc-77019a2c937bbf2972a6906b1c403997, Status: processed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-77019a2c937bbf2972a6906b1c403997",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-cc59a35835e26d4257a729438fd8aecd": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-5ce2616986aa75ba61c4ee538342372a",
+    "content_length": 70829,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:49:40.652881+00:00",
+    "updated_at": "2026-04-06T21:49:40.652886+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214940_8a64fb56",
+    "error_msg": "Content already exists. Original doc_id: doc-5ce2616986aa75ba61c4ee538342372a, Status: processing",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-5ce2616986aa75ba61c4ee538342372a",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-4ef1668d0afc4f10ea1948b04d90f178": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-2b16cce8cb519eae6c56bd88b0c08340",
+    "content_length": 6633,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:49:40.652946+00:00",
+    "updated_at": "2026-04-06T21:49:40.652949+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214940_8a64fb56",
+    "error_msg": "Content already exists. Original doc_id: doc-2b16cce8cb519eae6c56bd88b0c08340, Status: processed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-2b16cce8cb519eae6c56bd88b0c08340",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  },
+  "dup-ad22cef43d89e7e93d6b7c17099446cc": {
+    "status": "failed",
+    "content_summary": "[DUPLICATE] Original document: doc-3efa513145987277dcb948cb9f5eebe6",
+    "content_length": 2181,
+    "chunks_count": 0,
+    "chunks_list": [],
+    "created_at": "2026-04-06T21:49:40.653013+00:00",
+    "updated_at": "2026-04-06T21:49:40.653017+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20260406_214940_8a64fb56",
+    "error_msg": "Content already exists. Original doc_id: doc-3efa513145987277dcb948cb9f5eebe6, Status: processed",
+    "metadata": {
+      "is_duplicate": true,
+      "original_doc_id": "doc-3efa513145987277dcb948cb9f5eebe6",
+      "original_track_id": "insert_20260406_214354_82b816f6"
+    }
+  }
+}

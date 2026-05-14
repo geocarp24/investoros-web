@@ -1,0 +1,137 @@
+{
+  "run_id": "2026-05-10_seo_deep_pinnacle",
+  "tenant_id": "pinnacle",
+  "audit_type": "seo_deep",
+  "audit_date": "2026-05-10",
+  "method": "WebSearch_only_no_WebFetch",
+  "data_completeness_pct": 18,
+  "limitations": [
+    "WebFetch denied: cannot inspect HTML, schema.org, sitemap, robots.txt, hreflang, alts, internal links",
+    "No PSI API: Core Web Vitals (LCP/CLS/INP) unmeasured",
+    "No SerpAPI/DataForSEO: per-engine rank, geo-grid Maps rank, AI engine citation unmeasured",
+    "No GBP API: local pack presence, review velocity, NAP consistency unmeasured",
+    "Anthropic WebSearch is non-geo-localized US default: regional MN/IL/IA/MI rank unmeasured"
+  ],
+  "scores": {
+    "overall": 22,
+    "technical": null,
+    "local": null,
+    "content": null,
+    "primary_market_visibility": 5,
+    "regional_us_visibility": null
+  },
+  "indexation": {
+    "site_operator_returned": 1,
+    "expected_min": 20,
+    "verified_indexed_urls": [
+      "https://pinnaclegroupwi.com/"
+    ]
+  },
+  "branded_rank": {
+    "Pinnacle Holdings Wisconsin": 1,
+    "pinnaclegroupwi.com Wisconsin cash home buyers": 1,
+    "Pinnacle Holdings Group Green Bay cash offer house": 1
+  },
+  "priority_intent_rank_google": {
+    "sell my house fast wisconsin": ">10",
+    "cash home buyers milwaukee wi": ">10",
+    "we buy houses madison wisconsin": ">10",
+    "cash home buyers green bay wi": ">10",
+    "we buy houses kenosha racine wi": ">10",
+    "cash home buyers appleton oshkosh wisconsin": ">10",
+    "we buy houses waukesha west allis wauwatosa wi": ">10",
+    "foreclosure help wisconsin": ">10",
+    "inherited house wisconsin probate sell fast": ">10",
+    "how do I sell my inherited house fast in wisconsin": ">10"
+  },
+  "homepage_serp_signals": {
+    "title_in_snippet": "We Buy Houses Wisconsin | Cash Offers Fast | Pinnacle Holdings",
+    "value_props_in_snippet": [
+      "fair cash offer in 24 hours",
+      "no obligation, no pressure",
+      "you pick closing date",
+      "any condition",
+      "no realtor fees",
+      "closing costs covered",
+      "local Wisconsin investors"
+    ]
+  },
+  "mobile_cwv": {
+    "lcp": null,
+    "cls": null,
+    "inp": null,
+    "status": "Datos no disponibles - requires PSI API"
+  },
+  "local_ranks_by_city": {
+    "Milwaukee": null,
+    "Madison": null,
+    "Green Bay": null,
+    "Kenosha": null,
+    "Racine": null,
+    "Appleton": null,
+    "Waukesha": null,
+    "Eau Claire": null,
+    "Oshkosh": null,
+    "Janesville": null,
+    "West Allis": null,
+    "La Crosse": null,
+    "Sheboygan": null,
+    "Wauwatosa": null,
+    "Fond du Lac": null,
+    "_status": "Datos no disponibles - requires SerpAPI google_maps engine + lat/lng per city"
+  },
+  "schema_coverage": {
+    "_status": "Datos no disponibles - requires WebFetch on homepage",
+    "expected": ["LocalBusiness", "Organization", "FAQPage", "Service", "Review", "BreadcrumbList"]
+  },
+  "competitor_intel": {
+    "we_buy_ugly_houses_wi": "https://www.webuyuglyhouses.com/wisconsin",
+    "homevestors_milwaukee": "https://www.homevestors.com/wisconsin/",
+    "sell_my_house_fast_milwaukee": "https://www.sellmyhousefast.com/we-buy-houses-milwaukee-wi/",
+    "fox_cities_home_buyers_NE_wi_dominant": "https://www.flipfoxvalley.com/",
+    "cream_city_home_buyers_milwaukee_metro": "https://www.creamcityhomebuyers.com/",
+    "atticus_home_buyers_green_bay_kenosha": "https://www.atticushomebuyers.com/",
+    "_competitor_onpage_data_status": "Datos no disponibles - requires WebFetch"
+  },
+  "entity_collision_risk": {
+    "competing_pinnacle_brands_in_serp": [
+      "Pinnacle Real Estate Group Madison (pinnaclerealestatemadison.com)",
+      "Pinnacle Property Investments (pinnaclepropertyhomebuyers.com)",
+      "Pinnacle Property Solutions (pinnaclepropdeals.com)",
+      "Pinnacle Realty MI",
+      "Pinnacle Investments"
+    ],
+    "mitigation": "Add Organization JSON-LD with legalName + sameAs + claim Knowledge Graph in GSC"
+  },
+  "top_critical_issues": [
+    "Indexation footprint = 1 page (homepage only via site: probe)",
+    "0/10 priority intent queries surface site in top 10",
+    "Pinnacle does not rank in own home market (Green Bay - phone 920)",
+    "No pillar content observable (8 pillars defined in tenant.json, 0 surfaced)",
+    "Mobile CWV unverified (R7 mandates mobile-first - blind spot)",
+    "Schema coverage unverified (LocalBusiness/FAQPage missing risk for AI engines)"
+  ],
+  "top_wins": [
+    "Branded SERP is clean: homepage ranks #1 for 'Pinnacle Holdings Wisconsin'",
+    "Site is indexed and crawlable - foundation exists",
+    "Tenant config is mature (15 cities, 8 pillars, 3 competitors, content goals)",
+    "Posicionador agent code exists with cron schedules wired"
+  ],
+  "priority_recommendations_p0": [
+    "Grant WebFetch permission to posicionador",
+    "Wire PageSpeed Insights API for mobile CWV",
+    "Wire SerpAPI or DataForSEO for per-engine x per-city rank tracking"
+  ],
+  "priority_recommendations_p1": [
+    "Build city pages: /we-buy-houses-green-bay-wi/, /we-buy-houses-milwaukee-wi/, /we-buy-houses-madison-wi/, /we-buy-houses-appleton-wi/",
+    "Submit sitemap.xml to Google Search Console + Bing Webmaster Tools",
+    "Build 3 pillar pages (foreclosure, inherited/probate, cash-vs-realtor)",
+    "GBP audit + first 10 reviews push"
+  ],
+  "next_run_drift_keys": [
+    "scores.overall",
+    "scores.primary_market_visibility",
+    "indexation.site_operator_returned",
+    "priority_intent_rank_google.*"
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "_comment": "Tenant configuration template. Copy to <slug>.json, fill values. El Mercader + El Posicionador + El Cazador + El Oraculo all read these. SaaS multi-tenant per rule R8 — NO hardcoded tenant data in code.",
+
+  "tenant_id": "",
+  "tenant_name": "",
+  "industry": "real-estate",
+  "primary_language": "en",
+  "markets": [
+    {
+      "state": "XX",
+      "scope": "state-wide | metro-only | national",
+      "cities_primary": ["City1", "City2", "City3"]
+    }
+  ],
+  "regional_scope": {
+    "primary":    "XX",
+    "secondary":  [],
+    "primary_weight":   0.75,
+    "secondary_weight": 0.25
+  },
+  "search_engines": [
+    "google", "bing", "duckduckgo", "brave",
+    "chatgpt-search", "perplexity", "ai-overviews", "google-sge"
+  ],
+  "seo_goals": {
+    "per_page_target_rank": 1,
+    "primary_priority":     "",
+    "secondary_priority":   ""
+  },
+
+  "content_goals": {
+    "articles_per_week":      3,
+    "target_word_count_min":  900,
+    "target_word_count_max":  1800,
+    "tone":                   "",
+    "languages":              ["en"],
+    "publish_to_wordpress":   false,
+    "wp_default_status":      "draft",
+    "content_types": [
+      { "type": "blog_post",    "weight": 0.5 },
+      { "type": "q_and_a_page", "weight": 0.3 },
+      { "type": "news_article", "weight": 0.1 },
+      { "type": "pillar_page",  "weight": 0.1 }
+    ],
+    "topic_pillars": [],
+    "backlink_strategy": {
+      "target_types":   [],
+      "monthly_target": 5
+    },
+    "atp_mining": {
+      "enabled":      true,
+      "method":       "claude_knowledge",
+      "fallback_browser": false,
+      "seed_queries": []
+    }
+  },
+
+  "website": "",
+  "secondary_sites": [],
+  "brand": {
+    "primary_color": "#000000",
+    "secondary_color": "#FFFFFF",
+    "accent_color": "#CC0000",
+    "logo_url": "",
+    "phone": "",
+    "email": ""
+  },
+
+  "competitors": [
+    { "name": "", "url": "" }
+  ],
+
+  "schedules": {
+    "_comment": "UTC cron. 08:00 CST = 14:00 UTC; 09:00 CST = 15:00 UTC",
+    "quick_health": "0 14 */3 * *",
+    "deep_audit":   "0 15 * * 1"
+  },
+
+  "airtable": {
+    "base_id": "",
+    "table_id": "",
+    "token_env": "AIRTABLE_TOKEN"
+  },
+
+  "telegram": {
+    "chat_id_env": "TELEGRAM_CHAT_ID",
+    "bot_token_env": "TELEGRAM_BOT_TOKEN"
+  },
+
+  "claude": {
+    "binary_path": "claude",
+    "model": "claude-sonnet-4-6"
+  },
+
+  "alert_thresholds": {
+    "critical_score": 50,
+    "warn_score": 70
+  },
+
+  "skills": {
+    "quick_health": ["market-quick"],
+    "deep_audit":   ["market-audit", "market-competitors"],
+    "seo_health":   ["seo-audit"],
+    "seo_deep":     ["seo-audit", "seo-local", "seo-maps"],
+    "ads_health":   ["ads-quick"],
+    "ads_deep":     ["ads-audit"],
+    "content_plan_week":    ["seo-content", "content-strategy", "copywriting"],
+    "content_draft_article": ["copywriting", "content-humanizer", "seo-content"],
+    "content_atp_mine":      ["content-strategy"]
+  },
+
+  "output": {
+    "retain_reports_days": 90,
+    "upload_pdfs_to": "hostinger"
+  }
+}

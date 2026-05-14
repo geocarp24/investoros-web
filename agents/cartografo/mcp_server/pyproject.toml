@@ -1,0 +1,12 @@
+[project]
+name = "cartografo-gbp-mcp"
+version = "0.1.0"
+description = "El Cartografo — Google Business Profile write-side MCP server with anti-ban guardrails"
+requires-python = ">=3.11"
+dependencies = [
+  "fastmcp>=2.0.0",
+  "google-auth>=2.30.0",
+  "google-auth-oauthlib>=1.2.0",
+  "google-api-python-client>=2.140.0",
+  "requests>=2.32.0",
+]

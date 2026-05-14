@@ -1,0 +1,6 @@
+{
+  "media_type": "reel", "theme": "T1", "aspect": "9:16", "narrative": "B", "duration": 10,
+  "hook": { "en": "x", "es": "y" },
+  "points": [ { "headingEn": "only one" } ],
+  "cta": { "en": "x", "es": "y" }
+}

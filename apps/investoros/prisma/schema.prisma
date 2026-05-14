@@ -1,0 +1,245 @@
+// InvestorOS — Prisma schema (Sprint B1, Jorge 2026-05-08).
+//
+// Multi-tenant: every domain entity has tenantId FK + Postgres RLS policies
+// enforce isolation at the DB layer. Application code uses Prisma client
+// scoped via the helper in src/server/db.ts.
+//
+// Pinnacle Holdings Group is tenant-zero (slug=pinnacle). New tenants are
+// provisioned through Stripe checkout webhook (Sprint B4).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
+}
+
+// ─── Tenancy ──────────────────────────────────────────────────────────────────
+model Tenant {
+  id              String         @id @default(cuid())
+  slug            String         @unique
+  name            String
+  legalName       String?
+  brandColor      String?        @db.VarChar(7)         // hex e.g. #1F2937
+  logoUrl         String?
+  customDomain    String?        @unique
+  whiteLabel      Boolean        @default(false)        // hides "Powered by InvestorOS"
+  status          TenantStatus   @default(TRIAL)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  users           User[]
+  contacts        Contact[]
+  leads           Lead[]
+  deals           Deal[]
+  subscription    Subscription?
+  apiKeys         ApiKey[]
+
+  @@index([slug])
+  @@index([status])
+}
+
+enum TenantStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  SUSPENDED
+}
+
+// ─── Users + Auth (Clerk-backed; clerkId is the source of identity) ──────────
+model User {
+  id           String     @id @default(cuid())
+  tenantId     String
+  clerkId      String     @unique
+  email        String
+  firstName    String?
+  lastName     String?
+  role         UserRole   @default(MEMBER)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([clerkId])
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+// ─── CRM core: Contacts → Leads → Deals ──────────────────────────────────────
+model Contact {
+  id            String        @id @default(cuid())
+  tenantId      String
+  firstName     String?
+  lastName      String?
+  email         String?
+  phone         String?
+  addressLine1  String?
+  addressLine2  String?
+  city          String?
+  state         String?
+  zip           String?
+  source        String?       // "webform", "skiptrace", "manual", "facebook_ads"
+  notes         String?       @db.Text
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leads         Lead[]
+  deals         Deal[]
+
+  @@index([tenantId])
+  @@index([tenantId, phone])
+  @@index([tenantId, email])
+}
+
+model Lead {
+  id           String      @id @default(cuid())
+  tenantId     String
+  contactId    String
+  stage        LeadStage   @default(NEW)
+  motivation   String?     // "foreclosure", "divorce", "inheritance", etc.
+  qualifiedAt  DateTime?
+  closedAt     DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  contact      Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  deals        Deal[]
+
+  @@index([tenantId])
+  @@index([tenantId, stage])
+  @@index([contactId])
+}
+
+enum LeadStage {
+  NEW
+  CONTACTED
+  QUALIFIED
+  APPOINTMENT
+  OFFER_MADE
+  UNDER_CONTRACT
+  CLOSED_WON
+  CLOSED_LOST
+  NURTURE
+}
+
+model Deal {
+  id              String      @id @default(cuid())
+  tenantId        String
+  contactId       String
+  leadId          String?
+  propertyAddress String
+  arv             Decimal?    @db.Decimal(12, 2)   // After-Repair Value
+  rehab           Decimal?    @db.Decimal(12, 2)
+  offer           Decimal?    @db.Decimal(12, 2)
+  closingDate     DateTime?
+  profit          Decimal?    @db.Decimal(12, 2)   // attributable for performance fee
+  status          DealStatus  @default(EVALUATING)
+  strategy        DealStrategy?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  contact         Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  lead            Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([contactId])
+}
+
+enum DealStatus {
+  EVALUATING
+  OFFER_SENT
+  ACCEPTED
+  UNDER_CONTRACT
+  CLOSED
+  DEAD
+}
+
+enum DealStrategy {
+  FIX_AND_FLIP
+  BUY_AND_HOLD
+  BRRRR
+  WHOLESALE
+  MULTIFAMILY
+}
+
+// ─── Billing (Stripe — wired in B4) ──────────────────────────────────────────
+model Subscription {
+  id                    String              @id @default(cuid())
+  tenantId              String              @unique
+  stripeCustomerId      String              @unique
+  stripeSubscriptionId  String?             @unique
+  tier                  SubscriptionTier
+  status                SubscriptionStatus  @default(TRIALING)
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean             @default(false)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  tenant                Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([stripeCustomerId])
+  @@index([status])
+}
+
+enum SubscriptionTier {
+  STARTER       // $297/mo
+  GROWTH        // $697/mo
+  PRO           // $1,497/mo
+  ENTERPRISE    // $3,500+/mo custom
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
+
+// ─── API access (Pro + Enterprise tiers) ─────────────────────────────────────
+model ApiKey {
+  id         String      @id @default(cuid())
+  tenantId   String
+  keyHash    String      @unique           // SHA-256 of the API key
+  prefix     String                        // first 8 chars for UI display
+  name       String
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime    @default(now())
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([keyHash])
+}
+
+// ─── Audit log (compliance + debugging) ──────────────────────────────────────
+model AuditLog {
+  id         String      @id @default(cuid())
+  tenantId   String
+  userId     String?
+  action     String                        // "tenant.created", "deal.closed", "user.invited"
+  entityType String                        // "tenant", "deal", "user"
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([userId])
+}

@@ -1,0 +1,1398 @@
+{
+  "doc-3efa513145987277dcb948cb9f5eebe6": {
+    "relation_pairs": [
+      [
+        "Deal RecV54kq3jwhVaI0E",
+        "Rue Du Pont Simon 212"
+      ],
+      [
+        "Deal RecfqyfC6htkeR8Il",
+        "Sonnenweg 70"
+      ],
+      [
+        "1475 New Street",
+        "Deal RecX7qXC8AFtLYtl6"
+      ],
+      [
+        "Deal RecTlRMFhBg4tO6MX",
+        "Kastanienallee 75"
+      ],
+      [
+        "Deal RecKCNUdSewtIIt5A",
+        "Via Croce Rossa 84"
+      ]
+    ],
+    "count": 5,
+    "create_time": 1775511899,
+    "update_time": 1775511899,
+    "_id": "doc-3efa513145987277dcb948cb9f5eebe6"
+  },
+  "doc-77019a2c937bbf2972a6906b1c403997": {
+    "relation_pairs": [
+      [
+        "Deal Driven",
+        "Lead rec21O7g2IR6EwdAP"
+      ],
+      [
+        "Assessed Value",
+        "Last Sale Price"
+      ],
+      [
+        "3186 Idlewild Rd",
+        "Suamico"
+      ],
+      [
+        "1219 Chicago St",
+        "Lead recFvdehuvINI2v2P"
+      ],
+      [
+        "3146 Lakeview Dr",
+        "Lead rec21O7g2IR6EwdAP"
+      ],
+      [
+        "Absentee Owner",
+        "Skip Trace Done"
+      ],
+      [
+        "De Pere",
+        "Wisconsin"
+      ],
+      [
+        "Wisconsin",
+        "Wrightstown"
+      ],
+      [
+        "3146 Lakeview Dr",
+        "Suamico"
+      ],
+      [
+        "Deal Driven",
+        "Lead recFvdehuvINI2v2P"
+      ],
+      [
+        "Suamico",
+        "Wisconsin"
+      ],
+      [
+        "Call Assistant",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Kenosha",
+        "Wisconsin"
+      ],
+      [
+        "345 Fair St",
+        "Wrightstown"
+      ],
+      [
+        "5106 21st Ave",
+        "Kenosha"
+      ],
+      [
+        "345 Fair St",
+        "Lead recUC8hsWjErUk2Gi"
+      ],
+      [
+        "Deal Driven",
+        "Lead recUC8hsWjErUk2Gi"
+      ],
+      [
+        "1219 Chicago St",
+        "De Pere"
+      ],
+      [
+        "3186 Idlewild Rd",
+        "Lead recMD42BdlzujmR5E"
+      ],
+      [
+        "5106 21st Ave",
+        "Lead recUCtwwYllNpmJQR"
+      ],
+      [
+        "Skip Trace Done",
+        "Tracy"
+      ],
+      [
+        "Assessed Value",
+        "Equity"
+      ],
+      [
+        "Deal Driven",
+        "Lead recMD42BdlzujmR5E"
+      ]
+    ],
+    "count": 23,
+    "create_time": 1775512070,
+    "update_time": 1775512070,
+    "_id": "doc-77019a2c937bbf2972a6906b1c403997"
+  },
+  "doc-2b16cce8cb519eae6c56bd88b0c08340": {
+    "relation_pairs": [
+      [
+        "Airtable",
+        "El Secretario"
+      ],
+      [
+        "Client ID",
+        "Client Secret"
+      ],
+      [
+        "El Secretario",
+        "VPS"
+      ],
+      [
+        "Immediate Notification Rule",
+        "Telegram"
+      ],
+      [
+        "Alex Bot",
+        "VPS"
+      ],
+      [
+        "ALEX",
+        "Pinnacle Holdings"
+      ],
+      [
+        "El Planificador",
+        "VPS"
+      ],
+      [
+        "El Secretario",
+        "Telegram"
+      ],
+      [
+        "Email Monitor Script",
+        "SQLite Database"
+      ],
+      [
+        "El Secretario",
+        "deals@pinnaclegroupwi.com"
+      ],
+      [
+        "Blotato",
+        "Instagram"
+      ],
+      [
+        "Blotato",
+        "Facebook"
+      ],
+      [
+        "Email Monitor Script",
+        "deals@pinnaclegroupwi.com"
+      ],
+      [
+        "Alex Bot",
+        "El Planificador"
+      ],
+      [
+        "ALEX",
+        "Jefe"
+      ],
+      [
+        "Email Archiving Rule",
+        "Tracerfy"
+      ],
+      [
+        "Blotato",
+        "Pinnacle Holdings"
+      ],
+      [
+        "Credentials.json",
+        "El Planificador"
+      ],
+      [
+        "Hostinger",
+        "Pinnacle Holdings"
+      ],
+      [
+        "El Secretario",
+        "Email Monitor Script"
+      ],
+      [
+        "El Planificador",
+        "Google Calendar"
+      ],
+      [
+        "Alex Bot",
+        "El Secretario"
+      ],
+      [
+        "Credentials.json",
+        "Jorge"
+      ],
+      [
+        "El Planificador",
+        "Google Cloud Console"
+      ],
+      [
+        "Jefe",
+        "VPS"
+      ],
+      [
+        "Google Cloud Console",
+        "Pinnacle ALEX Bot"
+      ],
+      [
+        "Email Monitor Script",
+        "support@dealdriven.com"
+      ],
+      [
+        "Email Monitor Script",
+        "Tracerfy"
+      ]
+    ],
+    "count": 28,
+    "create_time": 1775512161,
+    "update_time": 1775512161,
+    "_id": "doc-2b16cce8cb519eae6c56bd88b0c08340"
+  },
+  "doc-4c099a10cb40aaae972051892468fbdc": {
+    "relation_pairs": [
+      [
+        "Instagram",
+        "Pinnacle Holdings Group"
+      ],
+      [
+        "Claude Code",
+        "Task Queue System"
+      ],
+      [
+        "Blotato",
+        "Pinnacle Holdings"
+      ],
+      [
+        "Blotato MCP",
+        "Telegram Bot"
+      ],
+      [
+        "Telegram Bot",
+        "github_bridge.php"
+      ],
+      [
+        "Alex Bot",
+        "Claude Code"
+      ],
+      [
+        "Hostinger",
+        "u433637438"
+      ],
+      [
+        "Blotato MCP",
+        "blt_2Jz5IZHqjY6WzhfTWkDVskRANpeibfXkyDTvUB+mn8k="
+      ],
+      [
+        "Airtable",
+        "Make.com"
+      ],
+      [
+        "Geo Carpentry",
+        "Pinnacle Holdings"
+      ],
+      [
+        "Blotato MCP",
+        "Jorge"
+      ],
+      [
+        "Airtable",
+        "Jorge"
+      ],
+      [
+        "Telegram Bot",
+        "VPS"
+      ],
+      [
+        "Pinnacle Call Assistant",
+        "pinnaclegroupwi.com"
+      ],
+      [
+        "Hostinger",
+        "Pinnacle Call Assistant"
+      ],
+      [
+        "Blotato MCP",
+        "Node.js"
+      ],
+      [
+        "Jorge Cruz",
+        "Pinnacle Holdings Group"
+      ],
+      [
+        "El Planificador",
+        "Google Cloud Project Pinnacle-Alex"
+      ],
+      [
+        "Claude Code",
+        "Telegram"
+      ],
+      [
+        "Alex Bot",
+        "Jorge Cruz"
+      ],
+      [
+        "Blotato API",
+        "Claude Code"
+      ],
+      [
+        "ALEX",
+        "El Secretario"
+      ],
+      [
+        "ALEX",
+        "Social Media Agent"
+      ],
+      [
+        "El Secretario",
+        "Telegram Bot"
+      ],
+      [
+        "config.php",
+        "deals@pinnaclegroupwi.com"
+      ],
+      [
+        "VPS",
+        "memoria_ALex.md"
+      ],
+      [
+        "El Secretario",
+        "Email Monitor Script"
+      ],
+      [
+        "Pinnacle Call Assistant",
+        "geocarp24/alex-real-estate-system"
+      ],
+      [
+        "ALEX",
+        "Claude.ai"
+      ],
+      [
+        "Email Monitor Script",
+        "Pinnacle Group"
+      ],
+      [
+        "Geocroficial",
+        "Pinnacle Holdings"
+      ],
+      [
+        "Airtable",
+        "Alex Bot"
+      ],
+      [
+        "Claude Classification System",
+        "El Secretario"
+      ],
+      [
+        "GitHub Monitor",
+        "Task Queue System"
+      ],
+      [
+        "Pinnacle Call Assistant",
+        "config.php"
+      ],
+      [
+        "Blotato API",
+        "Pinnacle Holdings Group"
+      ],
+      [
+        "GitHub Repository",
+        "Hostinger Bridge"
+      ],
+      [
+        "Make.com",
+        "Scenario 4636455"
+      ],
+      [
+        "GitHub Monitor",
+        "Task Queue"
+      ],
+      [
+        "Hostinger",
+        "pinnaclegroupwi.com"
+      ],
+      [
+        "Facebook Account 25638",
+        "Pinnacle Holdings Group"
+      ],
+      [
+        "Blotato MCP",
+        "VPS"
+      ],
+      [
+        "Facebook",
+        "Pinnacle Holdings Group"
+      ],
+      [
+        "Airtable",
+        "Webhook Make.com"
+      ],
+      [
+        "Alex Bot",
+        "VPS"
+      ],
+      [
+        "GitHub",
+        "Pinnacle Call Assistant"
+      ],
+      [
+        "Pinnacle Holdings",
+        "Pinnacle Holdings Group"
+      ],
+      [
+        "Calendar Manager Script",
+        "El Planificador"
+      ],
+      [
+        "Instagram Account 39285",
+        "Pinnacle Holdings"
+      ],
+      [
+        "Airtable",
+        "Social Media Ideas Generation"
+      ],
+      [
+        "Alex Bot",
+        "BLOTATO API Key"
+      ],
+      [
+        "El Planificador",
+        "Telegram Bot"
+      ],
+      [
+        "Google Cloud Project Pinnacle-Alex",
+        "Pinnacle Group"
+      ],
+      [
+        "Pinnacle Holdings Group",
+        "Pinnacle Instagram Account"
+      ],
+      [
+        "ALEX",
+        "Claude Code"
+      ],
+      [
+        "ALEX",
+        "Telegram Bot"
+      ],
+      [
+        "Blotato API",
+        "Geo Carpentry"
+      ],
+      [
+        "Blotato",
+        "MCP Blotato"
+      ],
+      [
+        "GitHub Monitor",
+        "Memoria ALex"
+      ],
+      [
+        "Airtable",
+        "Pinnacle Call Assistant"
+      ],
+      [
+        "Blotato API",
+        "VPS"
+      ],
+      [
+        "Blotato MCP",
+        "Real Estate Posts"
+      ],
+      [
+        "Airtable",
+        "Real Estate Posts"
+      ],
+      [
+        "Airtable Social Media Base",
+        "Make.com Scenario"
+      ],
+      [
+        "Airtable CRM",
+        "El Secretario"
+      ]
+    ],
+    "count": 65,
+    "create_time": 1775512296,
+    "update_time": 1775512296,
+    "_id": "doc-4c099a10cb40aaae972051892468fbdc"
+  },
+  "doc-5ce2616986aa75ba61c4ee538342372a": {
+    "relation_pairs": [
+      [
+        "Jean Bernard",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Green Bay",
+        "Patrick Martin"
+      ],
+      [
+        "Alicia Rude",
+        "Kenosha"
+      ],
+      [
+        "Kamal Echcharrady",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Juan Lopez",
+        "Kenosha"
+      ],
+      [
+        "Jeremy Zehrung",
+        "Kenosha"
+      ],
+      [
+        "Jose Lozada",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Juan Ponce",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Kenosha",
+        "Raj Patel"
+      ],
+      [
+        "Antonia Guilani",
+        "Pinnacle Group"
+      ],
+      [
+        "De Pere",
+        "Jessica A Green"
+      ],
+      [
+        "Noemi Bahena",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "3667 S 46th St",
+        "Antonia Guilani"
+      ],
+      [
+        "Adam Spears",
+        "Pinnacle Group"
+      ],
+      [
+        "Dean Greve",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "George Politarhos",
+        "Pinnacle Group"
+      ],
+      [
+        "Donna Peterson",
+        "Pinnacle Group WI"
+      ],
+      [
+        "David Knudsen",
+        "Pinnacle Group"
+      ],
+      [
+        "Pinnacle Group",
+        "Raj Patel"
+      ],
+      [
+        "Gemma Marshall",
+        "Website Form"
+      ],
+      [
+        "Adam Martin",
+        "Kenosha"
+      ],
+      [
+        "Maricela Delcampo",
+        "Ramon M Delcampo"
+      ],
+      [
+        "James Wichert",
+        "Kenosha"
+      ],
+      [
+        "Carlos Chavez",
+        "Kenosha"
+      ],
+      [
+        "Jessica A Green",
+        "Wisconsin"
+      ],
+      [
+        "Daniel Torresin",
+        "Kenosha"
+      ],
+      [
+        "Pinnacle Group Wisconsin",
+        "Timothy Stpeter"
+      ],
+      [
+        "Kathryn Knutson",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Gary Orvis",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Todd Fricker"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Susan Sajec"
+      ],
+      [
+        "Joseph Simmons",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Kim Sandberg",
+        "Pinnacle Group Wi"
+      ],
+      [
+        "Austin Bretzel",
+        "Green Bay"
+      ],
+      [
+        "Kyle Voelker",
+        "Pinnacle Group"
+      ],
+      [
+        "Holly Balinski",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Simone Houchels",
+        "YouTube Guide"
+      ],
+      [
+        "Alicia Rude",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Jorge Chuc",
+        "Kenosha, WI"
+      ],
+      [
+        "Pinnacle Group Wi",
+        "Stacey L Wergin"
+      ],
+      [
+        "4906 28th Ave",
+        "Timothy Stpeter"
+      ],
+      [
+        "Jeremy Zehrung",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Joanna Riggs",
+        "Website Form"
+      ],
+      [
+        "Green Bay",
+        "Ryan M Dempsey"
+      ],
+      [
+        "Abigail Carter",
+        "Green Bay, WI"
+      ],
+      [
+        "Daniel Esposito",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Greenfield",
+        "Todd Fricker"
+      ],
+      [
+        "Christopher Schallhorn",
+        "Milwaukee"
+      ],
+      [
+        "Green Bay",
+        "Jason Smith"
+      ],
+      [
+        "Jose Quinones",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Sean Cunningham",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Christopher Schallhorn",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Jean Bernard",
+        "Lake Bluff"
+      ],
+      [
+        "Deal Driven",
+        "Jason Smith"
+      ],
+      [
+        "Richard Balaka",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Antonia Guilani",
+        "Greenfield"
+      ],
+      [
+        "Jean Bernard",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "James Wichert",
+        "Pinnacle Group"
+      ],
+      [
+        "Carlos Chavez",
+        "Pinnacle Group"
+      ],
+      [
+        "Daniel Torresin",
+        "Pinnacle Group"
+      ],
+      [
+        "Leen Conigliaro",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "8814 65th St",
+        "Syed Sawar"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Tina Hernandez"
+      ],
+      [
+        "Skip Trace",
+        "Tracerfy"
+      ],
+      [
+        "Michael Keminger",
+        "Wrightstown, WI"
+      ],
+      [
+        "Jason Smith",
+        "Pinnacle Group Wi"
+      ],
+      [
+        "Gemma Marshall",
+        "Pinnacle Group"
+      ],
+      [
+        "Christopher Schallhorn",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Greenfield",
+        "Holly Balinski"
+      ],
+      [
+        "Gemma Marshall",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Antonia Guilani",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Dean Van Brunt",
+        "Kenosha"
+      ],
+      [
+        "Juan Ponce",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Pinnacle Group",
+        "Thomas Baker"
+      ],
+      [
+        "Instagram",
+        "Instagram Growth Agency"
+      ],
+      [
+        "Green Bay",
+        "Maricela Delcampo"
+      ],
+      [
+        "Austin Bretzel",
+        "Deal Driven"
+      ],
+      [
+        "Donna Peterson",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Kathleen Conigliaro",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Christopher Gatti",
+        "Tracerfy"
+      ],
+      [
+        "Joel Soto",
+        "Pinnacle Group"
+      ],
+      [
+        "Richard Capponi",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "George Politarhos",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "David Knudsen",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "De Pere",
+        "Stacey L Wergin"
+      ],
+      [
+        "502 Karen Ln",
+        "Juan Ponce"
+      ],
+      [
+        "Carole Castonguay",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Michael Morrone",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Kathryn Knutson",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Amy L Hansen",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Joanna Riggs",
+        "Pinnacle Group WI"
+      ],
+      [
+        "George Politarhos",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Christopher Roller",
+        "Kenosha"
+      ],
+      [
+        "Kyle Voelker",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Green Bay",
+        "Kathryn Knutson"
+      ],
+      [
+        "Alicia Rude",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Beatriz Ayala",
+        "Tracerfy"
+      ],
+      [
+        "Juan Lopez",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Jeremy Zehrung",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Kenosha",
+        "Noemi Bahena"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Soto"
+      ],
+      [
+        "Dean Van Brunt",
+        "Pinnacle Group"
+      ],
+      [
+        "3186 Idlewild Rd",
+        "Amy L Hansen"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Sylvia Cerda"
+      ],
+      [
+        "Leonhard Dreimann",
+        "Tracerfy"
+      ],
+      [
+        "Greenfield",
+        "Leen Conigliaro"
+      ],
+      [
+        "Kenosha",
+        "Richard Balaka"
+      ],
+      [
+        "Kenosha",
+        "Richard Capponi"
+      ],
+      [
+        "Deal Driven",
+        "Jessica A Green"
+      ],
+      [
+        "Juan Lopez",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Green Bay",
+        "Susan Sajec"
+      ],
+      [
+        "Miguel Alanis",
+        "Milwaukee"
+      ],
+      [
+        "Jason Smith",
+        "Pinnacle Group"
+      ],
+      [
+        "Jose Lozada",
+        "Kenosha"
+      ],
+      [
+        "Pinnacle Group",
+        "Property Inspector"
+      ],
+      [
+        "John Franc",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Kamal Echcharrady",
+        "Kenosha"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Tracerfy"
+      ],
+      [
+        "Adam Martin",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "James Wichert",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Gemma",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Christopher Gatti",
+        "Kenosha"
+      ],
+      [
+        "Kenosha",
+        "Soto"
+      ],
+      [
+        "Maria Padilla",
+        "Pinnacle Group"
+      ],
+      [
+        "Miguel Alanis",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Green Bay",
+        "Nadine Pinchart"
+      ],
+      [
+        "Deal Driven",
+        "Stacey L Wergin"
+      ],
+      [
+        "Abigail Carter",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Greenfield, Wisconsin",
+        "Sylvia Cerda"
+      ],
+      [
+        "Kamal Echcharrady",
+        "Tracerfy"
+      ],
+      [
+        "Pinnacle Group",
+        "Richard Capponi"
+      ],
+      [
+        "Pinnacle Group",
+        "Richard Balaka"
+      ],
+      [
+        "Kyle Voelker",
+        "Milwaukee, Wisconsin"
+      ],
+      [
+        "Dean Greve",
+        "Kenosha"
+      ],
+      [
+        "Gemma Marshall",
+        "Instagram Account Growth Service"
+      ],
+      [
+        "Greenfield",
+        "Wisconsin"
+      ],
+      [
+        "Pinnacle Group WI",
+        "Tina Hernandez"
+      ],
+      [
+        "Edward Slominski",
+        "Tracerfy"
+      ],
+      [
+        "Adam Martin",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "George Politarhos",
+        "Wilmington"
+      ],
+      [
+        "Holly Balinski",
+        "Pinnacle Group Wi"
+      ],
+      [
+        "Syed Sawar",
+        "Tracerfy"
+      ],
+      [
+        "Kenosha",
+        "Wisconsin"
+      ],
+      [
+        "Kathleen Conigliaro",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Donna Peterson",
+        "Green Bay"
+      ],
+      [
+        "Gemma Marshall",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Pinnacle Group",
+        "Sylvia Cerda"
+      ],
+      [
+        "Kim Sandberg",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Joanna Riggs",
+        "Pinnacle Group"
+      ],
+      [
+        "Gary Orvis",
+        "Kenosha"
+      ],
+      [
+        "Beatriz Ayala",
+        "Kenosha"
+      ],
+      [
+        "Susan Zapp",
+        "Tracerfy"
+      ],
+      [
+        "Patrick Martin",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Michael Morrone",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Kenosha",
+        "Kim Sandberg"
+      ],
+      [
+        "Carole Castonguay",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Deal Driven",
+        "Jonathon L Wendt"
+      ],
+      [
+        "Pinnacle Group Wisconsin",
+        "Simone Houchens"
+      ],
+      [
+        "Pinnacle Group",
+        "Ryan M Dempsey"
+      ],
+      [
+        "Stacy Stpeter",
+        "Tracerfy"
+      ],
+      [
+        "736 N Western Ave",
+        "Leonhard Dreimann"
+      ],
+      [
+        "Kenosha",
+        "Susan Zapp"
+      ],
+      [
+        "Gemma Marshall",
+        "Instagram Authority Building Agency"
+      ],
+      [
+        "Edward Slominski",
+        "Pinnacle Group"
+      ],
+      [
+        "Christopher Gatti",
+        "Pinnacle Group"
+      ],
+      [
+        "Jorge Chuc",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Gemma Marshall",
+        "Instagram Growth Agency"
+      ],
+      [
+        "Jorge Chuc",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Dean Greve",
+        "Pinnacle Group"
+      ],
+      [
+        "Jose Quinones",
+        "Zion, IL"
+      ],
+      [
+        "Pinnacle Group WI",
+        "Stacy Stpeter"
+      ],
+      [
+        "Dean Van Brunt",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Nadine Pinchart",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Pinnacle Group",
+        "Susan Zapp"
+      ],
+      [
+        "Milwaukee",
+        "Wisconsin"
+      ],
+      [
+        "Ivan Salgado",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Pinnacle Group WI",
+        "Soto"
+      ],
+      [
+        "Joseph Simmons",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Green Bay",
+        "Thomas Baker"
+      ],
+      [
+        "Jason Smith",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Kenosha",
+        "Sean Cunningham"
+      ],
+      [
+        "Beatriz Ayala",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Pinnacle Group WI",
+        "Property Call Summary"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Tanya Patterson"
+      ],
+      [
+        "Maricela Delcampo",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Abigail Carter",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Maria Padilla",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Jonathon L Wendt",
+        "Suamico"
+      ],
+      [
+        "1289 Velsen Rd",
+        "Tyler L Carter"
+      ],
+      [
+        "Michael Keminger",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Stanley Painter"
+      ],
+      [
+        "Pinnacle Group Wisconsin",
+        "Sean Cunningham"
+      ],
+      [
+        "James Wichert",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Christopher Roller",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Antonia Guilani",
+        "Wisconsin"
+      ],
+      [
+        "Daniel Torresin",
+        "Tracerfy"
+      ],
+      [
+        "Carlos Chavez",
+        "Tracerfy"
+      ],
+      [
+        "Luis Garduno Victoria",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Pinnacle Group WI",
+        "Simone Houchens"
+      ],
+      [
+        "Adam Spears",
+        "Kenosha"
+      ],
+      [
+        "Simone Houchens",
+        "YouTube Guide"
+      ],
+      [
+        "Antonia Guilani",
+        "Tracerfy"
+      ],
+      [
+        "Raj Patel",
+        "Skip Trace - Tracerfy"
+      ],
+      [
+        "Carole Castonguay",
+        "Kenosha"
+      ],
+      [
+        "Austin Bretzel",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "Kenosha, Wisconsin",
+        "Maria Padilla"
+      ],
+      [
+        "Kenosha",
+        "Tanya Patterson"
+      ],
+      [
+        "Kenosha",
+        "Michael Morrone"
+      ],
+      [
+        "Adam Spears",
+        "Tracerfy"
+      ],
+      [
+        "Green Bay",
+        "Tina Hernandez"
+      ],
+      [
+        "Greenfield",
+        "Stanley Painter"
+      ],
+      [
+        "Jose Quinones",
+        "Pinnacle Group WI"
+      ],
+      [
+        "Gemma",
+        "Pinnacle Group"
+      ],
+      [
+        "Luis Garduno Victoria",
+        "Pinnacle Group Wisconsin"
+      ],
+      [
+        "1720 50th St",
+        "Luis Garduno Victoria"
+      ],
+      [
+        "Edward Slominski",
+        "Greenfield"
+      ],
+      [
+        "Joel Soto",
+        "Tracerfy"
+      ],
+      [
+        "Skip Trace - Tracerfy",
+        "Timothy Stpeter"
+      ]
+    ],
+    "count": 218,
+    "create_time": 1775512296,
+    "update_time": 1775512296,
+    "_id": "doc-5ce2616986aa75ba61c4ee538342372a"
+  }
+}

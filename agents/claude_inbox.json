@@ -1,0 +1,22 @@
+[
+  {
+    "task_id": "a76aae00-ee9a-4e83-91e9-5f7af8dcb113",
+    "prompt": "Responde solo: PUENTE ACTIVO - El worker de Claude Code está funcionando correctamente.",
+    "chat_id": "8402370952",
+    "source": "test",
+    "status": "done",
+    "created_at": "2026-04-05T16:20:27.267363",
+    "started_at": "2026-04-05T16:20:27.752564",
+    "completed_at": "2026-04-05T16:20:33.594205"
+  },
+  {
+    "task_id": "719d7418-3fb3-4286-9dce-0790ce567845",
+    "prompt": "dime que hora es en el servidor",
+    "chat_id": 8402370952,
+    "source": "telegram",
+    "status": "done",
+    "created_at": "2026-04-05T16:29:41.428484",
+    "started_at": "2026-04-05T16:29:42.497560",
+    "completed_at": "2026-04-05T16:29:50.457576"
+  }
+]

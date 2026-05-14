@@ -1,0 +1,19 @@
+# El Secretario — Dependencias
+# Instalación: pip install -r secretario/requirements.txt
+
+# Core (ya instaladas en el venv principal)
+anthropic
+python-dotenv
+requests
+
+# Google Calendar
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+google-api-python-client>=2.0.0
+
+# Email (imaplib y smtplib son built-in de Python 3)
+# No requieren instalación adicional
+
+# SQLite (built-in de Python 3)
+# No requiere instalación adicional

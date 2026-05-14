@@ -1,0 +1,136 @@
+# MODEL CONFIGURATION — ALEX Multi-Agent System
+# Define qué modelo de Claude usar para cada sub-agente
+# Última actualización: 2026-04-10 (Audit de créditos)
+# Aprobado por: Jorge Cruz
+
+agents:
+  # ─────────────────────────────────────────────────────────
+  # TIER 1 — INMOBILIARIA (Real Estate Analysis)
+  # ─────────────────────────────────────────────────────────
+
+  scout:
+    name: "El Scout — Investigación de Mercado"
+    model: "claude-sonnet-4-6"  # ← OPTIMIZADO: Era Opus, ahora Sonnet (70% ahorro)
+    reasoning: "Scout hace investigación de datos públicos. Sonnet es capaz de análisis de mercado."
+    estimated_cost_per_task: "$37.50"  # vs $127.50 con Opus
+    frequency: "7 deals/mes"
+    monthly_savings: "$630"
+
+  matematico:
+    name: "El Matemático — Análisis Financiero"
+    model: "claude-sonnet-4-6"  # ← OPTIMIZADO: Era Opus, ahora Sonnet (70% ahorro)
+    reasoning: "Cálculos de ROI, cap rates, proyecciones. Sonnet maneja bien aritmética y lógica."
+    estimated_cost_per_task: "$27.90"  # vs $94.50 con Opus
+    frequency: "7 deals/mes"
+    monthly_savings: "$466"
+
+  fact_checker:
+    name: "El Fact-Checker — Auditoría de Confianza"
+    model: "claude-sonnet-4-6"  # ← OPTIMIZADO: Era Opus, ahora Sonnet (70% ahorro)
+    reasoning: "Verifica lógica y asigna confidence scores. Sonnet es muy capaz si datos son claros."
+    estimated_cost_per_task: "$18.60"  # vs $63.00 con Opus
+    frequency: "7 deals/mes"
+    monthly_savings: "$309"
+    validation: "Monitor que Confidence Scores promedio ≥7.0/10"
+
+  tracy:
+    name: "Tracy — Skip Tracer"
+    model: "claude-haiku-4-5"  # ← OPTIMIZADO: Era Opus, ahora Haiku (94% ahorro!)
+    reasoning: "Tracy solo busca y formatea datos públicos. NO requiere razonamiento complejo."
+    estimated_cost_per_task: "$3.36"  # vs $63.00 con Opus
+    frequency: "15 traces/mes"
+    monthly_savings: "$894.60"
+    notes: "Cambio más seguro — riesgo MÍNIMO, máximo ahorro"
+
+  # ─────────────────────────────────────────────────────────
+  # TIER 2 — CONTENIDO SOCIAL MEDIA
+  # ─────────────────────────────────────────────────────────
+
+  social_media_agent:
+    name: "Social Media Agent — Generador de Ideas"
+    model: "claude-sonnet-4-6"  # ← OPTIMIZADO: Era Opus, ahora Sonnet (71% ahorro)
+    reasoning: "Genera ideas de contenido creativo. Sonnet es excelente en creatividad."
+    frequency: "4 contents/mes"
+    monthly_savings: "incluido en Creativo"
+
+  creativo:
+    name: "El Creativo — Diseño de Carruseles e Imágenes"
+    model: "claude-sonnet-4-6"  # ← OPTIMIZADO: Era Opus, ahora Sonnet (71% ahorro)
+    reasoning: "Prompts visuales y captions. Sonnet maneja bien descripción de visuales."
+    estimated_cost_per_task: "$27.90"  # vs $94.50 con Opus
+    frequency: "4 designs/mes"
+    monthly_savings: "$266"
+
+  director:
+    name: "El Director — Scripts y Videos Narrativos"
+    model: "claude-sonnet-4-6"  # ← OPTIMIZADO: Era Opus, ahora Sonnet (71% ahorro)
+    reasoning: "Narrativa para videos y reels. Sonnet es fuerte en storytelling."
+    estimated_cost_per_task: "$43.50"  # vs $140 con Opus
+    frequency: "4 videos/mes"
+    monthly_savings: "$388"
+
+  programador:
+    name: "El Programador — Publicación Automatizada"
+    model: "claude-sonnet-4-6"  # ← OPTIMIZADO: Era Opus, ahora Sonnet
+    reasoning: "APIs, scheduling, integración. Sonnet maneja bien integración de sistemas."
+    frequency: "4 posts/mes"
+
+  # ─────────────────────────────────────────────────────────
+  # TIER 3 — MANTENIMIENTO Y DEBUGGING
+  # ─────────────────────────────────────────────────────────
+
+  secretario:
+    name: "El Secretario — Email & Calendar"
+    model: "claude-sonnet-4-6"  # ✅ CORRECTO: Mantener Sonnet
+    reasoning: "Clasificación de emails, gestión de calendarios. Sonnet es suficiente."
+    frequency: "continuous"
+
+  code_debugger:
+    name: "ALEX Code Debugger — Fixes en Producción"
+    model: "claude-opus-4-6"  # 🔴 NO CAMBIAR: Riesgo máximo, no optimizar
+    reasoning: "Cambios en código Hostinger, PHP, fixes críticos. REQUIERE Opus por seguridad."
+    frequency: "1-2 veces/mes"
+    note: "Opus es NECESARIO. No aplicar optimización aquí."
+
+# ─────────────────────────────────────────────────────────
+# COSTOS CONSOLIDADOS
+# ─────────────────────────────────────────────────────────
+
+cost_summary:
+  haiku_monthly: "$50.40"
+  sonnet_monthly: "$1,146.50"
+  opus_monthly: "$40.00"
+  total_monthly: "$1,236.90"
+  savings_vs_previous: "$3,099.60/mes (-71%)"
+  annual_savings: "$37,195.20"
+
+# ─────────────────────────────────────────────────────────
+# VALIDACIONES REQUERIDAS
+# ─────────────────────────────────────────────────────────
+
+validations:
+  fact_checker_confidence:
+    metric: "Confidence Score promedio"
+    threshold: "≥7.0/10"
+    frequency: "Semanal durante Fase 2"
+    action_if_fails: "Revertir a Opus para análisis complejos"
+
+  deal_quality:
+    metric: "Tasa de errores detectados"
+    threshold: "≤2% de deals"
+    frequency: "Mensual"
+    action_if_fails: "Revertir a Opus si tasa supera umbral"
+
+# ─────────────────────────────────────────────────────────
+# HISTORIAL DE CAMBIOS
+# ─────────────────────────────────────────────────────────
+
+changelog:
+  - date: "2026-04-07"
+    change: "Creada jerarquía de modelos (Haiku/Sonnet/Opus)"
+    approved_by: "Jorge Cruz"
+
+  - date: "2026-04-10"
+    change: "Implementar cambios de optimización basados en audit"
+    phase: "1 — Tracy Haiku (0 riesgo)"
+    approved_by: "PENDIENTE — Jorge Cruz"

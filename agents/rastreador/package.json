@@ -1,0 +1,11 @@
+{
+  "name": "@pinnacle/rastreador",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "prod": "node rastreador.mjs"
+  }
+}
