@@ -74,10 +74,10 @@
 
   "services": [
     {
-      "slug": "custom-carpentry",
-      "name": "Custom Carpentry & Woodwork",
+      "slug": "finish-carpentry",
+      "name": "Finish Carpentry & Trim",
       "ticket_range_usd": [500, 8000],
-      "keywords": ["custom carpentry green bay", "custom woodwork wisconsin", "built-in shelving green bay", "crown molding contractor"]
+      "keywords": ["finish carpentry green bay", "trim carpenter wisconsin", "crown molding contractor green bay", "custom woodwork wisconsin", "built-in shelving green bay"]
     },
     {
       "slug": "kitchen-remodeling",
