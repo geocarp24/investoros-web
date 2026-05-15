@@ -53,11 +53,13 @@ function runClaude(binary, prompt, timeoutMs = 20 * 60 * 1000) {
   return new Promise((resolve, reject) => {
     // SEO audits need WebFetch + WebSearch + Bash (for curl/openssl probes) + Read/Write (for runs/ md files).
     // Without --allowed-tools the live network probes get rejected and the report comes back UNKNOWN.
-    const allowedTools = "WebFetch WebSearch Bash Read Write Glob Grep";
+    // Use COMMA-SEPARATED (not space) so commander doesn't slurp the prompt into the variadic <tools...> arg.
+    const allowedTools = "WebFetch,WebSearch,Bash,Read,Write,Glob,Grep";
     const child = spawn(binary, [
       "--print",
       "--permission-mode", "acceptEdits",
       "--allowed-tools", allowedTools,
+      "--",
       prompt,
     ], { stdio: ["ignore", "pipe", "pipe"] });
     let out = "", err = "";
