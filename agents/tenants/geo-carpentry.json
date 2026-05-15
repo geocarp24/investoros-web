@@ -130,11 +130,37 @@
       "Kitchen remodeling costs Wisconsin 2026",
       "Deck building permits Brown County WI",
       "Bathroom remodel ROI in Northeast Wisconsin",
-      "Crown molding & trim installation guide — Northeast WI homes",
-      "Wisconsin weather and exterior carpentry — material choices",
-      "Home addition vs renovation — what makes sense?",
-      "DIY vs hiring contractor — when to call a pro"
-    ]
+      "Crown molding & trim installation guide",
+      "Wisconsin weather and exterior carpentry",
+      "Home addition vs renovation",
+      "DIY vs hiring contractor"
+    ],
+    "atp_mining": {
+      "enabled": true,
+      "seed_queries": [
+        "kitchen remodel green bay cost",
+        "deck builder green bay wisconsin",
+        "bathroom remodel appleton wi",
+        "home addition contractor green bay",
+        "finish carpenter wisconsin",
+        "crown molding installation green bay",
+        "wisconsin contractor licensing",
+        "brown county building permit deck",
+        "best time to remodel kitchen wisconsin",
+        "how much does a deck cost wisconsin"
+      ]
+    },
+    "voice_search_optimization": {
+      "enabled": true,
+      "principles": [
+        "First 150 chars answer the intent query directly (AI Overviews / Google SGE love this)",
+        "Long-tail conversational keywords (how / what / where / when / why questions)",
+        "FAQ schema markup on every post (SureRank handles this if H2 = question)",
+        "Geo modifiers: city + county + state in title + first paragraph",
+        "Featured snippet structure: concise definitive answer in first 60 words",
+        "Mobile-first reading level (Flesch-Kincaid 8th grade max)"
+      ]
+    }
   },
 
   "competitors": [
@@ -154,6 +180,7 @@
     "activities_table_id": "tblWbxNNyGzRhdIwF",
     "permits_table_id": "tblz1qVWHJZFjQzqX",
     "seo_table_id": "tbl53FPGfpa4OtafX",
+    "content_queue_table_id": "tblpiN42pK3YFxGEW",
     "token_env": "AIRTABLE_TOKEN_GEO"
   },
 
