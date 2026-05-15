@@ -207,6 +207,54 @@
     "auth_mode": "subscription"
   },
 
+  "embajador": {
+    "enabled": false,
+    "icp_search_queries": [
+      "real estate investor OR property manager Green Bay Wisconsin",
+      "interior designer OR architect Northeast Wisconsin",
+      "house flipper Brown County WI"
+    ],
+    "weekly_target_connects": 10,
+    "weekly_target_engagements": 20,
+    "personalization_signals": [
+      "shared school or city",
+      "mutual connection",
+      "recent post engagement",
+      "specific project they posted"
+    ],
+    "tone": "warm-professional, value-first, never salesy, bilingual EN/ES on request",
+    "value_props": [
+      "Run a remodel/construction shop in Northeast WI — happy contractor resource for investor networks",
+      "Bilingual team (EN/ES) — useful for diverse markets",
+      "12+ years in Northeast WI — know local code, permits, suppliers"
+    ]
+  },
+
+  "foro": {
+    "enabled": false,
+    "subreddits": [
+      {"name": "HomeImprovement", "weight": 1.0},
+      {"name": "Wisconsin", "weight": 1.5},
+      {"name": "GreenBay", "weight": 2.0},
+      {"name": "RealEstate", "weight": 0.8},
+      {"name": "HomeOwners", "weight": 0.9}
+    ],
+    "intent_keywords": [
+      "kitchen remodel cost", "deck permit", "contractor recommendations",
+      "bathroom renovation", "home addition", "carpenter near me",
+      "framing cost", "trim installation", "finish carpentry"
+    ],
+    "geo_modifiers": [
+      "wisconsin", "green bay", "brown county", "ne wisconsin", "northeast wi",
+      "appleton", "oshkosh", "howard wi", "de pere", "sheboygan"
+    ],
+    "weekly_target_drafts": 10,
+    "monthly_original_post_drafts": 1,
+    "tone": "warm, helpful neighbor, specific & detailed, no fluff, no marketing language",
+    "ratio_helpful_to_self_mention": 10,
+    "karma_threshold_for_self_mention": 100
+  },
+
   "google_business_profile": {
     "place_id": "TBD",
     "url": "TBD",
