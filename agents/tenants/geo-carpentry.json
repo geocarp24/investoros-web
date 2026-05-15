@@ -175,6 +175,11 @@
     "seo_deep": ["seo-audit", "seo-technical", "seo-local", "seo-maps", "seo-content"]
   },
 
+  "claude": {
+    "binary_path": "/home/u433637438/.nvm/versions/node/v20.20.2/bin/claude",
+    "auth_mode": "subscription"
+  },
+
   "google_business_profile": {
     "place_id": "TBD",
     "url": "TBD",
