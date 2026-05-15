@@ -51,7 +51,15 @@ async function loadTenant(slug) {
 
 function runClaude(binary, prompt, timeoutMs = 20 * 60 * 1000) {
   return new Promise((resolve, reject) => {
-    const child = spawn(binary, ["--print", "--permission-mode", "acceptEdits", prompt], { stdio: ["ignore", "pipe", "pipe"] });
+    // SEO audits need WebFetch + WebSearch + Bash (for curl/openssl probes) + Read/Write (for runs/ md files).
+    // Without --allowed-tools the live network probes get rejected and the report comes back UNKNOWN.
+    const allowedTools = "WebFetch WebSearch Bash Read Write Glob Grep";
+    const child = spawn(binary, [
+      "--print",
+      "--permission-mode", "acceptEdits",
+      "--allowed-tools", allowedTools,
+      prompt,
+    ], { stdio: ["ignore", "pipe", "pipe"] });
     let out = "", err = "";
     const timer = setTimeout(() => { child.kill("SIGKILL"); reject(new Error("timeout")); }, timeoutMs);
     child.stdout.on("data", (d) => (out += d));
