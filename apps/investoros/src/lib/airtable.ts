@@ -183,10 +183,11 @@ export async function getRecentSEOAudits(limit = 10) {
 }
 
 export async function getContentQueue(opts: FetchOpts = {}) {
+  // No default sortField — the Content_Queue table doesn't have a stable
+  // "scheduled_date" column yet (Airtable 422 in build 2026-05-27).
+  // Caller can pass `sortField: "<exact-airtable-field-name>"` once defined.
   return listRecords<GeoContentQueue>(GEO_BASE_ID, GEO_TABLES.contentQueue, {
     maxRecords: 50,
-    sortField: "scheduled_date",
-    sortDirection: "asc",
     ...opts,
   });
 }
