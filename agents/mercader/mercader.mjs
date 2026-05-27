@@ -56,7 +56,17 @@ async function loadTenant(slug) {
 // ----- Claude CLI subprocess -----
 function runClaude(binary, prompt, timeoutMs = 20 * 60 * 1000) {
   return new Promise((resolve, reject) => {
-    const args = ["--print", "--permission-mode", "acceptEdits", prompt];
+    // Marketing audits need WebFetch + WebSearch + Bash (probes) + Read/Write (runs/ md files).
+    // Without --allowed-tools the live network probes get rejected and the report comes back UNKNOWN.
+    // Comma-separated, then `--` so commander doesn't slurp the prompt into the variadic <tools...> arg.
+    const allowedTools = "WebFetch,WebSearch,Bash,Read,Write,Glob,Grep";
+    const args = [
+      "--print",
+      "--permission-mode", "acceptEdits",
+      "--allowed-tools", allowedTools,
+      "--",
+      prompt,
+    ];
     const child = spawn(binary, args, { stdio: ["ignore", "pipe", "pipe"] });
     let out = "", err = "";
     const timer = setTimeout(() => { child.kill("SIGKILL"); reject(new Error("timeout")); }, timeoutMs);
@@ -73,13 +83,15 @@ function runClaude(binary, prompt, timeoutMs = 20 * 60 * 1000) {
 
 // ----- Airtable helpers (all guarded — skip gracefully if not configured) -----
 async function airtableUpsert(cfg, runId, fields) {
-  const { base_id, table_id, token_env } = cfg.airtable || {};
+  // Prefer tenant-specific `marketing_table_id`; fall back to shared `table_id` for legacy configs.
+  const { base_id, marketing_table_id, table_id, token_env } = cfg.airtable || {};
+  const tableId = marketing_table_id || table_id;
   const token = process.env[token_env];
-  if (!base_id || !table_id || !token) {
-    console.error("[mercader] airtable not configured; skipping write");
+  if (!base_id || !tableId || !token) {
+    console.error("[mercader] airtable not configured (need base_id + marketing_table_id + token_env); skipping write");
     return null;
   }
-  const url = `https://api.airtable.com/v0/${base_id}/${table_id}`;
+  const url = `https://api.airtable.com/v0/${base_id}/${tableId}`;
   const existing = await fetch(`${url}?filterByFormula=${encodeURIComponent(`{run_id}='${runId}'`)}&maxRecords=1`, {
     headers: { Authorization: `Bearer ${token}` },
   }).then(r => r.json()).catch(() => ({ records: [] }));
