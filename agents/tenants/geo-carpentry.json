@@ -204,7 +204,7 @@
   },
 
   "claude": {
-    "binary_path": "/home/u433637438/.nvm/versions/node/v20.20.2/bin/claude",
+    "binary_path": "/usr/local/bin/claude",
     "auth_mode": "subscription"
   },
 
