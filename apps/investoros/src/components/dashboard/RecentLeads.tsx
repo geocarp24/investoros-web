@@ -31,8 +31,22 @@ export function RecentLeads({ leads }: { leads: Lead[] }) {
       </div>
 
       {leads.length === 0 ? (
-        <div className="p-6 text-center text-sm text-[var(--color-muted-foreground)] italic">
-          No leads yet. Submit a test on geocarpentry.com/contact/ to verify the pipeline.
+        <div className="p-8 text-center">
+          <div className="text-3xl mb-2">📥</div>
+          <p className="text-sm font-medium text-[var(--color-foreground)] mb-1">
+            No leads yet
+          </p>
+          <p className="text-xs text-[var(--color-muted-foreground)] mb-3">
+            Leads from the website will land here automatically.
+          </p>
+          <a
+            href="https://geocarpentry.com/contact/"
+            target="_blank"
+            rel="noopener"
+            className="inline-block text-xs font-semibold text-[var(--color-accent)] hover:underline"
+          >
+            Submit a test lead →
+          </a>
         </div>
       ) : (
         <ul className="divide-y divide-[var(--color-border)]">

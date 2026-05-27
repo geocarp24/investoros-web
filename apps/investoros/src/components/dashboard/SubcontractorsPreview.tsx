@@ -29,7 +29,15 @@ export function SubcontractorsPreview({ subs }: { subs: Sub[] }) {
         </button>
       </div>
       {subs.length === 0 ? (
-        <p className="p-4 text-xs text-[#94a3b8] italic">Run El Rastreador to populate.</p>
+        <div className="p-6 text-center">
+          <div className="text-2xl mb-2">🔧</div>
+          <p className="text-xs font-medium text-[#1B2A4A] mb-1">
+            No subcontractors yet
+          </p>
+          <p className="text-[11px] text-[#94a3b8] leading-snug">
+            Add manually or run El Rastreador to scrape licensed contractors from WI DSPS.
+          </p>
+        </div>
       ) : (
         <ul className="divide-y divide-[#e5e2db]">
           {subs.slice(0, 5).map((s) => (

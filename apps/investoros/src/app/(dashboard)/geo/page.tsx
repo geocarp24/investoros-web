@@ -123,11 +123,20 @@ export default async function GeoDashboard() {
 
       {/* KPI Row */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KPICard label="🔴 HOT Leads" value={kpis.hot} hint="action required now" accent />
+        <KPICard
+          label="🔴 HOT Leads"
+          value={kpis.hot}
+          hint={kpis.hot > 0 ? "action required now" : "no hot leads"}
+          accent={kpis.hot > 0}
+        />
         <KPICard
           label="Pipeline Active"
           value={kpis.pipeline}
-          hint={`${kpis.hot} hot · ${warmLeads.length} warm`}
+          hint={
+            kpis.pipeline > 0
+              ? `${kpis.hot} hot · ${warmLeads.length} warm`
+              : "awaiting first lead"
+          }
         />
         <KPICard
           label="SEO Score"
@@ -136,7 +145,11 @@ export default async function GeoDashboard() {
           trend={kpis.scoreDelta === null ? undefined : kpis.scoreDelta >= 0 ? "up" : "down"}
           trendLabel={kpis.scoreDelta !== null ? `${Math.abs(kpis.scoreDelta)} pts` : undefined}
         />
-        <KPICard label="Content Queue" value={kpis.queueActive} hint="drafting + review" />
+        <KPICard
+          label="Content Queue"
+          value={kpis.queueActive}
+          hint={kpis.queueActive > 0 ? "drafting + review" : "queue empty"}
+        />
       </section>
 
       {/* Agent Status */}
