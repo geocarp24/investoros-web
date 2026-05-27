@@ -180,7 +180,7 @@ PRIMARY scope (weight ${regional.primary_weight ?? 0.75}):   ${primaryPriority}
   Target cities (state-wide, not metro-only): ${citiesList}
 SECONDARY scope (weight ${regional.secondary_weight ?? 0.25}): ${secondaryPriority}
   Neighboring states for regional 'Wisconsin intent' queries: ${regionalSecondary}
-Mobile-first: mobile traffic dominates real estate search (60-70%+). Mobile CWV + mobile rank = primary signal.`;
+Mobile-first: mobile traffic dominates ${industry} search (60-70%+). Mobile CWV + mobile rank = primary signal.`;
 
   if (mode === "seo_health") {
     return `You are El Posicionador, always-on SEO sub-agent. Scope every 3 days: state-wide multi-engine rank health check for tenant.
@@ -269,10 +269,10 @@ Aggregate into single client-ready report:
 - Table for top 10 pages.
 
 ## Local Ranks by City (geo-grid, ${state} state-wide)
-- Milwaukee / Madison / Green Bay / Kenosha / Racine / ... — rank per primary query
+- ${citiesList} — rank per primary query
 
 ## Regional US Check (from ${regionalSecondary} origins)
-- Does "Wisconsin cash home buyers" show us in top 3 from IL/MN/IA/MI searches?
+- Does "${state} ${industry}" (or a sample tenant intent query) show us in top 3 from ${regionalSecondary} searches?
 
 ## Top Critical Issues
 ## Top Wins
