@@ -89,6 +89,20 @@ export interface GeoLead {
   "Created date"?: string;
   "Contact"?: string[];
   "Source"?: string;
+  "Heat"?: "Hot" | "Warm" | "Cold";
+  "Budget"?: number;
+  "ZIP"?: string;
+  "Phone"?: string;
+  "Notes"?: string;
+}
+
+export interface GeoSubcontractor {
+  Name?: string;
+  Trade?: string;
+  City?: string;
+  License?: string;
+  Phone?: string;
+  Status?: string;
 }
 
 export interface GeoContact {
@@ -123,6 +137,17 @@ export interface GeoContentQueue {
   target_keyword?: string;
   language?: string;
   word_count?: number;
+  scheduled_date?: string;
+  slug?: string;
+  service_slug?: string;
+  city_slug?: string;
+  meta_description?: string;
+  body_md?: string;
+  body_md_es?: string;
+  schema_jsonld?: string;
+  faq_jsonld?: string;
+  internal_links?: string;
+  cta_primary?: string;
 }
 
 export async function getGeoLeads(opts: FetchOpts = {}) {
@@ -160,6 +185,23 @@ export async function getRecentSEOAudits(limit = 10) {
 export async function getContentQueue(opts: FetchOpts = {}) {
   return listRecords<GeoContentQueue>(GEO_BASE_ID, GEO_TABLES.contentQueue, {
     maxRecords: 50,
+    sortField: "scheduled_date",
+    sortDirection: "asc",
     ...opts,
   });
+}
+
+export async function getSubcontractors(opts: FetchOpts & { trade?: string } = {}) {
+  const { trade, ...rest } = opts;
+  return listRecords<GeoSubcontractor>(GEO_BASE_ID, GEO_TABLES.subs, {
+    maxRecords: 20,
+    sortField: "Name",
+    sortDirection: "asc",
+    filterByFormula: trade ? `{Trade}='${trade}'` : undefined,
+    ...rest,
+  });
+}
+
+export async function getAgentRuns(limit = 5) {
+  return getRecentSEOAudits(limit);
 }

@@ -51,7 +51,11 @@ export function RecentLeads({ leads }: { leads: Lead[] }) {
                 <div className="flex-shrink-0 text-right">
                   <span
                     className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                      l["Stage"] === "Won"
+                      l["Heat"] === "Hot"
+                        ? "bg-red-100 text-red-700"
+                        : l["Heat"] === "Warm"
+                        ? "bg-amber-100 text-amber-700"
+                        : l["Stage"] === "Won"
                         ? "bg-emerald-100 text-emerald-800"
                         : l["Stage"] === "Lost"
                         ? "bg-red-100 text-red-800"
@@ -60,6 +64,7 @@ export function RecentLeads({ leads }: { leads: Lead[] }) {
                         : "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]"
                     }`}
                   >
+                    {l["Heat"] === "Hot" ? "🔴 " : l["Heat"] === "Warm" ? "🟡 " : ""}
                     {l["Stage"] ?? "—"}
                   </span>
                   <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
