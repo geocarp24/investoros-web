@@ -10,6 +10,7 @@ import {
   getGeoLeads,
   getGeoContacts,
   getRecentSEOAudits,
+  getRecentMarketingAudits,
   getContentQueue,
   getSubcontractors,
 } from "@/lib/airtable";
@@ -17,18 +18,46 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import { PipelineList } from "@/components/dashboard/PipelineList";
 import { RecentLeads } from "@/components/dashboard/RecentLeads";
 import { SEOPanel } from "@/components/dashboard/SEOPanel";
-import { AgentStatusBar } from "@/components/dashboard/AgentStatusBar";
+import { AgentStatusBar, type AgentStatus } from "@/components/dashboard/AgentStatusBar";
 import { ContentQueue } from "@/components/dashboard/ContentQueue";
 import { SubcontractorsPreview } from "@/components/dashboard/SubcontractorsPreview";
+
+function timeAgo(iso?: string): string {
+  if (!iso) return "never";
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const m = Math.floor(seconds / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+
+function deriveAgentStatus(
+  slug: string,
+  name: string,
+  emoji: string,
+  lastRun: { status?: string; started_at?: string; overall_score?: number; score?: number } | null
+): AgentStatus {
+  if (!lastRun) return { slug, name, emoji, status: "idle", label: "No runs yet" };
+  const score = lastRun.overall_score ?? lastRun.score;
+  const when = timeAgo(lastRun.started_at);
+  if (lastRun.status === "Running")  return { slug, name, emoji, status: "running", label: "Running now" };
+  if (lastRun.status === "Failed")   return { slug, name, emoji, status: "error",   label: `Failed ${when}` };
+  if (typeof score === "number")     return { slug, name, emoji, status: "on",      label: `${score}/100 · ${when}` };
+  return { slug, name, emoji, status: "idle", label: `Last ${when}` };
+}
 
 export const metadata = { title: "Geo Carpentry · Dashboard" };
 export const revalidate = 60;
 
 async function loadData() {
-  const [leadsRes, contactsRes, auditsRes, queueRes, subsRes] = await Promise.all([
+  const [leadsRes, contactsRes, auditsRes, marketingRes, queueRes, subsRes] = await Promise.all([
     getGeoLeads({ maxRecords: 100 }),
     getGeoContacts({ maxRecords: 100 }),
     getRecentSEOAudits(10),
+    getRecentMarketingAudits(10).catch(() => ({ records: [] })),
     getContentQueue({ maxRecords: 20 }),
     getSubcontractors({ maxRecords: 8 }),
   ]);
@@ -43,8 +72,22 @@ async function loadData() {
     createdTime: r.createdTime,
     ...r.fields,
   }));
+  const marketingAudits = (marketingRes.records ?? []).map((r) => ({ id: r.id, ...r.fields }));
   const queue = (queueRes.records ?? []).map((r) => ({ id: r.id, ...r.fields }));
   const subs = (subsRes.records ?? []).map((r) => ({ id: r.id, ...r.fields }));
+
+  // Build agent status list from latest runs
+  const latestSEO = audits[0];
+  const latestMarketing = marketingAudits[0];
+  const agentStatuses: AgentStatus[] = [
+    { slug: "rastreador",   name: "Rastreador",   emoji: "🔍", status: "idle", label: "Not yet active" },
+    { slug: "clasificador", name: "Clasificador", emoji: "🎯", status: "idle", label: "Not yet active" },
+    deriveAgentStatus("posicionador", "Posicionador", "📊", latestSEO ?? null),
+    { slug: "escriba",      name: "Escriba",      emoji: "✍️", status: queue.length > 0 ? "on" : "idle",
+      label: queue.length > 0 ? `${queue.length} in queue` : "Idle" },
+    { slug: "social_media", name: "Social Media", emoji: "📱", status: "idle", label: "Not yet active" },
+    deriveAgentStatus("mercader", "Mercader", "📢", latestMarketing ?? null),
+  ];
 
   const hotLeads = leads.filter((l) => l["Heat"] === "Hot");
   const warmLeads = leads.filter((l) => l["Heat"] === "Warm");
@@ -68,6 +111,7 @@ async function loadData() {
     subs,
     hotLeads,
     warmLeads,
+    agentStatuses,
     pipelineCounts: Array.from(stageMap.entries()).map(([stage, count]) => ({ stage, count })),
     kpis: {
       hot: hotLeads.length,
@@ -96,7 +140,7 @@ export default async function GeoDashboard() {
     );
   }
 
-  const { leads, audits, queue, subs, warmLeads, pipelineCounts, kpis } = data;
+  const { leads, audits, queue, subs, warmLeads, pipelineCounts, kpis, agentStatuses } = data;
 
   return (
     <main className="min-h-screen bg-[#f8f7f5] p-6 space-y-5">
@@ -152,8 +196,8 @@ export default async function GeoDashboard() {
         />
       </section>
 
-      {/* Agent Status */}
-      <AgentStatusBar />
+      {/* Agent Status (live from Airtable + clickable Run-now) */}
+      <AgentStatusBar agents={agentStatuses} tenant="geo-carpentry" />
 
       {/* Main grid */}
       <section className="grid lg:grid-cols-3 gap-4">

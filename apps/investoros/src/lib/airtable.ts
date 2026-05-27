@@ -182,6 +182,26 @@ export async function getRecentSEOAudits(limit = 10) {
   });
 }
 
+export const GEO_MARKETING_AUDITS_TABLE = "tbld7LtJzeN5QTHPo";
+
+export interface GeoMarketingAudit {
+  run_id?: string;
+  score?: number;
+  status?: string;
+  audit_type?: string;
+  started_at?: string;
+  top_issues?: string;
+  recommendations?: string;
+}
+
+export async function getRecentMarketingAudits(limit = 10) {
+  return listRecords<GeoMarketingAudit>(GEO_BASE_ID, GEO_MARKETING_AUDITS_TABLE, {
+    sortField: "started_at",
+    sortDirection: "desc",
+    maxRecords: limit,
+  });
+}
+
 export async function getContentQueue(opts: FetchOpts = {}) {
   // No default sortField — the Content_Queue table doesn't have a stable
   // "scheduled_date" column yet (Airtable 422 in build 2026-05-27).
