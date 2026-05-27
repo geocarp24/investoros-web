@@ -151,12 +151,50 @@ function buildPrompt(cfg, mode) {
   const tenant = cfg.tenant_name;
   const competitors = (cfg.competitors || []).map(c => `- ${c.name}: ${c.url}`).join("\n") || "(none configured)";
   if (mode === "quick_health") {
-    return `You are El Mercader, an always-on marketing sub-agent. Run a /market quick analysis on ${site} for tenant "${tenant}". Produce a concise report with: overall Score: N/100, Top Issues (3), Top Wins (3), Recommendations (3). Be terse — one line per bullet. Output format: plain markdown. Do NOT use other tools beyond the market-quick skill.`;
+    return `You are El Mercader, an always-on marketing sub-agent. Run /web-quality-audit on ${site} for tenant "${tenant}" — focus on the marketing dimensions (UX, copy, CTAs, conversion friction, performance, accessibility, mobile-first). Produce a concise report with:
+
+# ${tenant} — Marketing Quick Health (${new Date().toISOString().slice(0,10)})
+
+## Overall Score: N/100
+
+## Top 3 Critical Issues
+- (one line each, ordered by conversion impact)
+
+## Top 3 Wins
+- (one line each)
+
+## 3 Priority Recommendations
+- (one line each, ordered by leverage)
+
+Be terse, quantified, actionable. Cite specific elements (URLs, selectors, copy). Mobile-first signals weighted heavier.`;
   }
   if (mode === "deep_audit") {
-    return `You are El Mercader, an always-on marketing sub-agent. For tenant "${tenant}" on ${site}, run in sequence:\n1) /market audit ${site}\n2) /market competitors ${site} — competitors:\n${competitors}\n3) Aggregate both into a single client-ready report.\n\nReport format:\n# ${tenant} — Weekly Marketing Audit (${new Date().toISOString().slice(0,10)})\n\n## Overall Score: N/100\n\n## Top 3 Critical Issues\n- ...\n\n## Top 3 Wins\n- ...\n\n## Priority Recommendations\n- ...\n\n## Competitive Position\n- ...\n\nBe specific and actionable.`;
+    return `You are El Mercader, an always-on marketing sub-agent. For tenant "${tenant}" on ${site}, run in sequence:
+1) /web-quality-audit ${site} — full UX/copy/CTA/perf/a11y audit
+2) /market-research ${site} — competitive positioning analysis. Known competitors:
+${competitors}
+3) Aggregate both into a single client-ready report.
+
+Report format:
+# ${tenant} — Weekly Marketing Audit (${new Date().toISOString().slice(0,10)})
+
+## Overall Score: N/100
+
+## Top 3 Critical Issues
+- ...
+
+## Top 3 Wins
+- ...
+
+## Priority Recommendations
+- ...
+
+## Competitive Position
+- ...
+
+Be specific, quantified, actionable. Mobile-first signals weighted heavier.`;
   }
-  return `You are El Mercader. Run on-demand analysis for ${site}. Skills available: ${skills.join(", ") || "market-audit"}. Produce markdown report with Score, Issues, Wins, Recommendations.`;
+  return `You are El Mercader. Run on-demand analysis for ${site} using ${skills.join(", ") || "web-quality-audit"}. Produce markdown report with Score, Issues, Wins, Recommendations.`;
 }
 
 // ----- Main -----
