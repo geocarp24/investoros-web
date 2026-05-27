@@ -112,6 +112,10 @@
   ],
 
   "content_goals": {
+    "theme_bank_path": "agents/tenants/geo-carpentry-theme-bank.json",
+    "programmatic_seo_active": true,
+    "programmatic_seo_target_pages": 30,
+    "programmatic_seo_url_pattern": "/{service_slug}/{city_slug}-wi/",
     "articles_per_week": 2,
     "target_word_count_min": 800,
     "target_word_count_max": 1500,

@@ -1,0 +1,367 @@
+{
+  "version": "1.0.0",
+  "tenant": "geo-carpentry",
+  "approved_by": "Jorge 2026-05-27",
+  "created_by": "Claude Code (Bucket B1)",
+  "language_default": "EN",
+  "language_secondary": "ES",
+  "phase": "Phase 1 = EN-only. Phase 2 (~2 weeks later) adds ES with hreflang.",
+
+  "purpose": "Spec para 30 programmatic SEO landing pages: 6 services x 5 NE Wisconsin cities. Cowork (claude.ai) lee este JSON y genera 30 records en Airtable Content_Queue tbl=tblpiN42pK3YFxGEW base=appAQpveuAec077jF. Claude Code lee Content_Queue + crea 30 WP draft pages via WP-CLI bulk script.",
+
+  "url_pattern": "/{service_slug}/{city_slug}-wi/",
+  "content_type": "service_city_page",
+  "url_examples": [
+    "/kitchen-remodeling/green-bay-wi/",
+    "/bathroom-remodeling/appleton-wi/",
+    "/deck-building/oshkosh-wi/",
+    "/finish-carpentry/de-pere-wi/",
+    "/home-renovation/howard-wi/",
+    "/general-construction/green-bay-wi/"
+  ],
+
+  "cities": [
+    {
+      "slug": "green-bay",
+      "name": "Green Bay",
+      "population": 107000,
+      "county": "Brown",
+      "priority_rank": 1,
+      "neighborhoods": ["Astor Park", "Mather Heights", "Allouez border", "East Side", "West Side", "Preble"],
+      "local_context": "Green Bay is the largest city in NE Wisconsin and Geo Carpentry's home market (HQ: 735 E Walnut St Suite 3). Lakefront and historic homes (some 100+ years) drive ongoing renovation demand. Lambeau Field area sees seasonal home upgrades. Winters (avg snowfall 51in) demand carpentry built for thermal expansion + moisture.",
+      "demographic_signal": "Median household income $48K. Mix of fixer-uppers + custom builds. Heavy DIY culture (Packers fans love their man caves).",
+      "permits_authority": "City of Green Bay Inspection Department + Brown County permits for additions/structural"
+    },
+    {
+      "slug": "appleton",
+      "name": "Appleton",
+      "population": 75000,
+      "county": "Outagamie",
+      "priority_rank": 2,
+      "neighborhoods": ["Foster", "Vulcan Heights", "Eastside", "Downtown", "Telulah Park"],
+      "local_context": "Appleton is the largest city in the Fox Cities region, 30 minutes south of Green Bay. Higher median income than Green Bay ($58K). Strong corporate presence (Thrivent, Schreiber Foods HQ) drives executive home renovations. Historic Victorian district downtown requires careful restoration carpentry.",
+      "demographic_signal": "Skews higher-end remodels ($15K+). Kitchen + bathroom renovations dominate. Custom built-ins demand.",
+      "permits_authority": "Appleton Inspections Division + Outagamie County"
+    },
+    {
+      "slug": "oshkosh",
+      "name": "Oshkosh",
+      "population": 66000,
+      "county": "Winnebago",
+      "priority_rank": 3,
+      "neighborhoods": ["Algoma", "Mercury Park", "North Side", "Westside", "Riverfront"],
+      "local_context": "Oshkosh sits on Lake Winnebago, 45 min south of Green Bay. EAA AirVenture brings 600K visitors annually + Airbnb-driven renovation demand. UW-Oshkosh student rental market needs landlord-friendly turnkey reno. Lakefront cabins and year-round homes require winterization expertise.",
+      "demographic_signal": "Mix of young families + retirees + university rentals. Median income $52K. Deck-building strong (lake access).",
+      "permits_authority": "Oshkosh Building Inspections + Winnebago County"
+    },
+    {
+      "slug": "de-pere",
+      "name": "De Pere",
+      "population": 24000,
+      "county": "Brown",
+      "priority_rank": 4,
+      "neighborhoods": ["West De Pere", "East De Pere", "Voyageur Park", "Downtown"],
+      "local_context": "De Pere is Green Bay's affluent southern suburb, separated by the Fox River. St. Norbert College + higher median income ($72K) drive premium renovations. Historic riverfront homes (some 1880s) need restoration. Newer subdivisions south of town demand kitchen/bath upgrades within 5-10 years.",
+      "demographic_signal": "Higher-end work: kitchen $15-30K, bath $8-15K, custom decks $5-12K. Quality > price for this market.",
+      "permits_authority": "De Pere Building Department + Brown County"
+    },
+    {
+      "slug": "howard",
+      "name": "Howard",
+      "population": 20000,
+      "county": "Brown",
+      "priority_rank": 5,
+      "neighborhoods": ["Howard Commons", "Lineville", "Glendale", "Memorial Drive corridor"],
+      "local_context": "Howard is a fast-growing suburb NW of Green Bay (was 11K in 2000, now 20K). Heavy new construction + first-time renovations on 1990s-2010s builds. Family demographic (median age 38). Glendale schools attract young families with disposable income for kitchen/bath upgrades.",
+      "demographic_signal": "Young families: kitchen open-concept conversions, basement finishes, deck additions. Median income $68K.",
+      "permits_authority": "Village of Howard Inspection Department + Brown County"
+    }
+  ],
+
+  "services": [
+    {
+      "slug": "kitchen-remodeling",
+      "name_en": "Kitchen Remodeling",
+      "name_es": "Remodelacion de Cocinas",
+      "ticket_range_usd": [5000, 30000],
+      "hub_page_id": 2288,
+      "hub_url": "/services/kitchen-remodeling/",
+      "main_keyword": "kitchen remodel",
+      "primary_pillar": "kitchen-cost",
+      "service_subkeywords": ["kitchen renovation", "kitchen cabinet installer", "custom kitchen", "kitchen contractor"],
+      "core_value_props_per_city": [
+        "Custom cabinets + countertops",
+        "Lighting + electrical to code",
+        "Tile + flooring + backsplash",
+        "Plumbing upgrades + island install",
+        "Open-concept conversions"
+      ]
+    },
+    {
+      "slug": "bathroom-remodeling",
+      "name_en": "Bathroom Remodeling",
+      "name_es": "Remodelacion de Banos",
+      "ticket_range_usd": [3000, 15000],
+      "hub_page_id": 2289,
+      "hub_url": "/services/bathroom-remodeling/",
+      "main_keyword": "bathroom remodel",
+      "primary_pillar": "bathroom-roi",
+      "service_subkeywords": ["bathroom renovation", "shower install", "tile bathroom", "master bath"],
+      "core_value_props_per_city": [
+        "Full bathroom renovations",
+        "Walk-in shower conversions",
+        "Tile work (floor + walls)",
+        "Vanity + fixtures upgrade",
+        "ADA-compliant + aging-in-place"
+      ]
+    },
+    {
+      "slug": "deck-building",
+      "name_en": "Deck Building",
+      "name_es": "Construccion de Decks",
+      "ticket_range_usd": [2000, 12000],
+      "hub_page_id": 2290,
+      "hub_url": "/services/deck-building/",
+      "main_keyword": "deck builder",
+      "primary_pillar": "permit-deck-brown-county",
+      "service_subkeywords": ["deck construction", "composite deck", "wood deck", "deck contractor"],
+      "core_value_props_per_city": [
+        "Wood + composite decks (Trex, TimberTech)",
+        "Multi-level + wrap-around designs",
+        "Wisconsin winter-rated materials",
+        "Permits handled (county-specific)",
+        "Stairs + railings to code"
+      ]
+    },
+    {
+      "slug": "finish-carpentry",
+      "name_en": "Finish Carpentry",
+      "name_es": "Carpinteria de Acabado",
+      "ticket_range_usd": [500, 8000],
+      "hub_page_id": 2326,
+      "hub_url": "/services/finish-carpentry/",
+      "main_keyword": "finish carpentry",
+      "primary_pillar": "crown-molding-trim",
+      "service_subkeywords": ["trim carpenter", "crown molding", "baseboards install", "door trim"],
+      "core_value_props_per_city": [
+        "Crown molding + baseboards",
+        "Custom built-ins + shelving",
+        "Door + window trim",
+        "Wainscoting + chair rail",
+        "Mantel + fireplace surrounds"
+      ]
+    },
+    {
+      "slug": "home-renovation",
+      "name_en": "Home Renovation",
+      "name_es": "Renovacion de Casas",
+      "ticket_range_usd": [5000, 50000],
+      "hub_page_id": 2291,
+      "hub_url": "/services/home-renovation/",
+      "main_keyword": "home renovation",
+      "primary_pillar": "addition-vs-renovation",
+      "service_subkeywords": ["house remodel", "home remodeling contractor", "home addition", "whole house renovation"],
+      "core_value_props_per_city": [
+        "Whole-house renovations",
+        "Room additions + bump-outs",
+        "Basement finishing",
+        "Multi-room project management",
+        "Permits + structural engineering coord"
+      ]
+    },
+    {
+      "slug": "general-construction",
+      "name_en": "General Construction",
+      "name_es": "Construccion General",
+      "ticket_range_usd": [3000, 100000],
+      "hub_page_id": 2292,
+      "hub_url": "/services/general-construction/",
+      "main_keyword": "general contractor",
+      "primary_pillar": "choosing-contractor",
+      "service_subkeywords": ["construction company", "home addition builder", "general contractor wisconsin", "licensed contractor"],
+      "core_value_props_per_city": [
+        "New builds + custom homes",
+        "Large-scale additions",
+        "Structural work + framing",
+        "Subcontractor coordination",
+        "Full project management 12+ years"
+      ]
+    }
+  ],
+
+  "page_content_brief_template": {
+    "word_count_target_min": 850,
+    "word_count_target_max": 1200,
+    "reading_level": "Flesch-Kincaid 7-8th grade (mobile-first homeowners)",
+    "tone": "warm + professional + Wisconsin-local",
+    "first_150_chars_rule": "First 150 chars must answer 'Do you do {service} in {city}?' directly. AI Overview citation primer.",
+    "required_sections_in_order": [
+      {
+        "heading_pattern": "{Service} in {City}, WI",
+        "h1": true,
+        "word_count": 80,
+        "must_include": ["{city} name", "WI", "{service}", "Geo Carpentry LLC", "Licensed general contractor"]
+      },
+      {
+        "heading_pattern": "What We Do — {Service} Services for {City} Homeowners",
+        "word_count": 150,
+        "must_include": ["service.core_value_props_per_city as bullets", "ticket_range_usd"],
+        "format": "intro paragraph + 4-5 bullets"
+      },
+      {
+        "heading_pattern": "Why {City} Homeowners Choose Geo Carpentry",
+        "word_count": 180,
+        "must_include": ["12+ years NE Wisconsin", "Licensed + insured (no specific numbers — privacy rule)", "Bilingual EN/ES team", "Local: 735 E Walnut St Green Bay", "Same-day estimate response"]
+      },
+      {
+        "heading_pattern": "{Service} Cost in {City} (2026)",
+        "word_count": 200,
+        "must_include": ["service.ticket_range_usd as range", "cost factors (3-4 specific)", "free estimate CTA"],
+        "schema_link": "Offer schema with priceRange"
+      },
+      {
+        "heading_pattern": "Our {Service} Process: From Quote to Final Walkthrough",
+        "word_count": 150,
+        "format": "5-step ordered list",
+        "must_include": ["timeline range (e.g. '4-8 weeks for kitchen')", "city.permits_authority", "communication cadence"]
+      },
+      {
+        "heading_pattern": "About {City} & Why Our Work Lasts Here",
+        "word_count": 150,
+        "must_include": ["city.local_context paraphrased (NOT verbatim)", "Wisconsin weather angle (humidity/snow/freeze-thaw)", "materials choice rationale for climate"],
+        "note": "This is the THIN-CONTENT antidote — make each page genuinely different per city"
+      },
+      {
+        "heading_pattern": "Frequently Asked Questions: {Service} in {City}",
+        "word_count": 200,
+        "format": "3 Q&A pairs with FAQPage schema",
+        "must_include": ["one cost question", "one timeline question", "one permits question (use city.permits_authority)"]
+      },
+      {
+        "heading_pattern": "Get Your Free {Service} Estimate in {City}",
+        "word_count": 80,
+        "format": "CTA section",
+        "must_include": ["primary CTA button", "secondary CTA phone (920) 367-1272", "response time SLA: within 24 hours"]
+      }
+    ],
+    "trust_signals_throughout": [
+      "Licensed Wisconsin general contractor (no license number — privacy)",
+      "Fully insured",
+      "4.0+ Google reviews (avoid stating exact count unless current)",
+      "12+ years serving NE Wisconsin",
+      "Local team: 735 E Walnut St Suite 3, Green Bay WI 54301",
+      "Bilingual EN/ES service available"
+    ],
+    "anti_thin_content_rules": [
+      "EACH city section must reference 2+ city-specific elements (neighborhood, county, demographic, climate, permit authority)",
+      "NEVER write '{service} in {city}' more than 8x per page (avoid keyword stuffing)",
+      "Vary anchor text in internal links — no 2 pages should have identical phrasing for same target URL",
+      "Cite at least 1 specific local detail per page (avg snowfall, named neighborhood, county permit office)"
+    ]
+  },
+
+  "internal_linking_strategy": {
+    "links_per_page": 5,
+    "link_targets": [
+      "1 link → service hub page (e.g. /services/kitchen-remodeling/)",
+      "2 links → adjacent city-service pages (e.g. from green-bay → appleton + de-pere)",
+      "1 link → different service same city (e.g. from kitchen/green-bay → bathroom/green-bay)",
+      "1 link → /quote/ (CTA conversion path)"
+    ],
+    "anchor_text_variation_rule": "Same target URL gets max 2 different anchor texts across all 30 pages. NO exact-match anchor abuse.",
+    "follow_strategy": "All internal links are dofollow."
+  },
+
+  "schema_jsonld_per_page": {
+    "type": "GeneralContractor",
+    "required_fields": [
+      "name: 'Geo Carpentry LLC'",
+      "url: page URL",
+      "telephone: '+1-920-367-1272'",
+      "email: 'admin@geocarpentry.com'",
+      "image: hero image URL",
+      "priceRange: from service.ticket_range_usd",
+      "areaServed: { type: 'City', name: '{city.name}, WI' } — CRITICAL for local SEO",
+      "address: '735 E Walnut St Suite 3, Green Bay, WI 54301' (same NAP for all pages)",
+      "geo: { lat, lng } of city (NOT of HQ — service area centric)",
+      "aggregateRating: from existing reviews (4 reviews, 5.0 stars per fix5 deployed 2026-05-27)",
+      "service: { type: 'Service', name: '{service.name_en} in {city.name}', priceRange: '...' }"
+    ],
+    "additional_schema": ["FAQPage (for FAQ section)", "BreadcrumbList (Home > Services > {Service} > {City})"]
+  },
+
+  "city_service_matrix": [
+    "green-bay × kitchen-remodeling, bathroom-remodeling, deck-building, finish-carpentry, home-renovation, general-construction (6 pages)",
+    "appleton × same 6 services (6 pages)",
+    "oshkosh × same 6 services (6 pages)",
+    "de-pere × same 6 services (6 pages)",
+    "howard × same 6 services (6 pages)",
+    "TOTAL: 30 unique pages"
+  ],
+
+  "example_page_full_spec": {
+    "comment": "Reference example for Cowork. Cowork should generate the other 29 pages following this same structure but with city-specific + service-specific variation.",
+    "page_id": "kitchen-remodeling_green-bay",
+    "url": "/kitchen-remodeling/green-bay-wi/",
+    "title_en": "Kitchen Remodeling in Green Bay, WI | Geo Carpentry LLC General Contractor",
+    "title_max_chars": 70,
+    "meta_description_en": "Kitchen remodeling in Green Bay, WI by Geo Carpentry LLC. Licensed general contractor with 12+ years local experience. Free estimate in 24 hours. Custom cabinets, countertops, full renovations.",
+    "meta_description_max_chars": 160,
+    "h1_en": "Kitchen Remodeling Contractor in Green Bay, Wisconsin",
+    "target_keyword": "kitchen remodel green bay wi",
+    "secondary_keywords": [
+      "kitchen renovation green bay",
+      "kitchen contractor green bay wisconsin",
+      "kitchen cabinet installer green bay",
+      "kitchen remodeler near me green bay",
+      "custom kitchen green bay wi"
+    ],
+    "pillar_id": "kitchen-cost",
+    "funnel": "MOFU",
+    "intent": "transactional (homeowner ready to evaluate contractors)",
+    "image_assets_needed_from_jorge": [
+      "hero_green_bay_kitchen.webp (kitchen project Jorge completed in Green Bay — placeholder OK initially)",
+      "process_diagram.webp (could be reused across all city pages)"
+    ],
+    "cta_primary_text": "Get My Free Kitchen Estimate in Green Bay",
+    "cta_secondary_text": "Call (920) 367-1272",
+    "expected_value_per_lead": "$150 average (10% close rate × $15K avg ticket × 10% net margin = $150 per lead)",
+    "rank_competition_density": "Medium (HomeAdvisor + Houzz + Yelp dominate top 3 — opportunity for #4-7 → top 3 with local schema + reviews)"
+  },
+
+  "cowork_instructions": {
+    "deliverable": "30 records inserted in Airtable Content_Queue (base appAQpveuAec077jF, table tblpiN42pK3YFxGEW) one per city-service combo.",
+    "field_mapping": {
+      "tenant_id": "geo-carpentry",
+      "status": "draft (Claude Code will set 'ready_to_publish' after sample approval)",
+      "content_type": "service_city_page",
+      "pillar": "from service.primary_pillar",
+      "title": "title_en from spec",
+      "slug": "{city_slug}-wi (e.g. 'green-bay-wi') — combined with service in URL pattern",
+      "target_keyword": "primary keyword from spec",
+      "meta_description": "150-160 chars",
+      "schema_jsonld": "full GeneralContractor JSON with city-specific areaServed",
+      "body_md": "Markdown content following page_content_brief_template, 850-1200 words",
+      "body_md_es": "EMPTY for Phase 1 (Phase 2 fills later)",
+      "internal_links": "JSON array per internal_linking_strategy",
+      "word_count": "numeric count of body_md words"
+    },
+    "qa_checklist_before_insert": [
+      "Title 50-70 chars including city + service + brand",
+      "Meta desc 150-160 chars with CTA hint",
+      "Body 850-1200 words, mobile-readable",
+      "FAQ section has 3 Q&A with FAQPage schema",
+      "Schema has city-specific areaServed (NOT generic 'Wisconsin')",
+      "Internal links: exactly 5 per page, varied anchor text",
+      "No exact-match keyword stuffing (target keyword max 8 occurrences)",
+      "Trust signals present but NO license number or insurance carrier (privacy rule)"
+    ],
+    "sample_first": "Generate Kitchen × Green Bay FIRST. Jorge + Claude Code review → approve → then generate remaining 29 in batch."
+  },
+
+  "_meta": {
+    "created": "2026-05-27",
+    "next_step": "Cowork reads this JSON → writes 30 records to Content_Queue (sample first, then batch). Claude Code writes WP-CLI bulk page creator that reads Content_Queue and generates 30 draft pages in WP.",
+    "phase_2_es_addendum": "After Phase 1 EN pages live + indexed (3-4 weeks), translate to ES + add hreflang tags + push 30 more ES pages."
+  }
+}
