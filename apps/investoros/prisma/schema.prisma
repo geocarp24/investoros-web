@@ -38,6 +38,7 @@ model Tenant {
   deals           Deal[]
   subscription    Subscription?
   apiKeys         ApiKey[]
+  credentials     Credential[]
 
   @@index([slug])
   @@index([status])
@@ -227,6 +228,35 @@ model ApiKey {
 
   @@index([tenantId])
   @@index([keyHash])
+}
+
+// ─── Credential vault (encrypted, per-tenant) ────────────────────────────────
+// Stores third-party service credentials (Airtable PAT, Telnyx API key, Buffer token,
+// Hostinger SMTP password, Google Business Profile manager, WordPress bridge token).
+// Values are encrypted with AES-256-GCM using ENCRYPTION_KEY env var. Each row stores
+// the ciphertext along with the IV and authTag needed to decrypt.
+//
+// Access via src/lib/credentials.ts — never query this table directly from routes.
+// keyVersion supports rotation: keep multiple ENCRYPTION_KEY values active during migration.
+model Credential {
+  id              String   @id @default(cuid())
+  tenantId        String
+  service         String   // "airtable" | "telnyx" | "buffer" | "google_business" | "hostinger_email" | "wordpress"
+  keyName         String   // "api_token" | "phone_number" | "base_id" | "smtp_password" | "page_admin_email" | etc
+  encryptedValue  String   @db.Text  // base64(ciphertext)
+  iv              String                 // base64(12-byte IV)
+  authTag         String                 // base64(16-byte GCM auth tag)
+  keyVersion      Int      @default(1)   // increments when ENCRYPTION_KEY rotates
+  metadata        Json?                  // non-secret context (base_id, page_id, area_code, etc.)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  expiresAt       DateTime?              // for OAuth refresh tokens with TTL
+
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, service, keyName])
+  @@index([tenantId])
+  @@index([service])
 }
 
 // ─── Audit log (compliance + debugging) ──────────────────────────────────────

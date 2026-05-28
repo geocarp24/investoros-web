@@ -6,8 +6,13 @@
  * webhook receiver, which spawns the actual agent process.
  *
  * Body: { tenant?: string, mode?: string, dry_run?: boolean }
- *  - tenant defaults to "geo-carpentry"
+ *  - tenant defaults to the authenticated user's publicMetadata.tenantId
  *  - agent comes from the [name] URL param
+ *
+ * Security:
+ *  - Requires authenticated Clerk user
+ *  - Tenant in body MUST match user.publicMetadata.tenantId (prevents privilege escalation)
+ *  - Tenant must exist in DB and have non-suspended status
  *
  * Env required:
  *  - VPS_WEBHOOK_URL  (e.g. http://187.77.215.146:3001/trigger)
@@ -15,6 +20,8 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { currentUser } from "@clerk/nextjs/server";
+import { db } from "@/server/db";
 
 const ALLOWED_AGENTS = new Set([
   "posicionador",
@@ -26,9 +33,18 @@ const ALLOWED_AGENTS = new Set([
   "creativo",
   "director",
   "social_media",
+  "embajador",
+  "foro",
+  "supervisor",
+  "analista",
+  "analitico",
+  "audit_meta",
+  "auditor",
+  "espia",
+  "oraculo",
+  "reescritor",
+  "remitente",
 ]);
-
-const ALLOWED_TENANTS = new Set(["geo-carpentry", "pinnacle"]);
 
 export async function POST(
   req: NextRequest,
@@ -37,24 +53,56 @@ export async function POST(
   const { name } = await params;
 
   if (!ALLOWED_AGENTS.has(name)) {
+    return NextResponse.json({ error: `Unknown agent: ${name}` }, { status: 400 });
+  }
+
+  // ── Auth ──
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+  const userTenantId = (user.publicMetadata as { tenantId?: string } | undefined)?.tenantId;
+  if (!userTenantId) {
     return NextResponse.json(
-      { error: `Unknown agent: ${name}` },
-      { status: 400 }
+      { error: "Account pending tenant assignment. Contact admin." },
+      { status: 403 }
     );
   }
 
   const body = await req.json().catch(() => ({}));
-  const tenant = body.tenant ?? "geo-carpentry";
+  const requestedTenant = (body.tenant as string | undefined) ?? userTenantId;
   const mode = body.mode ?? undefined;
   const dry_run = body.dry_run ?? false;
 
-  if (!ALLOWED_TENANTS.has(tenant)) {
+  // ── Tenant authorization: request tenant must match user's tenant ──
+  if (requestedTenant !== userTenantId) {
     return NextResponse.json(
-      { error: `Unknown tenant: ${tenant}` },
-      { status: 400 }
+      {
+        error: `Forbidden: you are not authorized to trigger agents for tenant "${requestedTenant}"`,
+      },
+      { status: 403 }
     );
   }
 
+  // ── Tenant existence + status check ──
+  const tenant = await db.tenant.findUnique({
+    where: { slug: requestedTenant },
+    select: { slug: true, status: true },
+  });
+  if (!tenant) {
+    return NextResponse.json(
+      { error: `Tenant not found in DB: ${requestedTenant}` },
+      { status: 404 }
+    );
+  }
+  if (tenant.status === "SUSPENDED" || tenant.status === "CANCELED") {
+    return NextResponse.json(
+      { error: `Tenant ${requestedTenant} is ${tenant.status.toLowerCase()}` },
+      { status: 403 }
+    );
+  }
+
+  // ── Forward to VPS webhook ──
   const vpsUrl = process.env.VPS_WEBHOOK_URL;
   const secret = process.env.WEBHOOK_SECRET;
   if (!vpsUrl || !secret) {
@@ -64,11 +112,13 @@ export async function POST(
     );
   }
 
-  const payload = JSON.stringify({ tenant, agent: name, mode, dry_run });
-  const signature = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex");
+  const payload = JSON.stringify({
+    tenant: requestedTenant,
+    agent: name,
+    mode,
+    dry_run,
+  });
+  const signature = crypto.createHmac("sha256", secret).update(payload).digest("hex");
 
   try {
     const vpsRes = await fetch(vpsUrl, {
@@ -87,9 +137,6 @@ export async function POST(
     return NextResponse.json(data, { status: vpsRes.status });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      { error: `VPS webhook unreachable: ${msg}` },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: `VPS webhook unreachable: ${msg}` }, { status: 502 });
   }
 }

@@ -1,15 +1,20 @@
 /**
  * Airtable server-side fetch helpers.
  *
- * Reads token from $AIRTABLE_TOKEN_GEO (multi-tenant: each tenant has its own token env var
- * resolved from the tenant config). Tenant base IDs + table IDs live in the tenant JSON
- * config at agents/tenants/<slug>.json — for the SaaS dashboard we duplicate the IDs here
- * as a typed mapping to keep this app standalone (B2 will fetch tenant config dynamically).
+ * Token resolution (in order):
+ *  1. If caller passes `tenantSlug` → fetch from credential vault (src/lib/credentials.ts)
+ *  2. Else fall back to per-tenant env var (e.g. AIRTABLE_TOKEN_GEO)
+ *  3. Else generic AIRTABLE_TOKEN
+ *
+ * This three-tier resolution lets new tenants live in the vault while Pinnacle
+ * and Geo Carpentry keep working from env vars during the migration.
  *
  * Server components only — never import this in a 'use client' file.
  */
 
 import "server-only";
+import { getCredential } from "@/lib/credentials";
+import { db } from "@/server/db";
 
 export const GEO_BASE_ID = "appAQpveuAec077jF";
 export const GEO_TABLES = {
@@ -30,12 +35,28 @@ interface AirtableListResponse<T = Record<string, unknown>> {
   offset?: string;
 }
 
-function getToken(): string {
+/**
+ * Resolves an Airtable token. Pass `tenantSlug` to use the credential vault;
+ * omit it to fall back to env vars (backwards compat for Pinnacle / Geo).
+ */
+async function getToken(tenantSlug?: string): Promise<string> {
+  if (tenantSlug) {
+    const tenant = await db.tenant.findUnique({ where: { slug: tenantSlug } });
+    if (tenant) {
+      // Compute the legacy fallback env var for this tenant
+      const envFallback = `AIRTABLE_TOKEN_${tenantSlug.toUpperCase().replace(/-/g, "_")}`;
+      const token = await getCredential(tenant.id, "airtable", "api_token", envFallback);
+      if (token) return token;
+    }
+    // fall through to legacy env var resolution
+  }
+
   const t = process.env[TOKEN_ENV_NAME] ?? process.env.AIRTABLE_TOKEN;
   if (!t) {
     throw new Error(
       `Missing env var ${TOKEN_ENV_NAME} (or fallback AIRTABLE_TOKEN). ` +
-        `Set it in .env.local for the InvestorOS web app.`
+        `Set it in .env.local for the InvestorOS web app, ` +
+        `or provision the credential via /settings/connections for tenant "${tenantSlug ?? "unknown"}".`
     );
   }
   return t;
@@ -48,6 +69,8 @@ interface FetchOpts {
   sortDirection?: "asc" | "desc";
   fields?: string[];
   revalidate?: number; // seconds, Next.js fetch cache
+  /** Resolve token from credential vault for this tenant; falls back to env var if vault miss. */
+  tenantSlug?: string;
 }
 
 export async function listRecords<T = Record<string, unknown>>(
@@ -67,8 +90,9 @@ export async function listRecords<T = Record<string, unknown>>(
   }
 
   const url = `https://api.airtable.com/v0/${baseId}/${tableId}?${params.toString()}`;
+  const token = await getToken(opts.tenantSlug);
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${getToken()}` },
+    headers: { Authorization: `Bearer ${token}` },
     next: { revalidate: opts.revalidate ?? 60 },
   });
 
@@ -166,19 +190,21 @@ export async function getGeoContacts(opts: FetchOpts = {}) {
   });
 }
 
-export async function getLatestSEOAudit() {
+export async function getLatestSEOAudit(tenantSlug?: string) {
   return listRecords<GeoSEOAudit>(GEO_BASE_ID, GEO_TABLES.seoAudits, {
     sortField: "started_at",
     sortDirection: "desc",
     maxRecords: 1,
+    tenantSlug,
   });
 }
 
-export async function getRecentSEOAudits(limit = 10) {
+export async function getRecentSEOAudits(limit = 10, tenantSlug?: string) {
   return listRecords<GeoSEOAudit>(GEO_BASE_ID, GEO_TABLES.seoAudits, {
     sortField: "started_at",
     sortDirection: "desc",
     maxRecords: limit,
+    tenantSlug,
   });
 }
 
@@ -194,11 +220,12 @@ export interface GeoMarketingAudit {
   recommendations?: string;
 }
 
-export async function getRecentMarketingAudits(limit = 10) {
+export async function getRecentMarketingAudits(limit = 10, tenantSlug?: string) {
   return listRecords<GeoMarketingAudit>(GEO_BASE_ID, GEO_MARKETING_AUDITS_TABLE, {
     sortField: "started_at",
     sortDirection: "desc",
     maxRecords: limit,
+    tenantSlug,
   });
 }
 
@@ -223,6 +250,6 @@ export async function getSubcontractors(opts: FetchOpts & { trade?: string } = {
   });
 }
 
-export async function getAgentRuns(limit = 5) {
-  return getRecentSEOAudits(limit);
+export async function getAgentRuns(limit = 5, tenantSlug?: string) {
+  return getRecentSEOAudits(limit, tenantSlug);
 }

@@ -402,10 +402,10 @@ export default function HomePage() {
             InvestorOS
           </Link>
           <ul className={styles.footerLinks}>
-            <li><a href="#">Privacy</a></li>
-            <li><a href="#">Terms</a></li>
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
             <li><a href="#">Docs</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="mailto:hello@investoros.tech">Contact</a></li>
           </ul>
           <p className={styles.footerCopy}>© 2026 Pinnacle Holdings Group LLC</p>
         </footer>
