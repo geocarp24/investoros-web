@@ -82,8 +82,8 @@ export default function HomePage() {
             <li><a href="#">Blog</a></li>
           </ul>
           <div className={styles.navCta}>
-            <Link href="/dashboard" className={styles.btnGhost}>Sign in</Link>
-            <a href="#pricing" className={styles.btnPrimary}>Start free trial →</a>
+            <a href="/sign-in" className={styles.btnGhost}>Sign in</a>
+            <a href="/sign-up" className={styles.btnPrimary}>Start free trial →</a>
           </div>
         </nav>
 

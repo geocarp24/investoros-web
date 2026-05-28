@@ -6,6 +6,7 @@
  * Layout: KPI row + AgentStatusBar + 2/3 (RecentLeads + Pipeline) + 1/3 (SEO + Content + Subs).
  * Brand colors: navy #1B2A4A, orange #FF6B00, bg #f8f7f5.
  */
+import { currentUser } from "@clerk/nextjs/server";
 import {
   getGeoLeads,
   getGeoContacts,
@@ -125,6 +126,40 @@ async function loadData() {
 }
 
 export default async function GeoDashboard() {
+  const user = await currentUser();
+  const tenantId = (user?.publicMetadata as { tenantId?: string } | undefined)?.tenantId;
+
+  if (tenantId && tenantId !== "geo-carpentry") {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#f8f7f5] p-8">
+        <div className="max-w-md text-center space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6B00]">Access denied</p>
+          <h1 className="text-2xl font-bold text-[#1B2A4A]">Tu cuenta no tiene acceso a Geo Carpentry</h1>
+          <p className="text-sm text-[#64748b]">
+            Estás asignado al tenant <code className="px-1.5 py-0.5 rounded bg-white border border-black/10">{tenantId}</code>. Si esto es un error, contactá al admin.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (user && !tenantId) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#f8f7f5] p-8">
+        <div className="max-w-md text-center space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6B00]">Pending assignment</p>
+          <h1 className="text-2xl font-bold text-[#1B2A4A]">Welcome to InvestorOS</h1>
+          <p className="text-sm text-[#64748b]">
+            Tu cuenta fue creada pero todavía no tiene un tenant asignado. El admin va a asignarte acceso en los próximos minutos.
+          </p>
+          <p className="text-xs text-[#94a3b8]">
+            Logged in as <strong>{user.emailAddresses[0]?.emailAddress}</strong>
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   const data = await loadData().catch((err) => {
     console.error("[geo dashboard] fetch failed:", err);
     return null;
