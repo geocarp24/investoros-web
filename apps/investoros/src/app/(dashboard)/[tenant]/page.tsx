@@ -188,15 +188,24 @@ export default async function TenantDashboard({
     );
   }
 
-  // ── Tenant lookup (with graceful fallback if DB not provisioned yet) ──
+  // ── Tenant lookup (with graceful fallback if DB row missing or unreachable) ──
+  // We fall back to a hardcoded display for the well-known bootstrap tenants
+  // (geo-carpentry, pinnacle) whenever the DB lookup returns null or throws.
+  // This covers both pre-seed (tables exist, no rows) and DB-unreachable cases.
   let tenant: { slug: string; name: string; status: string } | null = null;
   try {
     tenant = await db.tenant.findUnique({
       where: { slug: tenantSlug },
       select: { slug: true, name: true, status: true },
     });
-  } catch {
-    // DB not provisioned yet (Postgres pending). Fall back to hardcoded display for known tenants.
+  } catch (err) {
+    console.warn(
+      `[dashboard] tenant lookup failed for ${tenantSlug}, using hardcoded fallback:`,
+      err instanceof Error ? err.message : err
+    );
+  }
+
+  if (!tenant) {
     if (tenantSlug === "geo-carpentry") {
       tenant = { slug: "geo-carpentry", name: "Geo Carpentry LLC", status: "ACTIVE" };
     } else if (tenantSlug === "pinnacle") {
