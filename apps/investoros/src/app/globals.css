@@ -41,6 +41,25 @@ body {
   .tap-target { min-height: 44px; min-width: 44px; }
 }
 
+/* Dashboard shell — dark theme override scoped to the (dashboard) route group.
+   Components like KPICard read these CSS variables, so the entire dashboard
+   subtree picks up the dark palette automatically without touching component code.
+   Source palette mirrors the landing (investoros.tech): #09090f bg, #6366f1 accent. */
+.dashboard-shell {
+  --color-background: #09090f;
+  --color-foreground: #f8f8ff;
+  --color-muted: #16161f;
+  --color-muted-foreground: #94a3b8;
+  --color-accent: #a5b4fc;
+  --color-accent-foreground: #09090f;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-card: #111118;
+  --color-card-foreground: #f8f8ff;
+  --color-primary: #6366f1;
+  --color-primary-foreground: #f8f8ff;
+  color-scheme: dark;
+}
+
 /* Prose styling for legal pages (/privacy, /terms) — clean readable typography
    without pulling in the @tailwindcss/typography plugin. */
 .legal-prose h1 {

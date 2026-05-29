@@ -165,26 +165,24 @@ export default async function TenantDashboard({
 
   if (userTenantId !== tenantSlug) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#f8f7f5] p-8">
-        <div className="max-w-md text-center space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6B00]">
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="max-w-md space-y-3 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a5b4fc]">
             Access denied
           </p>
-          <h1 className="text-2xl font-bold text-[#1B2A4A]">
-            Esta no es tu organización
-          </h1>
-          <p className="text-sm text-[#64748b]">
-            Estás asignado a <code className="px-1.5 py-0.5 rounded bg-white border border-black/10">{userTenantId}</code>.
-            La página solicitada es para <code className="px-1.5 py-0.5 rounded bg-white border border-black/10">{tenantSlug}</code>.
+          <h1 className="text-2xl font-bold text-white">Esta no es tu organización</h1>
+          <p className="text-sm text-[#94a3b8]">
+            Estás asignado a <code className="rounded bg-[rgba(255,255,255,0.06)] px-1.5 py-0.5 text-[#a5b4fc]">{userTenantId}</code>.
+            La página solicitada es para <code className="rounded bg-[rgba(255,255,255,0.06)] px-1.5 py-0.5 text-[#a5b4fc]">{tenantSlug}</code>.
           </p>
           <a
             href={`/${userTenantId}`}
-            className="inline-block mt-2 text-sm font-medium text-[#FF6B00] underline underline-offset-2"
+            className="inline-block text-sm font-medium text-[#a5b4fc] underline underline-offset-2 hover:text-white"
           >
             Ir a tu dashboard →
           </a>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -220,26 +218,26 @@ export default async function TenantDashboard({
   // see a "Coming soon" state until their data layer is provisioned.
   if (tenantSlug !== "geo-carpentry") {
     return (
-      <main className="min-h-screen bg-[#f8f7f5] p-6 space-y-5">
+      <div className="space-y-6">
         <header>
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6B00]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a5b4fc]">
             Tenant Dashboard
           </p>
-          <h1 className="text-2xl font-bold text-[#1B2A4A] mt-1">{tenant.name}</h1>
+          <h1 className="mt-1 text-2xl font-bold text-white">{tenant.name}</h1>
         </header>
-        <div className="bg-white border border-black/10 rounded-lg p-8 text-center space-y-3">
-          <p className="text-sm text-[#64748b]">
+        <div className="rounded-xl border border-[rgba(255,255,255,0.07)] bg-[#111118] p-8 text-center">
+          <p className="text-sm text-[#94a3b8]">
             Tu workspace está siendo configurado. Completá el wizard de onboarding para activar
             las integraciones (Airtable, Telnyx, GBP, social).
           </p>
           <a
             href="/onboard/step-1"
-            className="inline-block mt-2 text-sm font-medium text-[#FF6B00] underline underline-offset-2"
+            className="mt-3 inline-block text-sm font-medium text-[#a5b4fc] underline underline-offset-2 hover:text-white"
           >
             Continuar onboarding →
           </a>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -251,25 +249,25 @@ export default async function TenantDashboard({
 
   if (!data) {
     return (
-      <main className="min-h-screen p-8">
-        <p className="text-red-600 bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
-          Could not load Airtable data. Verify the Airtable credential in <code>/settings/connections</code> or set <code>AIRTABLE_TOKEN_GEO</code> in env vars.
-        </p>
-      </main>
+      <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-300">
+        Could not load Airtable data. Verify the Airtable credential in{" "}
+        <code className="rounded bg-red-500/20 px-1.5 py-0.5">/settings/connections</code>{" "}
+        or set <code className="rounded bg-red-500/20 px-1.5 py-0.5">AIRTABLE_TOKEN_GEO</code> in env vars.
+      </div>
     );
   }
 
   const { leads, audits, queue, subs, warmLeads, pipelineCounts, kpis, agentStatuses } = data;
 
   return (
-    <main className="min-h-screen bg-[#f8f7f5] p-6 space-y-5">
+    <div className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6B00]">
-            Tenant Dashboard
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a5b4fc]">
+            Overview
           </p>
-          <h1 className="text-2xl font-bold text-[#1B2A4A] mt-1">{tenant.name}</h1>
-          <p className="text-xs text-[#64748b] mt-0.5">
+          <h1 className="mt-1 text-2xl font-bold text-white">{tenant.name}</h1>
+          <p className="mt-0.5 text-xs text-[#64748b]">
             Built to Last. Crafted with Pride. · Northeast Wisconsin
           </p>
         </div>
@@ -277,7 +275,7 @@ export default async function TenantDashboard({
           href="https://geocarpentry.com"
           target="_blank"
           rel="noopener"
-          className="text-xs font-medium text-[#FF6B00] underline underline-offset-2"
+          className="text-xs font-medium text-[#a5b4fc] underline underline-offset-2 hover:text-white"
         >
           geocarpentry.com ↗
         </a>
@@ -323,18 +321,18 @@ export default async function TenantDashboard({
         </div>
       </section>
 
-      <footer className="text-center text-xs text-[#94a3b8] pt-2 space-y-1">
+      <footer className="space-y-1 pt-2 text-center text-xs text-[#64748b]">
         <p>AgentOS · {tenant.name} · Refreshes every 60s</p>
         <p>
-          <a href="/privacy" className="hover:text-[#1B2A4A] underline-offset-2 hover:underline">
+          <a href="/privacy" className="hover:text-white hover:underline underline-offset-2">
             Privacy
           </a>{" "}
           ·{" "}
-          <a href="/terms" className="hover:text-[#1B2A4A] underline-offset-2 hover:underline">
+          <a href="/terms" className="hover:text-white hover:underline underline-offset-2">
             Terms
           </a>
         </p>
       </footer>
-    </main>
+    </div>
   );
 }
