@@ -64,8 +64,23 @@ export type TenantConfig = {
   };
   wordpress?: {
     url: string;
+    /** WP REST API username for Basic Auth. */
+    username?: string;
+    /** WP Application Password (generated in WP Admin → Users → Application Passwords). */
+    appPassword?: string;
+    /** Legacy mu-plugin bridge token (used by Pinnacle's pinnacle_wp_bridge.php). */
     bridgeToken?: string;
     wpcliPath?: string;
+  };
+  googleBusiness?: {
+    /** OAuth 2.0 client_id from Google Cloud Console (project investoros-agents). */
+    oauthClientId?: string;
+    /** OAuth 2.0 client_secret (encrypted at rest). */
+    oauthClientSecret?: string;
+    /** Per-tenant refresh token after the user completes the OAuth flow. */
+    oauthRefreshToken?: string;
+    /** GBP location/place ID once we have it. */
+    placeId?: string;
   };
   email?: {
     smtpHost: string;
@@ -299,11 +314,38 @@ export async function getTenantConfig(tenantId: string): Promise<TenantConfig> {
     };
   }
 
-  const wpUrl = get("wordpress", "url");
-  if (wpUrl) {
+  // WordPress: app_password row carries username + url as metadata (non-secret),
+  // the credential value is the actual application password.
+  const wpAppPassword = get("wordpress", "app_password");
+  const wpAppPasswordMeta = credByName.get("wordpress:app_password")?.metadata as
+    | { username?: string; url?: string }
+    | undefined;
+  const wpUrlExplicit = get("wordpress", "url");
+  const wpBridgeToken = get("wordpress", "bridge_token");
+
+  const resolvedWpUrl = wpAppPasswordMeta?.url ?? wpUrlExplicit;
+  if (resolvedWpUrl && (wpAppPassword || wpBridgeToken)) {
     config.wordpress = {
-      url: wpUrl,
-      bridgeToken: get("wordpress", "bridge_token"),
+      url: resolvedWpUrl,
+      username: wpAppPasswordMeta?.username,
+      appPassword: wpAppPassword,
+      bridgeToken: wpBridgeToken,
+    };
+  }
+
+  // Google Business: OAuth client credentials + refresh token after the user
+  // completes the OAuth flow. The refresh token is the only per-tenant secret;
+  // client_id and client_secret are app-level but stored per-tenant for clarity.
+  const gbpClientId = get("google_business", "oauth_client_id");
+  const gbpClientSecret = get("google_business", "oauth_client_secret");
+  const gbpRefreshToken = get("google_business", "oauth_refresh_token");
+  const gbpPlaceId = get("google_business", "place_id");
+  if (gbpClientId || gbpClientSecret || gbpRefreshToken || gbpPlaceId) {
+    config.googleBusiness = {
+      oauthClientId: gbpClientId,
+      oauthClientSecret: gbpClientSecret,
+      oauthRefreshToken: gbpRefreshToken,
+      placeId: gbpPlaceId,
     };
   }
 
@@ -314,7 +356,9 @@ export async function getTenantConfig(tenantId: string): Promise<TenantConfig> {
     config.email = { smtpHost, smtpUser, smtpPassword, smtpPort: 465 };
   }
 
-  const gbpPlaceId = get("google_business", "place_id");
+  // Legacy gbp block: keep populating the older `gbp` field when a manager_email
+  // is present (delegated-manager flow). The newer `googleBusiness` block above
+  // covers the OAuth flow.
   const gbpManager = get("google_business", "manager_email");
   if (gbpPlaceId && gbpManager) {
     config.gbp = { placeId: gbpPlaceId, managerEmail: gbpManager };
