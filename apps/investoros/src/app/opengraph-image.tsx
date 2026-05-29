@@ -5,6 +5,10 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = "InvestorOS — 27 AI Agents for Home Service Businesses";
 
+/**
+ * Homepage OG image. Per-slug OG images for /es/[slug] live in
+ * src/app/es/[slug]/opengraph-image.tsx and are category-aware.
+ */
 export default function OpenGraphImage() {
   return new ImageResponse(
     (
@@ -32,14 +36,7 @@ export default function OpenGraphImage() {
               "radial-gradient(ellipse at center, rgba(99,102,241,0.25) 0%, rgba(99,102,241,0) 70%)",
           }}
         />
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            marginBottom: "32px",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 32 }}>
           <div
             style={{
               display: "flex",
@@ -48,8 +45,7 @@ export default function OpenGraphImage() {
               width: 64,
               height: 64,
               borderRadius: 12,
-              background:
-                "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)",
+              background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)",
               color: "white",
               fontSize: 28,
               fontWeight: 800,
@@ -57,9 +53,7 @@ export default function OpenGraphImage() {
           >
             IO
           </div>
-          <div style={{ fontSize: 56, fontWeight: 800, color: "#f8f8ff" }}>
-            InvestorOS
-          </div>
+          <div style={{ fontSize: 56, fontWeight: 800, color: "#f8f8ff" }}>InvestorOS</div>
         </div>
         <div
           style={{
@@ -76,14 +70,7 @@ export default function OpenGraphImage() {
         >
           27 AI Agents for Home Service Businesses
         </div>
-        <div
-          style={{
-            fontSize: 26,
-            color: "#a5b4fc",
-            marginTop: 32,
-            display: "flex",
-          }}
-        >
+        <div style={{ fontSize: 26, color: "#a5b4fc", marginTop: 32, display: "flex" }}>
           investoros.tech
         </div>
       </div>
