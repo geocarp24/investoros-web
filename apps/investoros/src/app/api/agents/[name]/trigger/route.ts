@@ -85,20 +85,27 @@ export async function POST(
   }
 
   // ── Tenant existence + status check ──
-  const tenant = await db.tenant.findUnique({
-    where: { slug: requestedTenant },
-    select: { slug: true, status: true },
-  });
-  if (!tenant) {
-    return NextResponse.json(
-      { error: `Tenant not found in DB: ${requestedTenant}` },
-      { status: 404 }
-    );
-  }
-  if (tenant.status === "SUSPENDED" || tenant.status === "CANCELED") {
-    return NextResponse.json(
-      { error: `Tenant ${requestedTenant} is ${tenant.status.toLowerCase()}` },
-      { status: 403 }
+  // Defensive: if the DB is unreachable or unprovisioned, skip DB-level
+  // validation and rely on the user-tenant match check above. This keeps
+  // the trigger flow working during the early bootstrap before
+  // `prisma db push` has created the Tenant table.
+  try {
+    const tenant = await db.tenant.findUnique({
+      where: { slug: requestedTenant },
+      select: { slug: true, status: true },
+    });
+    if (tenant?.status === "SUSPENDED" || tenant?.status === "CANCELED") {
+      return NextResponse.json(
+        { error: `Tenant ${requestedTenant} is ${tenant.status.toLowerCase()}` },
+        { status: 403 }
+      );
+    }
+    // If tenant is null (not yet in DB), we still allow because the user-tenant
+    // metadata match above already proved authorization.
+  } catch (err) {
+    console.warn(
+      `[trigger] DB unreachable, skipping tenant status check for ${requestedTenant}:`,
+      err instanceof Error ? err.message : err
     );
   }
 

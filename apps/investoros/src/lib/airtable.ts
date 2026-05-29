@@ -41,12 +41,20 @@ interface AirtableListResponse<T = Record<string, unknown>> {
  */
 async function getToken(tenantSlug?: string): Promise<string> {
   if (tenantSlug) {
-    const tenant = await db.tenant.findUnique({ where: { slug: tenantSlug } });
-    if (tenant) {
-      // Compute the legacy fallback env var for this tenant
-      const envFallback = `AIRTABLE_TOKEN_${tenantSlug.toUpperCase().replace(/-/g, "_")}`;
-      const token = await getCredential(tenant.id, "airtable", "api_token", envFallback);
-      if (token) return token;
+    // Defensive: if Postgres is unreachable or the schema hasn't been pushed yet,
+    // gracefully degrade to env-var-only resolution instead of throwing.
+    try {
+      const tenant = await db.tenant.findUnique({ where: { slug: tenantSlug } });
+      if (tenant) {
+        const envFallback = `AIRTABLE_TOKEN_${tenantSlug.toUpperCase().replace(/-/g, "_")}`;
+        const token = await getCredential(tenant.id, "airtable", "api_token", envFallback);
+        if (token) return token;
+      }
+    } catch (err) {
+      console.warn(
+        `[airtable] vault lookup failed for tenant=${tenantSlug}; falling back to env var:`,
+        err instanceof Error ? err.message : err
+      );
     }
     // fall through to legacy env var resolution
   }
