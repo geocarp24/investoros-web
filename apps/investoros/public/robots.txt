@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /geo/
+Disallow: /geo-carpentry/
+Disallow: /pinnacle/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /billing/
+Disallow: /onboard/
+Disallow: /_next/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://www.investoros.tech/sitemap.xml
