@@ -11,6 +11,8 @@ interface AgentRunCardProps {
   description: string;
   cron?: string;
   status: "production" | "code-complete" | "planned";
+  /** Default agent mode (e.g. "seo_health" for posicionador). Sent in trigger payload. */
+  defaultMode: string;
   lastRunISO?: string;
   lastScore?: number;
 }
@@ -33,7 +35,7 @@ function timeAgo(iso?: string): string {
 }
 
 export function AgentRunCard({
-  tenant, slug, name, emoji, description, cron, status, lastRunISO, lastScore,
+  tenant, slug, name, emoji, description, cron, status, defaultMode, lastRunISO, lastScore,
 }: AgentRunCardProps) {
   const [runState, setRunState] = useState<"idle" | "pending" | "ok" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -47,7 +49,7 @@ export function AgentRunCard({
       const res = await fetch(`/api/agents/${slug}/trigger`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tenant }),
+        body: JSON.stringify({ tenant, mode: defaultMode }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);

@@ -25,21 +25,23 @@ type AgentDef = {
   description: string;
   cron?: string;
   status: "production" | "code-complete" | "planned";
+  /** Default --mode passed to the agent CLI when triggered manually. */
+  defaultMode: string;
 };
 
 const AGENTS: AgentDef[] = [
   { slug: "posicionador", name: "Posicionador", emoji: "📊", description: "SEO health audits — robots, sitemap, schema, on-page, Core Web Vitals.",
-    cron: "Every 3 days · seo_health · Mondays · seo_deep", status: "production" },
+    cron: "Every 3 days · seo_health · Mondays · seo_deep", status: "production", defaultMode: "seo_health" },
   { slug: "mercader",     name: "Mercader",     emoji: "📢", description: "Marketing + UX audit — LCP, conversion friction, mobile-first violations.",
-    cron: "Every 3 days · quick_health · Mondays · deep_audit", status: "production" },
+    cron: "Every 3 days · quick_health · Mondays · deep_audit", status: "production", defaultMode: "quick_health" },
   { slug: "escriba",      name: "Escriba",      emoji: "✍️", description: "Bilingual content writer — weekly blog drafts to Airtable Content_Queue.",
-    cron: "Pending wiring (Fase B)", status: "code-complete" },
+    cron: "Pending wiring (Fase B)", status: "code-complete", defaultMode: "weekly_draft" },
   { slug: "rastreador",   name: "Rastreador",   emoji: "🔍", description: "Web scraper — leads from FSBO, foreclosures, public RFPs.",
-    cron: "Pending wiring (Fase B)", status: "code-complete" },
+    cron: "Pending wiring (Fase B)", status: "code-complete", defaultMode: "scan" },
   { slug: "clasificador", name: "Clasificador", emoji: "🎯", description: "Lead scorer 0–100 → Hot/Warm/Cold routing in Airtable Leads.",
-    cron: "Pending wiring (Fase B)", status: "code-complete" },
+    cron: "Pending wiring (Fase B)", status: "code-complete", defaultMode: "score_batch" },
   { slug: "social_media", name: "Social Media", emoji: "📱", description: "Posts + reels ideation for FB/IG. Pairs with Sofia + Leo for visuals.",
-    cron: "Pending wiring (Fase B)", status: "code-complete" },
+    cron: "Pending wiring (Fase B)", status: "code-complete", defaultMode: "generate_ideas" },
 ];
 
 export default async function AgentsPage({ params }: { params: Promise<{ tenant: string }> }) {
@@ -89,6 +91,7 @@ export default async function AgentsPage({ params }: { params: Promise<{ tenant:
               description={a.description}
               cron={a.cron}
               status={a.status}
+              defaultMode={a.defaultMode}
               lastRunISO={lastRunLabel}
               lastScore={lastScore}
             />
