@@ -38,6 +38,7 @@ const ALLOWED_SERVICES: ServiceName[] = [
   "wordpress",
   "social",
   "meta_graph",
+  "facebook",
   "openphone",
   "clerk",
 ];

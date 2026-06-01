@@ -31,8 +31,9 @@ export type ServiceName =
   | "google_business"
   | "hostinger_email"
   | "wordpress"
-  | "social"        // FB page ID, IG account ID, Buffer token, Meta Graph user/page tokens
+  | "social"        // legacy: FB page ID, IG account ID, Buffer token, Meta Graph user/page tokens
   | "meta_graph"
+  | "facebook"      // FB Page access token + app secret + page metadata (preferred for Marco)
   | "openphone"
   | "clerk";
 
@@ -92,6 +93,16 @@ export type TenantConfig = {
     placeId: string;
     managerEmail: string;
     placeIdCid?: string;
+  };
+  facebook?: {
+    /** Page Access Token (long-lived, exchanged via OAuth). Use for Page posts + Insights. */
+    pageAccessToken?: string;
+    /** App secret for appsecret_proof signing on Graph API calls. */
+    appSecret?: string;
+    pageId?: string;
+    pageName?: string;
+    appId?: string;
+    appName?: string;
   };
 };
 
@@ -362,6 +373,27 @@ export async function getTenantConfig(tenantId: string): Promise<TenantConfig> {
   const gbpManager = get("google_business", "manager_email");
   if (gbpPlaceId && gbpManager) {
     config.gbp = { placeId: gbpPlaceId, managerEmail: gbpManager };
+  }
+
+  // Facebook: page access token + app secret. Metadata on the token row carries
+  // page_id/page_name/app_id (non-secret context for Marco to know which Page).
+  const fbPageToken = get("facebook", "page_access_token");
+  const fbAppSecret = get("facebook", "app_secret");
+  const fbTokenMeta = credByName.get("facebook:page_access_token")?.metadata as
+    | { page_id?: string; page_name?: string; app_id?: string }
+    | undefined;
+  const fbSecretMeta = credByName.get("facebook:app_secret")?.metadata as
+    | { app_id?: string; app_name?: string }
+    | undefined;
+  if (fbPageToken || fbAppSecret) {
+    config.facebook = {
+      pageAccessToken: fbPageToken,
+      appSecret: fbAppSecret,
+      pageId: fbTokenMeta?.page_id,
+      pageName: fbTokenMeta?.page_name,
+      appId: fbTokenMeta?.app_id ?? fbSecretMeta?.app_id,
+      appName: fbSecretMeta?.app_name,
+    };
   }
 
   return config;
