@@ -101,8 +101,12 @@ export type TenantConfig = {
     appSecret?: string;
     pageId?: string;
     pageName?: string;
+    /** Instagram Business Account ID linked to the FB Page (for IG publishing via Graph API). */
+    igBusinessId?: string;
     appId?: string;
     appName?: string;
+    /** Count of granted OAuth scopes (for diagnostic; debug_token reports actual). */
+    permissions?: number;
   };
 };
 
@@ -376,11 +380,17 @@ export async function getTenantConfig(tenantId: string): Promise<TenantConfig> {
   }
 
   // Facebook: page access token + app secret. Metadata on the token row carries
-  // page_id/page_name/app_id (non-secret context for Marco to know which Page).
+  // page_id/page_name/ig_business_id/app_id (non-secret context for Marco).
   const fbPageToken = get("facebook", "page_access_token");
   const fbAppSecret = get("facebook", "app_secret");
   const fbTokenMeta = credByName.get("facebook:page_access_token")?.metadata as
-    | { page_id?: string; page_name?: string; app_id?: string }
+    | {
+        page_id?: string;
+        page_name?: string;
+        ig_business_id?: string;
+        app_id?: string;
+        permissions?: number;
+      }
     | undefined;
   const fbSecretMeta = credByName.get("facebook:app_secret")?.metadata as
     | { app_id?: string; app_name?: string }
@@ -391,8 +401,10 @@ export async function getTenantConfig(tenantId: string): Promise<TenantConfig> {
       appSecret: fbAppSecret,
       pageId: fbTokenMeta?.page_id,
       pageName: fbTokenMeta?.page_name,
+      igBusinessId: fbTokenMeta?.ig_business_id,
       appId: fbTokenMeta?.app_id ?? fbSecretMeta?.app_id,
       appName: fbSecretMeta?.app_name,
+      permissions: fbTokenMeta?.permissions,
     };
   }
 
