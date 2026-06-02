@@ -10,6 +10,7 @@
 
 'use client';
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 
 interface Post {
   id: string;
@@ -34,7 +35,10 @@ const STATUS_COLORS: Record<string, string> = {
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-export default function SocialCalendar({ params }: { params: { tenant: string } }) {
+export default function SocialCalendar() {
+  // Next.js 15: dynamic route params via useParams() hook in client components
+  const routeParams = useParams<{ tenant: string }>();
+  const params = { tenant: routeParams?.tenant ?? '' };
   const [posts,     setPosts]     = useState<Post[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [today]                   = useState(new Date());
