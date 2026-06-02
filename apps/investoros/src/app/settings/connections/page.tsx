@@ -35,9 +35,19 @@ export default async function ConnectionsPage({
 
   const user = await currentUser();
   const tenantId = user?.publicMetadata?.tenantId as string | undefined;
-  const tenantRow = tenantId
+  let tenantRow = tenantId
     ? await db.tenant.findUnique({ where: { id: tenantId } })
     : null;
+
+  // Fallback: single-tenant mode (pre-Clerk publicMetadata.tenantId assignment).
+  // When SaaS goes multi-tenant, every Clerk user MUST have publicMetadata.tenantId
+  // set during onboarding. Until then, if there's exactly one tenant in DB, use it.
+  // This keeps Jorge's solo dev experience working without forcing Clerk metadata wiring.
+  if (!tenantRow) {
+    const tenants = await db.tenant.findMany({ take: 2 });
+    if (tenants.length === 1) tenantRow = tenants[0];
+  }
+
   const tenantSlug = tenantRow?.slug ?? "";
 
   let connections: {
