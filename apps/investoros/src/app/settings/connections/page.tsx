@@ -132,6 +132,24 @@ export default async function ConnectionsPage({
           name="Facebook + Instagram"
           icon="📘"
           connected={connections.facebook?.connected ?? false}
+          actions={
+            connections.facebook?.connected
+              ? [
+                  {
+                    label: "Open Facebook Page",
+                    href: `https://www.facebook.com/profile.php?id=${connections.facebook.pageId}`,
+                  },
+                  {
+                    label: "Business Suite Planner",
+                    href: `https://business.facebook.com/latest/posts/published_posts?asset_id=${connections.facebook.pageId}`,
+                  },
+                  {
+                    label: "Instagram Insights",
+                    href: `https://business.facebook.com/latest/insights/instagram_insights?asset_id=${connections.facebook.pageId}`,
+                  },
+                ]
+              : [{ label: "Connect now", href: "/onboard/connect-facebook" }]
+          }
           details={
             connections.facebook?.connected ? (
               <>
@@ -149,20 +167,36 @@ export default async function ConnectionsPage({
                 )}
               </>
             ) : (
-              <span style={{ color: "#666" }}>
-                Not connected. <Link href="/onboard/connect-facebook" style={{ color: "#e07b2a" }}>Connect now</Link>
-              </span>
+              <span style={{ color: "#666" }}>Not connected yet</span>
             )
           }
         />
 
         <ConnectionCard
-          name="Airtable"
+          name="Airtable (CRM + Content)"
           icon="📊"
           connected={connections.airtable?.connected ?? false}
+          actions={
+            connections.airtable?.connected
+              ? [
+                  {
+                    label: "Open Airtable Base",
+                    href: `https://airtable.com/appAQpveuAec077jF`,
+                  },
+                  {
+                    label: "Leads",
+                    href: `https://airtable.com/appAQpveuAec077jF/tblVqrROrVspFXniG`,
+                  },
+                  {
+                    label: "Content Queue",
+                    href: `https://airtable.com/appAQpveuAec077jF/tblpiN42pK3YFxGEW`,
+                  },
+                ]
+              : []
+          }
           details={
             connections.airtable?.connected
-              ? "Token configured (encrypted vault)"
+              ? "Token configured (encrypted vault) — full CRM + content + audits tables"
               : "Not connected"
           }
         />
@@ -171,6 +205,15 @@ export default async function ConnectionsPage({
           name="WordPress"
           icon="🌐"
           connected={connections.wordpress?.connected ?? false}
+          actions={
+            connections.wordpress?.connected
+              ? [
+                  { label: "Visit Site", href: connections.wordpress.url ?? "#" },
+                  { label: "WP Admin", href: `${connections.wordpress.url}/wp-admin/` },
+                  { label: "Posts", href: `${connections.wordpress.url}/wp-admin/edit.php` },
+                ]
+              : []
+          }
           details={
             connections.wordpress?.connected ? (
               <>
@@ -209,11 +252,13 @@ function ConnectionCard({
   icon,
   connected,
   details,
+  actions = [],
 }: {
   name: string;
   icon: string;
   connected: boolean;
   details: React.ReactNode;
+  actions?: Array<{ label: string; href: string }>;
 }) {
   return (
     <div
@@ -244,7 +289,34 @@ function ConnectionCard({
             {connected ? "✓ Connected" : "Not connected"}
           </span>
         </div>
-        <div style={{ color: "#444", fontSize: 14 }}>{details}</div>
+        <div style={{ color: "#444", fontSize: 14, marginBottom: actions.length ? 12 : 0 }}>
+          {details}
+        </div>
+        {actions.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {actions.map((a) => (
+              <a
+                key={a.label}
+                href={a.href}
+                target={a.href.startsWith("http") ? "_blank" : undefined}
+                rel={a.href.startsWith("http") ? "noreferrer" : undefined}
+                style={{
+                  display: "inline-block",
+                  padding: "6px 14px",
+                  borderRadius: 6,
+                  background: "#1a2e44",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  border: "1px solid #1a2e44",
+                }}
+              >
+                {a.label} ↗
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
