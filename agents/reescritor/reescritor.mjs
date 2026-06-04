@@ -35,7 +35,7 @@ const LESSONS_FILE = join(ORACULO_DIR, "sm_lessons.md");
 
 const VALID_MODES = ["batch", "one"];
 
-const ANTHROPIC_KEY=[REDACTED] || "";
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
 const SONNET_MODEL  = "claude-sonnet-4-6";
 
 const BATCH_MAX_PER_RUN = Number(process.env.REESCRITOR_BATCH_MAX || 8);
@@ -45,7 +45,10 @@ let _personaCache = null;
 async function loadPersona() {
   if (_personaCache !== null) return _personaCache;
   try {
-    _personaCache = (await readFile(join(ORACULO_DIR, "wi_homeowner_persona.md"), "utf8")).slice(0, 4000);
+    const personaPath = (typeof cfg !== "undefined" && cfg?.persona_file)
+      ? join(__dirname, "..", cfg.persona_file)
+      : join(ORACULO_DIR, "wi_homeowner_persona.md");
+    _personaCache = (await readFile(personaPath, "utf8")).slice(0, 4000);
   } catch { _personaCache = ""; }
   return _personaCache;
 }
@@ -76,7 +79,7 @@ async function smGet(tableId, recordId) {
 // New 3-table architecture (2026-05-07): each record is single-language.
 // rewriteRecord receives format ("Post" | "Reel" | "Video") and the record's
 // language so the rewrite stays in the same language only.
-async function rewriteRecord(record, persona, format) {
+async function rewriteRecord(record, persona, format, lessonCtx = null) {
   const f = record.fields || {};
   const titulo = f.Title || "";
   const lang   = String(f.Language || "ES").toUpperCase();
@@ -164,7 +167,12 @@ REWRITE PRINCIPLES (apply ALL):
 8. CTA / caption must include phone (920) 777-9886 AND pinnaclegroupwi.com.
 ${format === "Reel" ? "9. Reels are 5 slides × 2s = 10s total. Each slide_N_text must be a substantive line (NOT generic placeholder). For Tipo=Personal use template=hybrid (Jorge in hook+CTA, b-roll on points)." : ""}
 ${format === "Video" ? "9. Videos are 30-90s longer-form, segmented script with timecodes." : ""}
-
+${lessonCtx ? `
+[ACTIVE LESSON — address this rejection category: ${lessonCtx.category || ""}]
+Rule: ${lessonCtx.rule || ""}
+Bad pattern to avoid: ${lessonCtx.bad_example || "(see rejection notes)"}
+Good pattern to use: ${lessonCtx.good_example || "(invert the bad pattern)"}
+` : ""}
 [AUDIENCE PERSONA]
 ${persona}`;
 
@@ -266,9 +274,25 @@ async function processOne(record, persona, tableId, format) {
   const f = record.fields || {};
   const titulo = f.Title || record.id;
 
+  // Learning loop: fetch lesson from Geo_Lessons for this rejection category
+  const GEO_LESSONS_TABLE = "tbl2VhJyx4KJIqNqL";
+  const rejectionCategory = f.Rejection_Category || null;
+  let lessonCtx = null;
+  if (rejectionCategory) {
+    try {
+      const lFilter = encodeURIComponent(`AND({category}='${rejectionCategory}',{status}='active')`);
+      const lResp = await smFetch(GEO_LESSONS_TABLE, `filterByFormula=${lFilter}&maxRecords=1`);
+      if (lResp.records?.[0]) {
+        lessonCtx = { ...lResp.records[0].fields, category: rejectionCategory };
+      }
+    } catch (e) {
+      console.error(`[reescritor] geo_lessons fetch failed: ${e.message}`);
+    }
+  }
+
   let rewrite;
   try {
-    rewrite = await rewriteRecord(record, persona, format);
+    rewrite = await rewriteRecord(record, persona, format, lessonCtx);
   } catch (e) {
     return { id: record.id, titulo, status: "rewrite_failed", error: String(e.message).slice(0, 150) };
   }
@@ -314,9 +338,8 @@ async function processOne(record, persona, tableId, format) {
     return { id: record.id, titulo, status: "update_failed", error: String(e.message).slice(0, 150) };
   }
 
-  if (rewrite.lesson) {
-    await appendLesson(titulo, rewrite.lesson);
-  }
+  // NOTE: appendLesson() to sm_lessons.md deprecated — Geo_Lessons Airtable is now source of truth (CC 2026-06-04)
+  // if (rewrite.lesson) { await appendLesson(titulo, rewrite.lesson); }
 
   return {
     id: record.id, titulo, status: "rewritten",

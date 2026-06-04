@@ -32,7 +32,7 @@ export function buildPublisherFilter({
   if (targetFormat !== null && !VALID_FORMATS.includes(targetFormat)) {
     throw new Error(`invalid targetFormat: ${targetFormat}`);
   }
-  const parts = [`{visual_url}!=''`, `{Status}='${status}'`];
+  const parts = [`{visual_url}!=''`, `{Status}='${status}'`, `{Oraculo_Score}>=7`]; // Learning loop: guard against manual bypass (CC 2026-06-04)
   if (targetPlatform) parts.push(`{Target_Platform}='${targetPlatform}'`);
   if (targetFormat) parts.push(`{Format}='${targetFormat}'`);
   return `AND(${parts.join(", ")})`;

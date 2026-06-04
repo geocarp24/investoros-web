@@ -21,7 +21,7 @@
 import { parseArgs, loadTenant, telegramSend, genRunId, isoNow } from "../_shared/runner.mjs";
 import {
   SM_BASE_ID as SM_BASE, SM_POSTS_TABLE_ID, SM_REELS_TABLE_ID, SM_VIDEOS_TABLE_ID,
-  SM_TABLES, SM_TOKEN as SHARED_SM_TOKEN, STATUS,
+  SM_TABLES, SM_TOKEN as SHARED_SM_TOKEN, STATUS, SM_TENANT,
 } from "../_shared/sm_tables.mjs";
 import {
   publishFacebookPhotoPost, publishFacebookReel,
@@ -60,9 +60,11 @@ const SM_TOKEN = SHARED_SM_TOKEN
 // ── Meta Graph API config ──
 // META_USER_TOKEN: long-lived User Access Token from "Pinnacle Social Publisher" app.
 // META_PAGE_ACCESS_TOKEN (optional): pre-resolved Page token. If absent, derived from User token via /me/accounts.
+// FB_PAGE_ID: env-overridable since 2026-06-01 (multi-tenant — Geo Carpentry uses 723873447473999).
+//   For non-Pinnacle tenants, set FB_PAGE_ID + META_PAGE_ACCESS_TOKEN in cron command via vault fetch.
 const META_USER_TOKEN = process.env.META_USER_TOKEN || "";
 const META_PAGE_TOKEN = process.env.META_PAGE_ACCESS_TOKEN || "";
-const FB_PAGE_ID      = "965320503341457";  // Pinnacle Holdings Group
+const FB_PAGE_ID      = process.env.FB_PAGE_ID || "965320503341457";  // default Pinnacle Holdings Group
 
 // ── Airtable field names (source of truth, kept in one place for easy rename) ──
 // NOTE 2026-05-07: legacy field names "Blotato_*" still hold the data — Jorge will rename in Airtable UI.
@@ -201,7 +203,8 @@ async function appendStructuralLesson(rule) {
     const { fileURLToPath } = await import("node:url");
     const { dirname, join } = await import("node:path");
     const __dirname = dirname(fileURLToPath(import.meta.url));
-    const path = join(__dirname, "..", "oraculo_inputs", "sm_lessons.md");
+    const lessonsFilename = SM_TENANT === "geo-carpentry" ? "geo_lessons.md" : "sm_lessons.md";
+    const path = join(__dirname, "..", "oraculo_inputs", lessonsFilename);
     const date = new Date().toISOString().slice(0, 10);
     const entry = `\n### ${date} — Structural reject (SM Manager self-validation)\n- **Rejected pattern**: ${rule}\n- **Source**: SM Manager pre-create validation (saves Oráculo + Reescritor cycles)\n- **Rule for next generation**: read this lesson at startup, NEVER produce an idea matching this pattern\n`;
     await mkdir(dirname(path), { recursive: true });
@@ -215,7 +218,8 @@ async function loadLessons() {
     const { fileURLToPath } = await import("node:url");
     const { dirname, join } = await import("node:path");
     const __dirname = dirname(fileURLToPath(import.meta.url));
-    const path = join(__dirname, "..", "oraculo_inputs", "sm_lessons.md");
+    const lessonsFilename = SM_TENANT === "geo-carpentry" ? "geo_lessons.md" : "sm_lessons.md";
+    const path = join(__dirname, "..", "oraculo_inputs", lessonsFilename);
     const text = await readFile(path, "utf8");
     // Truncate to last 4000 chars (most recent lessons matter most).
     return text.length > 4000 ? "..." + text.slice(-4000) : text;
@@ -237,10 +241,49 @@ async function generateIdeas(cfg, runId, { count = IDEAS_PER_RUN } = {}) {
   }
   console.log(`[generate_ideas] backlog=${backlog} (gate=${BACKLOG_GATE_MAX}) — proceeding`);
 
-  const lessons = await loadLessons();
-  const lessonsBlock = lessons
-    ? `\n\n[LESSONS LEARNED FROM ORACULO — apply these on every idea you generate]\n${lessons}\n[END LESSONS]\n\nFollow the rewrite_pattern from each lesson above. Do NOT repeat any rejected_pattern.`
-    : "";
+  // Learning loop: query Geo_Lessons + recent approved ideas (CC 2026-06-04)
+  // Replaces file-based loadLessons() — Geo_Lessons Airtable is now source of truth
+  const GEO_LESSONS_TABLE = "tbl2VhJyx4KJIqNqL";
+  let lessonsBlock = "";
+  try {
+    // Top 5 lessons by rejection_count descending
+    const rejectUrl = `https://api.airtable.com/v0/${SM_BASE}/${GEO_LESSONS_TABLE}?filterByFormula=AND({status}='active',{tenant_id}='geo-carpentry')&sort[0][field]=rejection_count&sort[0][direction]=desc&maxRecords=5`;
+    const [rejectResp, approvedResp] = await Promise.all([
+      fetch(rejectUrl, { headers: { Authorization: `Bearer ${SM_TOKEN}` } }).then(r => r.json()),
+      smFetchIn(SM_POSTS_TABLE_ID, `filterByFormula=${encodeURIComponent("AND({Status}='Oraculo OK',{Oraculo_Score}>=8)")}&sort[0][field]=Oraculo_Score&sort[0][direction]=desc&maxRecords=3&fields[]=Title&fields[]=Oraculo_Score&fields[]=Hook`),
+    ]);
+
+    const lessonRows = rejectResp.records || [];
+    const approvedRows = approvedResp.records || [];
+
+    if (lessonRows.length > 0 || approvedRows.length > 0) {
+      const parts = [];
+      if (lessonRows.length > 0) {
+        parts.push("🚫 AVOID THESE REJECTION PATTERNS (top " + lessonRows.length + " from Geo_Lessons):");
+        for (const r of lessonRows) {
+          const f = r.fields || {};
+          parts.push(`- ${f.category || "OTHER"} (rejected ${f.rejection_count || 1}x): ${f.rule || ""}`);
+          if (f.bad_example) parts.push(`  Bad: "${f.bad_example}"`);
+          if (f.good_example) parts.push(`  Good: "${f.good_example}"`);
+        }
+      }
+      if (approvedRows.length > 0) {
+        parts.push("\n✅ EMULATE THESE APPROVED PATTERNS (score 8+):");
+        for (const r of approvedRows) {
+          const f = r.fields || {};
+          parts.push(`- "${(f.Title || "").slice(0, 60)}" (score ${f.Oraculo_Score || "?"}): ${(f.Hook || "").slice(0, 100)}`);
+        }
+      }
+      lessonsBlock = "\n\n" + parts.join("\n") + "\n";
+    }
+  } catch (e) {
+    console.error(`[sm] geo_lessons fetch failed: ${e.message}`);
+    // Fallback to file-based lessons if Airtable unavailable
+    try {
+      const fileLessons = await loadLessons();
+      if (fileLessons) lessonsBlock = `\n\n[LESSONS LEARNED FROM ORACULO]\n${fileLessons}\n[END LESSONS]\n`;
+    } catch {}
+  }
 
   const systemPrompt = `You are the Social Media Agent for Pinnacle Holdings Group LLC, a real estate cash home buyer in Wisconsin. Owner: Jorge Cruz. Phone: (920) 777-9886. Web: pinnaclegroupwi.com.
 
