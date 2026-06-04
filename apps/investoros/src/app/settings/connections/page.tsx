@@ -39,13 +39,17 @@ export default async function ConnectionsPage({
     ? await db.tenant.findUnique({ where: { id: tenantId } })
     : null;
 
-  // Fallback: single-tenant mode (pre-Clerk publicMetadata.tenantId assignment).
+  // Fallback: when Clerk publicMetadata.tenantId is not set yet, pick the
+  // tenant with the most seeded credentials (deterministic, no manual config).
+  // For Geo Carpentry vs Pinnacle: Geo has 4+ credentials seeded, Pinnacle has 0.
   // When SaaS goes multi-tenant, every Clerk user MUST have publicMetadata.tenantId
-  // set during onboarding. Until then, if there's exactly one tenant in DB, use it.
-  // This keeps Jorge's solo dev experience working without forcing Clerk metadata wiring.
+  // set during onboarding (this fallback becomes legacy).
   if (!tenantRow) {
-    const tenants = await db.tenant.findMany({ take: 2 });
-    if (tenants.length === 1) tenantRow = tenants[0];
+    const tenants = await db.tenant.findMany({
+      include: { _count: { select: { credentials: true } } },
+    });
+    const sorted = tenants.sort((a, b) => b._count.credentials - a._count.credentials);
+    tenantRow = sorted[0] ?? null;
   }
 
   const tenantSlug = tenantRow?.slug ?? "";
