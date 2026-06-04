@@ -45,9 +45,9 @@ Cobertura actual: Wisconsin (WI) — otros estados pueden fallar con "No valid r
 ```
 
 **Airtable Tables:**
-- Leads: `[REDACTED_AIRTABLE_TABLE_ID]`
-- Tracy: `[REDACTED_AIRTABLE_TABLE_ID]`
-- Contacts: `[REDACTED_AIRTABLE_TABLE_ID]`
+- Leads: `tblxZz2EWIglOLnEd`
+- Tracy: `tbl6CJm4kYspOuTDB`
+- Contacts: `tblacvw0Ss770x8l5`
 
 **Webhooks:**
 - el_polling: `https://pinnaclegroupwi.com/Tools/el_polling.php`

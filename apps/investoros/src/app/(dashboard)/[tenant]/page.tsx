@@ -125,7 +125,7 @@ async function loadGeoData(tenantSlug: string) {
       seoScore: latestScore ?? null,
       scoreDelta,
       contacts: contactsRes.records?.length ?? 0,
-      queueActive: queue.filter((q) => ["Drafting", "Review"].includes(q.status ?? "")).length,
+      queueActive: queue.filter((q) => ["draft", "ready_to_publish", "Drafting", "Review", "Planned"].includes(q.status ?? "")).length,
     },
   };
 }
@@ -303,7 +303,7 @@ export default async function TenantDashboard({
         <KPICard
           label="Content Queue"
           value={kpis.queueActive}
-          hint={kpis.queueActive > 0 ? "drafting + review" : "queue empty"}
+          hint={kpis.queueActive > 0 ? `${queue.filter(q => q.status === "ready_to_publish").length} ready · ${queue.filter(q => q.status === "draft").length} drafts` : "queue empty"}
         />
       </section>
 

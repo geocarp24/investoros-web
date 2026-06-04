@@ -34,7 +34,7 @@ ALEX (Orquestador) ← Claude Code + Telegram Bot
 
 **Canales de acceso al Jefe:**
 - Claude Code (esta sesión)
-- Telegram Bot: token `[REDACTED_TELEGRAM_BOT_TOKEN]`
+- Telegram Bot: token `8157575601:AAHmAo0OQroOUdXCnXZEjVh4hJkt0emx5_c`
 - Memoria compartida: `memoria_ALex.md` + `telegram_bot/telegram_memory.md`
 
 ---
@@ -42,17 +42,17 @@ ALEX (Orquestador) ← Claude Code + Telegram Bot
 ## 🗄️ AIRTABLE CRM
 
 ```
-Base ID: [REDACTED_AIRTABLE_BASE_ID]
-URL:     https://api.airtable.com/v0/[REDACTED_AIRTABLE_BASE_ID]
+Base ID: appfQbDA750Oihy9J
+URL:     https://api.airtable.com/v0/appfQbDA750Oihy9J
 ```
 
 | Tabla | ID |
 |-------|----|
-| Contacts | [REDACTED_AIRTABLE_TABLE_ID] |
-| Leads | [REDACTED_AIRTABLE_TABLE_ID] |
-| Deals | [REDACTED_AIRTABLE_TABLE_ID] |
-| Notes & Activity | [REDACTED_AIRTABLE_TABLE_ID] |
-| Tracy | [REDACTED_AIRTABLE_TABLE_ID] |
+| Contacts | tblacvw0Ss770x8l5 |
+| Leads | tblxZz2EWIglOLnEd |
+| Deals | tbliaEKxBHKBx7ZK2 |
+| Notes & Activity | tbleOBXJl7sDhwj5w |
+| Tracy | tbl6CJm4kYspOuTDB |
 
 ---
 
@@ -167,7 +167,7 @@ Detalle completo en `memoria_ALex.md` raíz, sección 2026-04-28.
 Jorge aprobó visión: Supervisor auto-curativo y auto-mejorable. Roadmap 5 fases. Implementada Fase 1 (memoria de lecciones, no-destructiva).
 
 **Construido:**
-- Tabla `Lessons_Learned` en Airtable (id `[REDACTED_AIRTABLE_TABLE_ID]`)
+- Tabla `Lessons_Learned` en Airtable (id `tbloCtdxSukBI3R3j`)
 - Módulo Learning: `loadLessons`, `recordLessonObservation`, `recordAllObservations`
 - Recognition: `classifySymptom()` con 5 categorías (infra/pipeline/code/data/unknown)
 - Normalizer compartido entre alert dedup y lesson keying

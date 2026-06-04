@@ -22,28 +22,31 @@ const GRAPH_BASE  = `https://graph.facebook.com/${API_VERSION}`;
 // ───────────────────────────────────────────────────────────────────────
 
 /**
- * Publish a single image or carousel post to a Facebook Page feed.
- * For carousels (multiple images), each photo is uploaded with `published=false`
- * then collated into a single multi-photo post.
+ * Publish a single image or carousel post to a Facebook Page feed — PRECISION LIVE.
+ *
+ * Strategy 2026-06-01 (Jorge approved): publishes LIVE immediately, no scheduling.
+ * The cron schedule itself acts as the scheduler — the agent runs at the exact slot
+ * desired (e.g. Tue 10:00 UTC) and publishes live in that second.
+ *
+ * Why not scheduled_publish_time:
+ *   Posts created via Graph API with scheduled_publish_time DO NOT appear in
+ *   Meta Business Suite Planner UI unless the app passed Meta App Review with
+ *   "Social Media Management" use case. Until app review is complete, scheduled
+ *   posts are invisible to clients, breaking visibility-first principle.
+ *
+ * See: memory/feedback_visibility_first_saas.md
+ * App Review path: docs/META_APP_REVIEW_GEO.md (to be submitted)
+ *
+ * Output: post appears IMMEDIATELY in:
+ *   - Business Suite → Content → Posts & reels → Published tab ✅
+ *   - Public Page feed ✅
+ *   - Page Insights ✅
+ *   - Mobile FB app feed ✅
  */
-export async function publishFacebookPhotoPost({ pageId, pageAccessToken, imageUrls, caption, scheduledPublishTime }) {
+export async function publishFacebookPhotoPost({ pageId, pageAccessToken, imageUrls, caption }) {
   if (!Array.isArray(imageUrls) || imageUrls.length === 0) throw new Error('imageUrls required');
 
-  if (imageUrls.length === 1) {
-    const body = { url: imageUrls[0], caption, access_token: pageAccessToken };
-    if (scheduledPublishTime) {
-      body.published = false;
-      body.scheduled_publish_time = scheduledPublishTime;
-    }
-    const r = await fetch(`${GRAPH_BASE}/${pageId}/photos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    return r.json();
-  }
-
-  // Multi-photo: upload each as unpublished, then attach by id to a feed post.
+  // Step 1: upload each photo as unpublished → media_fbid
   const photoIds = [];
   for (const url of imageUrls) {
     const r = await fetch(`${GRAPH_BASE}/${pageId}/photos`, {
@@ -56,19 +59,15 @@ export async function publishFacebookPhotoPost({ pageId, pageAccessToken, imageU
     photoIds.push(data.id);
   }
 
-  const feedBody = {
-    message: caption,
-    attached_media: photoIds.map(id => ({ media_fbid: id })),
-    access_token: pageAccessToken,
-  };
-  if (scheduledPublishTime) {
-    feedBody.published = false;
-    feedBody.scheduled_publish_time = scheduledPublishTime;
-  }
+  // Step 2: POST /<page>/feed with attached_media — published LIVE immediately.
   const feed = await fetch(`${GRAPH_BASE}/${pageId}/feed`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(feedBody),
+    body: JSON.stringify({
+      message: caption,
+      attached_media: photoIds.map(id => ({ media_fbid: id })),
+      access_token: pageAccessToken,
+    }),
   });
   return feed.json();
 }

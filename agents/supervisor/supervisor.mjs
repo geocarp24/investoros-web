@@ -1176,32 +1176,47 @@ async function runInfrastructureChecks(cfg) {
     results[e.name] = r.ok ? 1 : 0;
   }));
 
-  // Airtable API probe
-  try {
+  // Retry helper: returns 1 if probeFn returns truthy on any attempt within budget.
+  // Eliminates false-positive RED from transient network/rate-limit blips.
+  // Each attempt has a 5s timeout; backoff grows linearly (300ms, 600ms, 900ms).
+  async function probeWithRetry(probeFn, retries = 2, delayMs = 300) {
+    for (let i = 0; i <= retries; i++) {
+      try {
+        const ok = await probeFn();
+        if (ok) return 1;
+      } catch { /* swallow, retry */ }
+      if (i < retries) await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
+    }
+    return 0;
+  }
+
+  // Airtable API probe (with retry)
+  results.airtable_api_ok = await probeWithRetry(async () => {
     const r = await airtableFetch(cfg, "leads_table_id", "maxRecords=1");
-    results.airtable_api_ok = Array.isArray(r.records) ? 1 : 0;
-  } catch { results.airtable_api_ok = 0; }
+    return Array.isArray(r.records);
+  });
 
-  // Telegram bot probe (getMe)
-  try {
+  // Telegram bot probe (getMe, with retry)
+  results.telegram_bot_ok = await probeWithRetry(async () => {
     const token = process.env[cfg.telegram?.bot_token_env || "TELEGRAM_BOT_TOKEN"];
-    if (token) {
-      const r = await fetch(`https://api.telegram.org/bot${token}/getMe`);
-      const j = await r.json();
-      results.telegram_bot_ok = j.ok ? 1 : 0;
-    } else results.telegram_bot_ok = 0;
-  } catch { results.telegram_bot_ok = 0; }
+    if (!token) return false;
+    const r = await fetch(`https://api.telegram.org/bot${token}/getMe`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    const j = await r.json();
+    return !!j.ok;
+  });
 
-  // OpenPhone API probe via a cheap call (list phone numbers)
-  try {
+  // OpenPhone API probe (with retry)
+  results.openphone_api_ok = await probeWithRetry(async () => {
     const key = process.env.QUO_API_KEY;
-    if (key) {
-      const r = await fetch("https://api.openphone.com/v1/phone-numbers", {
-        headers: { Authorization: key },
-      });
-      results.openphone_api_ok = r.ok ? 1 : 0;
-    } else results.openphone_api_ok = 0;
-  } catch { results.openphone_api_ok = 0; }
+    if (!key) return false;
+    const r = await fetch("https://api.openphone.com/v1/phone-numbers", {
+      headers: { Authorization: key },
+      signal: AbortSignal.timeout(5000),
+    });
+    return r.ok;
+  });
 
   // Log freshness from fer_agent.log
   const { lines } = await fetchLog(cfg);
@@ -1352,6 +1367,13 @@ function scoreHealth(infra, pipeline, cfg) {
   const sv = cfg?.supervisor || {};
   const newBacklogThreshold = sv.backlog_new_warn_threshold ?? 500;
   const newBacklogCritThreshold = sv.backlog_new_critical_threshold ?? 2000;
+  // Tenant-aware check flags. Default ON (Pinnacle stack). Geo-style tenants
+  // without OpenPhone/Fer set these to false in tenant JSON so they don't
+  // dispatch fake-RED heartbeats. See geo-carpentry.json supervisor.checks.
+  const chk = sv.checks || {};
+  const checkOpenphone   = chk.openphone !== false;
+  const checkFerEndpoints = chk.fer_endpoints !== false;
+  const checkFcPipeline   = chk.first_contact_pipeline !== false;
   const checks = [
     infra.cron_first_contact_ok,
     infra.cron_seguimiento_ok,
@@ -1369,10 +1391,10 @@ function scoreHealth(infra, pipeline, cfg) {
   const warnings = [];
 
   if (!infra.airtable_api_ok)       critical.push("Airtable API no responde");
-  if (!infra.openphone_api_ok)      critical.push("OpenPhone API no responde");
+  if (checkOpenphone && !infra.openphone_api_ok)      critical.push("OpenPhone API no responde");
   if (!infra.telegram_bot_ok)       critical.push("Telegram bot token inválido");
-  if (!infra.cron_first_contact_ok) warnings.push("fer_first_contact.php endpoint no responde a HEAD");
-  if (!infra.cron_seguimiento_ok)   warnings.push("fer_seguimiento.php endpoint no responde a HEAD");
+  if (checkFerEndpoints && !infra.cron_first_contact_ok) warnings.push("fer_first_contact.php endpoint no responde a HEAD");
+  if (checkFerEndpoints && !infra.cron_seguimiento_ok)   warnings.push("fer_seguimiento.php endpoint no responde a HEAD");
 
   // Time-window aware: only flag stale log if currently within 9am-7pm CT
   // AND there's actual work waiting (contacts_tbc > 0 or Contacted stale). Otherwise cron is running empty = OK.
@@ -1380,7 +1402,7 @@ function scoreHealth(infra, pipeline, cfg) {
   const hrCT = parseInt(nowCT);
   const inWindow = hrCT >= 9 && hrCT < 19 && (new Date().getDay() !== 0);
   const hasFcWork = pipeline.contacts_tbc > 0 || (pipeline.ghosts || []).some((g) => g.stage === "Contacted");
-  if (inWindow && hasFcWork && (infra.last_fc_hours == null || infra.last_fc_hours > 4)) {
+  if (checkFcPipeline && inWindow && hasFcWork && (infra.last_fc_hours == null || infra.last_fc_hours > 4)) {
     critical.push(`Sin eventos fc_sms_sent desde hace ${infra.last_fc_hours ?? "∞"}h Y hay ${pipeline.contacts_tbc} leads en "To Be Contacted". Cron caído.`);
   }
   // Only warn if there's actual Seguimiento work due — otherwise daily silence is correct.

@@ -59,7 +59,7 @@ Eres invocado por ALEX Orquestador. **Solo aceptas órdenes de ALEX.**
 
 **También verificar el mapeo del módulo Airtable dentro del escenario:**
 - Módulo: Airtable (Create a Record)
-- Base: Pinnacle Social Media (`[REDACTED_AIRTABLE_BASE_ID]`)
+- Base: Pinnacle Social Media (`appU9s3kGkVpdrJkw`)
 - Mapeo de campos (usar los nombres EXACTOS con emojis):
 
 | Campo Make | Campo Airtable |

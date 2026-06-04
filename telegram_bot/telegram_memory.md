@@ -75,7 +75,7 @@ Resto del estado al cierre 2026-04-23 sigue válido — ver `memoria_ALex.md` se
 Jorge aprobó visión de convertir El Supervisor en agente auto-curativo, auto-mejorable y autosuficiente. Roadmap 5 fases (1=memoria · 2=confidence + LLM diagnosis · 3=auto-fix expandido + rollback · 4=self-modification propose-only · 5=auto-merge whitelist).
 
 **Fase 1 implementada hoy (no-destructiva):**
-- Tabla `Lessons_Learned` en Airtable (`[REDACTED_AIRTABLE_TABLE_ID]`) — síntoma + categoría + outcome + occurrence_count + recommended_action.
+- Tabla `Lessons_Learned` en Airtable (`tbloCtdxSukBI3R3j`) — síntoma + categoría + outcome + occurrence_count + recommended_action.
 - Módulo Learning en `supervisor.mjs`: cada warning/critical observado se registra (CREATE primera vez, INCREMENT recurrencias).
 - Recognition: classifier con 5 categorías (infra/pipeline/code/data/unknown).
 - Normalizer compartido con dedup de alertas — variantes "stale 40h"/"stale 38h" colapsan al mismo lesson.

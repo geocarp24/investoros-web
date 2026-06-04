@@ -6,14 +6,50 @@
  *
  * All SM agents (SM Manager, Oráculo, Reescritor, Creativo, Director v2,
  * publisher) import from this module.
+ *
+ * Multi-tenant (2026-06-01): when --tenant <slug> is in argv, env vars resolve
+ * to suffixed variants (AIRTABLE_SM_POSTS_TABLE_ID_GEO for geo-carpentry).
+ * Fallback to non-suffixed for default Pinnacle. Token also picks
+ * AIRTABLE_TOKEN_<TENANT> when available.
  */
 
-export const SM_BASE_ID         = process.env.AIRTABLE_SM_BASE_ID         || "[REDACTED_AIRTABLE_BASE_ID]";
-export const SM_POSTS_TABLE_ID  = process.env.AIRTABLE_SM_POSTS_TABLE_ID  || "[REDACTED_AIRTABLE_TABLE_ID]";
-export const SM_REELS_TABLE_ID  = process.env.AIRTABLE_SM_REELS_TABLE_ID  || "[REDACTED_AIRTABLE_TABLE_ID]";
-export const SM_VIDEOS_TABLE_ID = process.env.AIRTABLE_SM_VIDEOS_TABLE_ID || "[REDACTED_AIRTABLE_TABLE_ID]";
+function detectTenant() {
+  const argv = process.argv;
+  const idx  = argv.indexOf("--tenant");
+  if (idx !== -1 && argv[idx + 1]) return argv[idx + 1];
+  return process.env.TENANT_SLUG || "pinnacle";
+}
 
-export const SM_TOKEN = process.env.AIRTABLE_SM_TOKEN || "";
+// Explicit suffix per tenant (matches existing env var naming convention).
+// New tenants: add entry here, OR set TENANT_ENV_SUFFIX env var.
+const TENANT_SUFFIX_MAP = {
+  "pinnacle":      "",
+  "geo-carpentry": "_GEO",
+};
+
+const TENANT = detectTenant();
+const SUFFIX = TENANT_SUFFIX_MAP[TENANT] ??
+               process.env.TENANT_ENV_SUFFIX ??
+               `_${TENANT.toUpperCase().replace(/-/g, "_")}`;
+
+function envWithSuffix(base) {
+  // Resolve: prefer suffixed (e.g. AIRTABLE_SM_POSTS_TABLE_ID_GEO),
+  // fall back to non-suffixed (Pinnacle default).
+  return process.env[base + SUFFIX] || process.env[base] || "";
+}
+
+export const SM_TENANT          = TENANT;
+export const SM_BASE_ID         = envWithSuffix("AIRTABLE_SM_BASE_ID")         || "[REDACTED_AIRTABLE_BASE_ID]";
+export const SM_POSTS_TABLE_ID  = envWithSuffix("AIRTABLE_SM_POSTS_TABLE_ID")  || "[REDACTED_AIRTABLE_TABLE_ID]";
+export const SM_REELS_TABLE_ID  = envWithSuffix("AIRTABLE_SM_REELS_TABLE_ID")  || "[REDACTED_AIRTABLE_TABLE_ID]";
+export const SM_VIDEOS_TABLE_ID = envWithSuffix("AIRTABLE_SM_VIDEOS_TABLE_ID") || "[REDACTED_AIRTABLE_TABLE_ID]";
+
+// Token: prefer per-tenant (AIRTABLE_TOKEN_GEO), then SM-specific, then default.
+export const SM_TOKEN =
+  process.env[`AIRTABLE_TOKEN${SUFFIX}`] ||
+  process.env.AIRTABLE_SM_TOKEN ||
+  process.env.AIRTABLE_TOKEN ||
+  "";
 
 // Status enum (single select) — same across all 3 tables.
 export const STATUS = Object.freeze({

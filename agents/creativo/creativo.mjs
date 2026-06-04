@@ -19,19 +19,27 @@
  * after Replicate Nano Banana attempt failed Jorge's review.
  */
 import { parseArgs, loadTenant, telegramSend, genRunId, isoNow } from "../_shared/runner.mjs";
-import { SM_BASE_ID as SM_BASE, SM_POSTS_TABLE_ID as SM_TABLE, SM_TOKEN, STATUS, smUrl } from "../_shared/sm_tables.mjs";
-import { THEMES, VALID_THEME_CODES, slideHook, slidePoint, slideCTA, slidePostEditorial, buildCarousel } from "../creativo_runner/themes.mjs";
+import { SM_BASE_ID as SM_BASE, SM_POSTS_TABLE_ID as SM_TABLE, SM_TOKEN, STATUS, smUrl, SM_TENANT } from "../_shared/sm_tables.mjs";
+// Themes loaded dynamically per tenant (Pinnacle=themes.mjs, Geo=themes_geo.mjs) — 2026-06-01.
+const themesModule = SM_TENANT === "geo-carpentry"
+  ? await import("../creativo_runner/themes_geo.mjs")
+  : await import("../creativo_runner/themes.mjs");
+const { THEMES, VALID_THEME_CODES, slideHook, slidePoint, slideCTA, slidePostEditorial, buildCarousel } = themesModule;
 import { renderHtmlToPng, closeBrowser } from "./render.mjs";
 import { fetchPostBackground, deriveBgQuery } from "./backgrounds.mjs";
 import crypto from "node:crypto";
 
 const VALID_MODES = ["batch", "one"];
 
-const CLD_NAME   = process.env.CLOUDINARY_NAME       || "";
-const CLD_KEY    = process.env.CLOUDINARY_API_KEY    || "";
-const CLD_SECRET = process.env.CLOUDINARY_API_SECRET || "";
+// Cloudinary creds: tenant-aware via SM_TENANT suffix (2026-06-01).
+// Geo Carpentry uses its own Cloudinary account (env vars *_GEO).
+// Pinnacle uses unsuffixed env vars (legacy default).
+const _CLD_SUFFIX = SM_TENANT === "geo-carpentry" ? "_GEO" : "";
+const CLD_NAME   = process.env[`CLOUDINARY_NAME${_CLD_SUFFIX}`]       || process.env.CLOUDINARY_NAME       || "";
+const CLD_KEY    = process.env[`CLOUDINARY_API_KEY${_CLD_SUFFIX}`]    || process.env.CLOUDINARY_API_KEY    || "";
+const CLD_SECRET = process.env[`CLOUDINARY_API_SECRET${_CLD_SUFFIX}`] || process.env.CLOUDINARY_API_SECRET || "";
 
-const ANTHROPIC_KEY=[REDACTED] || "";
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
 const SONNET_MODEL  = "claude-sonnet-4-6";
 
 // Override via CREATIVO_BATCH_MAX env (used for one-shot migrations).
@@ -74,7 +82,7 @@ function buildSpecDeterministic(fields) {
   const isCarrusel = String(formato).toLowerCase() === "carrusel";
 
   const themeMatch = visualPrompt.match(/T([1-5])\b/i);
-  const theme = themeMatch ? `T${themeMatch[1]}` : "T1";
+  const theme = themeMatch ? `T${themeMatch[1]}` : (fields.Theme || f?.Theme || "T1");
 
   // Hook: prefer field Hook (Spanish). Generate English version from caption EN's first sentence.
   const hookEs = (hook || titulo).split(/\n|\.|!|\?/)[0].trim().slice(0, 80);
@@ -144,7 +152,7 @@ async function buildSpecWithSonnet(fields) {
   const formato = fields.Formato || "Post";
 
   const themeMatch = String(visualPrompt).match(/T([1-5])\b/i);
-  const detectedTheme = themeMatch ? `T${themeMatch[1]}` : "T1";
+  const detectedTheme = themeMatch ? `T${themeMatch[1]}` : (f?.Theme || f?.Theme_Code || "T1");
 
   const isCarrusel = String(formato).toLowerCase() === "carrusel";
 
@@ -252,7 +260,7 @@ async function processOne(record) {
   const f = record.fields || {};
   const titulo = f.Title || record.id;
   const lang = String(f.Language || "ES").toUpperCase();
-  const themeCode = String(f.Theme_Code || "T1").toUpperCase();
+  const themeCode = String(f.Theme_Code || f.Theme || "T1").toUpperCase();
   const theme = VALID_THEME_CODES.includes(themeCode) ? themeCode : "T1";
 
   if (!f.Hook && !f.Caption) {

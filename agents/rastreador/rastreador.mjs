@@ -1,3 +1,4 @@
+ 
 #!/usr/bin/env node
 /**
  * El Rastreador — web scraper for lead research.
@@ -32,7 +33,7 @@ import { extractPhoneFromText, normalizeName, normalizeAddress } from "./src/nor
 
 const VALID_MODES = ["legal_records", "fsbo_listings", "allies_directory", "batch"];
 
-const AIRTABLE_TOKEN=[REDACTED] || "";
+const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN || process.env.AIRTABLE_TOKEN_GEO || process.env.AIRTABLE_TOKEN_PINNACLE || "";
 
 /**
  * Generic HTML record extractor for endpoints without a dedicated parser.

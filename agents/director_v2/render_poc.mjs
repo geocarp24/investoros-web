@@ -121,8 +121,8 @@ async function main() {
 
   const env = {
     PEXELS_API_KEY:        process.env.PEXELS_API_KEY,
-    GEMINI_API_KEY=[REDACTED],
-    REPLICATE_API_TOKEN=[REDACTED],
+    GEMINI_API_KEY,
+    REPLICATE_API_TOKEN,
     CLOUDINARY_NAME:       process.env.CLOUDINARY_NAME,
     CLOUDINARY_API_KEY:    process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,

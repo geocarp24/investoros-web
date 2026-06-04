@@ -1,404 +1,465 @@
 #!/usr/bin/env node
 /**
- * El Escriba — copywriting / content generation orchestrator.
- * Sub-sub-agente bajo El Posicionador en el plantel R9.
+ * Eli (Escriba) — WordPress Publisher Agent
+ * Reads Content_Queue rows with status="ready_to_publish" and publishes
+ * to WordPress via REST API using credentials from the Supabase vault.
  *
  * Usage:
- *   node agents/escriba/escriba.mjs --tenant <slug> --mode atp_mine|plan_week|draft_article|on_demand [options]
+ *   node agents/escriba/escriba.mjs --tenant geo-carpentry --mode publish_batch --max 2
  *
- * Options:
- *   --article-id <id>      (draft_article) — run_id específico de Content_Queue a draftear
- *   --title <string>       (on_demand)     — title forzado
- *   --target-keyword <s>   (on_demand)     — keyword primary forzado
- *   --dry-run              preview sin subprocess / Airtable / Telegram / WP
+ * Environment vars (from /opt/alex-bot/.env):
+ *   AIRTABLE_TOKEN_GEO    — Airtable PAT
+ *   WEBHOOK_SECRET        — shared secret (c30b4c...) for internal Vercel API call
+ *   TELEGRAM_BOT_TOKEN    — Jorge's bot token
+ *   TELEGRAM_CHAT_ID      — Jorge's chat ID
+ *
+ * CC blocker: needs GET /api/internal/tenant-config endpoint live in Vercel
+ *   before this script can fetch WP credentials from the vault.
  */
 
-import { readFile, mkdir, writeFile } from "node:fs/promises";
-import { spawn } from "node:child_process";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { randomUUID } from "node:crypto";
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, "..", "..");
-const TENANTS_DIR = join(ROOT, "agents", "tenants");
-const OUTPUT_DIR = join(__dirname, "runs");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
-const VALID_MODES = ["atp_mine", "plan_week", "draft_article", "on_demand"];
+// ── CLI args ──────────────────────────────────────────────────────────────────
+const args    = process.argv.slice(2);
+const getArg  = (name, fallback = null) => {
+  const idx = args.indexOf(`--${name}`);
+  return idx !== -1 ? args[idx + 1] : fallback;
+};
 
-function parseArgs(argv) {
-  const args = { mode: "plan_week", dryRun: false, tenant: null, articleId: null, title: null, targetKeyword: null };
-  for (let i = 2; i < argv.length; i++) {
-    const a = argv[i];
-    if (a === "--tenant" || a === "-t") args.tenant = argv[++i];
-    else if (a === "--mode" || a === "-m") args.mode = argv[++i];
-    else if (a === "--article-id") args.articleId = argv[++i];
-    else if (a === "--title") args.title = argv[++i];
-    else if (a === "--target-keyword") args.targetKeyword = argv[++i];
-    else if (a === "--dry-run") args.dryRun = true;
-    else if (a === "--help" || a === "-h") {
-      console.log(`Usage: escriba.mjs --tenant <slug> --mode ${VALID_MODES.join("|")} [--article-id <id> | --title <s> --target-keyword <s>] [--dry-run]`);
-      process.exit(0);
-    }
-  }
-  if (!args.tenant) { console.error("ERROR: --tenant <slug> required"); process.exit(2); }
-  if (!/^[a-z0-9_-]+$/.test(args.tenant)) { console.error("ERROR: tenant slug must match [a-z0-9_-]+"); process.exit(2); }
-  if (!VALID_MODES.includes(args.mode)) { console.error(`ERROR: invalid --mode; must be one of ${VALID_MODES.join(", ")}`); process.exit(2); }
-  return args;
-}
+const TENANT_SLUG = getArg('tenant', 'geo-carpentry');
+const MODE        = getArg('mode',   'publish_batch');
+const MAX_POSTS   = parseInt(getArg('max', '2'), 10);
 
-async function loadTenant(slug) {
-  const p = join(TENANTS_DIR, `${slug}.json`);
-  const raw = await readFile(p, "utf8");
-  const cfg = JSON.parse(raw);
-  for (const k of ["tenant_id", "website", "claude"]) if (cfg[k] == null) throw new Error(`tenant.${k} missing in ${p}`);
-  return cfg;
-}
+// ── Env vars ──────────────────────────────────────────────────────────────────
+const AIRTABLE_TOKEN      = process.env.AIRTABLE_TOKEN_GEO;
+const WEBHOOK_SECRET      = process.env.WEBHOOK_SECRET;
+const TELEGRAM_BOT_TOKEN  = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID    = process.env.TELEGRAM_CHAT_ID;
 
-function runClaude(binary, prompt, timeoutMs = 25 * 60 * 1000) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(binary, ["--print", "--permission-mode", "acceptEdits", prompt], { stdio: ["ignore", "pipe", "pipe"] });
-    let out = "", err = "";
-    const timer = setTimeout(() => { child.kill("SIGKILL"); reject(new Error("timeout")); }, timeoutMs);
-    child.stdout.on("data", (d) => (out += d));
-    child.stderr.on("data", (d) => (err += d));
-    child.on("close", (code) => {
-      clearTimeout(timer);
-      if (code !== 0) return reject(new Error(`claude exit ${code}: ${err.slice(0, 500)}`));
-      resolve(out);
-    });
-    child.on("error", (e) => { clearTimeout(timer); reject(e); });
-  });
-}
+if (!AIRTABLE_TOKEN)  throw new Error('Missing env var: AIRTABLE_TOKEN_GEO');
+if (!WEBHOOK_SECRET)  throw new Error('Missing env var: WEBHOOK_SECRET');
 
-function contentQueueTable(cfg) {
-  return cfg.airtable?.content_queue_table_id || cfg.airtable?.table_id || null;
-}
-function seoAuditTable(cfg) {
-  return cfg.airtable?.seo_table_id || cfg.airtable?.table_id || null;
-}
-
-async function airtableFetch(cfg, tableId, params = "") {
-  const base = cfg.airtable?.base_id;
-  const token = process.env[cfg.airtable?.token_env || "AIRTABLE_TOKEN"];
-  if (!base || !tableId || !token) return { records: [] };
-  const url = `https://api.airtable.com/v0/${base}/${tableId}${params ? "?" + params : ""}`;
-  const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-  return await r.json().catch(() => ({ records: [] }));
-}
-
-async function airtableUpsert(cfg, tableId, runId, fields) {
-  const base = cfg.airtable?.base_id;
-  const token = process.env[cfg.airtable?.token_env || "AIRTABLE_TOKEN"];
-  if (!base || !tableId || !token) { console.error("[escriba] airtable not configured; skipping"); return null; }
-  const url = `https://api.airtable.com/v0/${base}/${tableId}`;
-  const existing = await fetch(`${url}?filterByFormula=${encodeURIComponent(`{run_id}='${runId}'`)}&maxRecords=1`, {
-    headers: { Authorization: `Bearer ${token}` },
-  }).then(r => r.json()).catch(() => ({ records: [] }));
-  if (existing.records && existing.records.length > 0) {
-    const recId = existing.records[0].id;
-    const r = await fetch(`${url}/${recId}`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ fields, typecast: true }),
-    });
-    return await r.json();
-  }
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ fields: { run_id: runId, ...fields }, typecast: true }),
-  });
-  return await r.json();
-}
-
-async function telegramSend(cfg, text) {
-  const token = process.env[cfg.telegram?.bot_token_env || "TELEGRAM_BOT_TOKEN"];
-  const chat  = process.env[cfg.telegram?.chat_id_env   || "TELEGRAM_CHAT_ID"];
-  if (!token || !chat) { console.error("[escriba] telegram not configured; skipping"); return; }
+// ── Load local tenant JSON ────────────────────────────────────────────────────
+function loadTenantConfig(slug) {
+  const configPath = path.resolve(__dirname, `../tenants/${slug}.json`);
   try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ chat_id: chat, text, parse_mode: "Markdown" }).toString(),
-    });
-  } catch (e) { console.error("[escriba] telegram error:", e.message); }
-}
-
-// ===== Prompt builders per mode =====
-
-function commonHeader(cfg, extra = "") {
-  const state = cfg.markets?.[0]?.state || "";
-  const cities = (cfg.markets?.[0]?.cities_primary || []).slice(0, 10).join(", ");
-  const pillars = (cfg.content_goals?.topic_pillars || []).map(p => `- ${p}`).join("\n") || "(none)";
-  const tone = cfg.content_goals?.tone || "professional";
-  const minW = cfg.content_goals?.target_word_count_min || 900;
-  const maxW = cfg.content_goals?.target_word_count_max || 1800;
-  const langs = (cfg.content_goals?.languages || ["en"]).join(", ");
-  return `Tenant: "${cfg.tenant_name}" (industry: ${cfg.industry})
-Primary market: ${state} state-wide (cities: ${cities})
-Languages to produce: ${langs}
-Tone: ${tone}
-Target word count per article: ${minW}–${maxW}
-Topic pillars:
-${pillars}
-${extra ? "\n" + extra : ""}`;
-}
-
-function buildPromptAtpMine(cfg) {
-  const seeds = (cfg.content_goals?.atp_mining?.seed_queries || []).map(s => `- "${s}"`).join("\n");
-  return `You are El Escriba, content writer sub-agent. Modo: atp_mine.
-${commonHeader(cfg)}
-
-Task: for each seed query below, generate AnswerThePublic-style questions real people in ${cfg.markets?.[0]?.state || "the target market"} would search. For each seed: 8-12 questions distributed across Who/What/When/Where/Why/How/Comparisons/Prepositions.
-
-Seeds:
-${seeds}
-
-For each question, output one row in markdown table:
-
-| Pillar | Question | Intent (informational/navigational/transactional) | Estimated difficulty (low/med/high) | Content type (blog/Q&A/pillar) | Backlink potential (low/med/high) | Priority score 1-10 |
-
-Be honest about difficulty and backlink potential. Prioritize questions that:
-- Have LOCAL signal (state/city names)
-- Address emotional pain (foreclosure, divorce, probate)
-- Allow citable stats or step-by-step how-to (high backlink potential)
-- Are under-covered by competitors
-
-Output ONLY the table, no preamble.`;
-}
-
-function buildPromptPlanWeek(cfg, lastSeoSummary = "") {
-  const articlesPerWeek = cfg.content_goals?.articles_per_week || 3;
-  const types = (cfg.content_goals?.content_types || []).map(t => `${t.type} (${t.weight})`).join(", ");
-  return `You are El Escriba, content writer sub-agent. Modo: plan_week.
-${commonHeader(cfg)}
-
-Articles to plan this week: ${articlesPerWeek}
-Content type mix (weights): ${types}
-
-Last SEO audit findings (from El Posicionador):
-${lastSeoSummary || "(no recent audit data — use topic_pillars defaults)"}
-
-Task: produce a content calendar for the next 7 days. ${articlesPerWeek} articles, each with:
-
-\`\`\`
-### Article N
-- title: "..."
-- content_type: blog_post | q_and_a_page | news_article | pillar_page
-- pillar: (match one of the topic_pillars)
-- target_keyword: "..."
-- intent_query: "..." (the real question a searcher types)
-- secondary_keywords: ...
-- target_audience_segment: ...
-- proposed_publish_date: YYYY-MM-DD
-- rationale: 1-2 sentences why this article this week (ties to SEO gap / ATP question / seasonal opportunity)
-- backlink_angle: what hook makes it citable / link-worthy
-\`\`\`
-
-Balance the mix across pillars. Prioritize highest-leverage (SEO gap fills + high backlink potential). Don't stack all articles on same pillar.
-
-Output only the 3 article blocks, no preamble.`;
-}
-
-function buildPromptDraftArticle(cfg, article) {
-  const title = article.title || "Untitled";
-  const keyword = article.target_keyword || "";
-  const intent = article.intent_query || "";
-  const type = article.content_type || "blog_post";
-  const pillar = article.pillar || "";
-  const minW = cfg.content_goals?.target_word_count_min || 900;
-  const maxW = cfg.content_goals?.target_word_count_max || 1800;
-  const langs = cfg.content_goals?.languages || ["en"];
-  const state = cfg.markets?.[0]?.state || "";
-  const phone = cfg.brand?.phone || "";
-  const site = cfg.website;
-  const audienceSegment = article.target_audience_segment || article.target_audience_hint || "homeowners considering a fast sale";
-
-  const langInstr = langs.includes("es")
-    ? `Produce BOTH versions:\n- English version in body_md\n- Spanish version in body_md_es (rewrite natural, not machine-translated)\n`
-    : `Produce English only in body_md.\n`;
-
-  return `You are El Escriba, content writer sub-agent. Modo: draft_article.
-${commonHeader(cfg)}
-
-Draft to produce:
-- title: "${title}"
-- content_type: ${type}
-- pillar: ${pillar}
-- target_keyword: "${keyword}"
-- intent_query: "${intent}"
-- target_audience_segment: ${audienceSegment}
-- word count: ${minW}-${maxW}
-${langInstr}
-
-SEO & content rules:
-1. H1 contains target_keyword naturally (no stuffing).
-2. First 150 chars answer the intent_query directly (AI Overviews love this — Google SGE, ChatGPT, Perplexity).
-3. H2/H3 semantic subheadings. Mobile-first: paragraphs 2-4 lines MAX, lots of white space, scannable.
-4. Include at least 3 specific, citable data points (state stats, law references, market data) with source.
-5. End with a FAQ section (3-5 Qs) if content_type is blog_post, q_and_a_page, or pillar_page.
-6. Insert ONE natural CTA to ${site}/get-my-offer/ contextualized to the reader's situation (not pushy).
-7. Propose 3-5 internal links to other pages of ${site} (use placeholder URLs; Jorge fills in).
-8. Propose 2-3 external citations to authoritative sources (gov, .edu, ${state} official sites).
-9. Tone: ${cfg.content_goals?.tone || "professional"}. Real estate Wisconsin distressed homeowner voice — empathic, educational, NO investor jargon.
-
-Output format (strict):
-
-\`\`\`yaml
----
-title: "${title}"
-slug: "..."
-meta_description: "..." (150-160 chars)
-schema_type: Article | FAQPage | Service
-target_keyword: "${keyword}"
-secondary_keywords: [..., ...]
-word_count_en: N
-word_count_es: N  (if applicable)
-suggested_internal_links:
-  - /path-one/
-  - /path-two/
-external_citations:
-  - "Title — publisher — URL"
-target_audience_hint: "${audienceSegment}"
-backlink_angle: "..."
-schema_jsonld: |
-  {
-    "@context": "https://schema.org",
-    ...
+    return JSON.parse(readFileSync(configPath, 'utf-8'));
+  } catch (e) {
+    throw new Error(`Cannot read tenant config at ${configPath}: ${e.message}`);
   }
----
-\`\`\`
-
-## BODY (English)
-
-{full article body here — markdown with H1/H2/H3, paragraphs, bullets where natural, FAQ block if applicable, inline links, final CTA}
-
-${langs.includes("es") ? `## BODY (Spanish)\n\n{full article body in Spanish — natural rewrite, not translation}\n` : ""}
-
-Produce the article now. Be specific to ${state}. Cite real data (WI foreclosure stats, probate timelines, DATCP, etc.). Keep mobile readability top priority.`;
 }
 
-function buildPromptOnDemand(cfg, args) {
-  // Synthesize an article plan from CLI args and fall through to draft logic.
-  return buildPromptDraftArticle(cfg, {
-    title: args.title || "Untitled on-demand article",
-    target_keyword: args.targetKeyword || "",
-    intent_query: args.title || "",
-    content_type: "blog_post",
-    pillar: "on_demand",
-    target_audience_segment: "homeowners",
+// ── Fetch WP credentials from Vercel vault ────────────────────────────────────
+// Requires CC to build: GET /api/internal/tenant-config?tenant=<slug>
+// Headers: x-internal-secret: <WEBHOOK_SECRET>
+// Response: { wordpress: { url, username, appPassword }, ... }
+async function fetchWPCredentials(tenantSlug) {
+  const url = `https://www.investoros.tech/api/internal/tenant-config?tenant=${encodeURIComponent(tenantSlug)}`;
+  const res = await fetch(url, {
+    headers: {
+      'x-internal-secret': WEBHOOK_SECRET,
+      'Content-Type': 'application/json',
+    },
   });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`tenant-config API error ${res.status}: ${body.slice(0, 300)}`);
+  }
+
+  const data = await res.json();
+
+  if (!data?.wordpress?.username || !data?.wordpress?.appPassword) {
+    throw new Error(
+      `WP credentials missing or incomplete in vault for tenant: ${tenantSlug}. ` +
+      `Ensure 'wordpress/app_password' is seeded via /api/admin/seed-tenant-credential.`
+    );
+  }
+
+  return data.wordpress; // { url, username, appPassword }
 }
 
-// ===== Main =====
+// ── Airtable helpers ──────────────────────────────────────────────────────────
+const AIRTABLE_BASE         = 'appAQpveuAec077jF';
+const CONTENT_QUEUE_TABLE   = 'tblpiN42pK3YFxGEW';
+const AT_BASE_URL           = `https://api.airtable.com/v0/${AIRTABLE_BASE}`;
 
-async function main() {
-  const args = parseArgs(process.argv);
-  const cfg = await loadTenant(args.tenant);
-  const runId = randomUUID();
-  const startedAt = new Date().toISOString();
-  const cqTable = contentQueueTable(cfg);
+async function fetchContentQueue(tenantSlug, max) {
+  const formula = encodeURIComponent(
+    `AND({status}="ready_to_publish",{tenant_id}="${tenantSlug}")`
+  );
+  const url = (
+    `${AT_BASE_URL}/${CONTENT_QUEUE_TABLE}` +
+    `?filterByFormula=${formula}` +
+    `&maxRecords=${max}` +
+    `&sort[0][field]=created_at&sort[0][direction]=asc`
+  );
 
-  console.error(`[escriba] tenant=${cfg.tenant_id} mode=${args.mode} run_id=${runId} dry_run=${args.dryRun}`);
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` },
+  });
 
-  // For modes other than atp_mine / on_demand, pull context from Airtable.
-  let lastSeoSummary = "";
-  let plannedArticle = null;
-
-  if (args.mode === "plan_week" && !args.dryRun) {
-    const seoRes = await airtableFetch(cfg, seoAuditTable(cfg),
-      "filterByFormula=AND(%7Btenant_id%7D%3D%22" + encodeURIComponent(cfg.tenant_id) + "%22%2C%7Bstatus%7D%3D%22Done%22)" +
-      "&sort%5B0%5D%5Bfield%5D=completed_at&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=1"
-    );
-    const latest = seoRes.records?.[0]?.fields || {};
-    lastSeoSummary = [
-      latest.top_issues ? `Issues:\n${latest.top_issues}` : "",
-      latest.competitor_gaps ? `Gaps:\n${latest.competitor_gaps}` : "",
-      latest.recommendations ? `Recommendations:\n${latest.recommendations}` : "",
-    ].filter(Boolean).join("\n\n").slice(0, 4000);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Airtable fetch failed ${res.status}: ${body.slice(0, 300)}`);
   }
 
-  if (args.mode === "draft_article" && args.articleId && !args.dryRun) {
-    const res = await airtableFetch(cfg, cqTable, `filterByFormula=${encodeURIComponent(`{run_id}='${args.articleId}'`)}&maxRecords=1`);
-    plannedArticle = res.records?.[0]?.fields || null;
-    if (!plannedArticle) {
-      console.error(`[escriba] article not found: ${args.articleId}`);
-      process.exit(1);
+  const data = await res.json();
+  return data.records || [];
+}
+
+async function updateAirtableRow(recordId, fields) {
+  const url = `${AT_BASE_URL}/${CONTENT_QUEUE_TABLE}/${recordId}`;
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ fields }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Airtable update failed ${res.status}: ${body.slice(0, 300)}`);
+  }
+
+  return res.json();
+}
+
+// ── Markdown → HTML ───────────────────────────────────────────────────────────
+// Handles the content format used in Content_Queue body_md field.
+// If the field is already HTML (starts with <), passes through unchanged.
+// Normalize special chars to HTML entities so WP/MySQL charset issues don't
+// produce "?" for em-dashes, smart quotes, ellipsis, etc.
+function normalizeSpecialChars(text) {
+  return text
+    .replace(/—/g, '&mdash;')      // em dash —
+    .replace(/–/g, '&ndash;')      // en dash –
+    .replace(/‘/g, '&lsquo;')      // left single quote '
+    .replace(/’/g, '&rsquo;')      // right single quote '
+    .replace(/“/g, '&ldquo;')      // left double quote "
+    .replace(/”/g, '&rdquo;')      // right double quote "
+    .replace(/…/g, '&hellip;')     // ellipsis …
+    .replace(/®/g, '&reg;')        // ®
+    .replace(/©/g, '&copy;');      // ©
+}
+
+function mdToHtml(md) {
+  if (!md || typeof md !== 'string') return '';
+
+  // Normalize special chars first (fixes em-dash ? bug)
+  md = normalizeSpecialChars(md);
+
+  // Already HTML — pass through
+  if (md.trim().startsWith('<')) return md.trim();
+
+  const lines = md.split('\n');
+  const blocks = [];
+  let currentPara = [];
+
+  const flushPara = () => {
+    if (currentPara.length > 0) {
+      const text = currentPara.join(' ').trim();
+      if (text) blocks.push(`<p>${text}</p>`);
+      currentPara = [];
     }
+  };
+
+  const inlineFormat = (text) =>
+    text
+      .replace(/\*\*(.+?)\*\*/g,  '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,      '<em>$1</em>')
+      .replace(/`(.+?)`/g,        '<code>$1</code>')
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Blank line → flush paragraph
+    if (line.trim() === '') {
+      flushPara();
+      continue;
+    }
+
+    // Headings
+    const h4 = line.match(/^#### (.+)$/);
+    const h3 = line.match(/^### (.+)$/);
+    const h2 = line.match(/^## (.+)$/);
+    const h1 = line.match(/^# (.+)$/);
+    if (h4) { flushPara(); blocks.push(`<h4>${inlineFormat(h4[1])}</h4>`); continue; }
+    if (h3) { flushPara(); blocks.push(`<h3>${inlineFormat(h3[1])}</h3>`); continue; }
+    if (h2) { flushPara(); blocks.push(`<h2>${inlineFormat(h2[1])}</h2>`); continue; }
+    if (h1) { flushPara(); blocks.push(`<h1>${inlineFormat(h1[1])}</h1>`); continue; }
+
+    // Unordered list
+    const li = line.match(/^[-*] (.+)$/);
+    if (li) {
+      flushPara();
+      // Collect consecutive list items
+      const items = [inlineFormat(li[1])];
+      while (i + 1 < lines.length && /^[-*] /.test(lines[i + 1])) {
+        i++;
+        items.push(inlineFormat(lines[i].replace(/^[-*] /, '')));
+      }
+      blocks.push(`<ul>${items.map(it => `<li>${it}</li>`).join('')}</ul>`);
+      continue;
+    }
+
+    // Ordered list
+    const oli = line.match(/^\d+\. (.+)$/);
+    if (oli) {
+      flushPara();
+      const items = [inlineFormat(oli[1])];
+      while (i + 1 < lines.length && /^\d+\. /.test(lines[i + 1])) {
+        i++;
+        items.push(inlineFormat(lines[i].replace(/^\d+\. /, '')));
+      }
+      blocks.push(`<ol>${items.map(it => `<li>${it}</li>`).join('')}</ol>`);
+      continue;
+    }
+
+    // Blockquote
+    if (line.startsWith('> ')) {
+      flushPara();
+      blocks.push(`<blockquote><p>${inlineFormat(line.slice(2))}</p></blockquote>`);
+      continue;
+    }
+
+    // Regular text — accumulate into paragraph
+    currentPara.push(inlineFormat(line));
   }
 
-  // Build prompt based on mode
-  let prompt;
-  if (args.mode === "atp_mine")       prompt = buildPromptAtpMine(cfg);
-  else if (args.mode === "plan_week") prompt = buildPromptPlanWeek(cfg, lastSeoSummary);
-  else if (args.mode === "draft_article") {
-    const article = plannedArticle || { title: args.title, target_keyword: args.targetKeyword };
-    prompt = buildPromptDraftArticle(cfg, article);
-  }
-  else if (args.mode === "on_demand") prompt = buildPromptOnDemand(cfg, args);
+  flushPara();
+  return blocks.join('\n');
+}
 
-  if (args.dryRun) {
-    console.log("=== DRY RUN — prompt that would be sent to claude ===");
-    console.log(prompt);
-    console.log("\n=== No subprocess, no Airtable, no Telegram, no WP publish. ===");
+// ── WordPress REST API ────────────────────────────────────────────────────────
+// publishStatus: "draft" (safe default) or "publish" (once smoke test passes)
+
+// SEO title: short, keyword-front, branded. Format: "{service} {city} WI | Geo Carpentry"
+// Strips " in ", ", WI" → " WI", and drops trailing "LLC General Contractor".
+// e.g. "Kitchen Remodeling in Green Bay, WI | Geo Carpentry LLC General Contractor"
+//   →  "Kitchen Remodeling Green Bay WI | Geo Carpentry"
+function generateSeoTitle(title) {
+  if (!title) return '';
+  return title
+    .replace(/\s+in\s+/i, ' ')
+    .replace(/,\s*WI/i, ' WI')
+    .replace(/\s*\|\s*Geo Carpentry LLC General Contractor\s*$/i, ' | Geo Carpentry')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+async function publishToWP(wpConfig, row, publishStatus = 'draft') {
+  const { url: wpUrl, username, appPassword } = wpConfig;
+  const f = row.fields;
+
+  const title          = f.title           || 'Untitled';
+  const bodyHtml       = mdToHtml(f.body_md || '');
+  const slug           = f.slug            || undefined;
+  const excerpt        = f.meta_description || '';
+  const focusKeyword   = f.target_keyword  || '';
+  const metaDesc       = f.meta_description || '';
+  const seoTitle       = generateSeoTitle(title);
+
+  const authHeader = 'Basic ' + Buffer.from(`${username}:${appPassword}`).toString('base64');
+
+  const postBody = {
+    title,
+    content: bodyHtml,
+    status: publishStatus,
+    ...(slug ? { slug } : {}),
+    excerpt,
+    // SureRank SEO meta fields — silently ignored if SureRank not installed
+    meta: {
+      _surerank_focus_keyword: focusKeyword,
+      _surerank_description:   metaDesc.slice(0, 155),
+      _surerank_title:         seoTitle,
+    },
+  };
+
+  const res = await fetch(`${wpUrl}/wp-json/wp/v2/posts`, {
+    method: 'POST',
+    headers: {
+      Authorization: authHeader,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(postBody),
+  });
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    const raw = await res.text().catch(() => '');
+    throw new Error(`WP API non-JSON response ${res.status}: ${raw.slice(0, 300)}`);
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      `WP API error ${res.status}: ${data.message || JSON.stringify(data).slice(0, 300)}`
+    );
+  }
+
+  return { id: data.id, link: data.link };
+}
+
+// ── Telegram ──────────────────────────────────────────────────────────────────
+async function sendTelegram(message) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.log('[Eli] Telegram not configured — skipping notification.');
+    return;
+  }
+  try {
+    await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id:    TELEGRAM_CHAT_ID,
+          text:       message,
+          parse_mode: 'HTML',
+        }),
+      }
+    );
+  } catch (e) {
+    console.warn('[Eli] Telegram send failed:', e.message);
+  }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+async function main() {
+  console.log(`[Eli] Starting — tenant: ${TENANT_SLUG}, mode: ${MODE}, max: ${MAX_POSTS}`);
+
+  // Gate on mode
+  if (MODE !== 'publish_batch') {
+    console.log(`[Eli] Mode "${MODE}" is not implemented. Nothing to do.`);
     return;
   }
 
-  // Queue record
-  await airtableUpsert(cfg, cqTable, runId, {
-    tenant_id: cfg.tenant_id,
-    status: "Drafting",
-    content_type: args.mode === "atp_mine" ? "atp_question" : (plannedArticle?.content_type || "blog_post"),
-    trigger: process.env.ESCRIBA_TRIGGER || "alex_manual",
-  });
-
-  await mkdir(OUTPUT_DIR, { recursive: true });
-
-  let claudeOut = "";
+  // 1. Load local tenant JSON (for name/meta, future use)
+  let tenantConfig;
   try {
-    claudeOut = await runClaude(cfg.claude.binary_path, prompt);
+    tenantConfig = loadTenantConfig(TENANT_SLUG);
+    console.log(`[Eli] Tenant config loaded: ${tenantConfig.name || TENANT_SLUG}`);
   } catch (e) {
-    await airtableUpsert(cfg, cqTable, runId, { status: "Rejected", review_notes: `Run failed: ${e.message}` });
-    await telegramSend(cfg, `❌ *El Escriba — ${cfg.tenant_name}*\nmode: \`${args.mode}\`\nerror: \`${e.message}\``);
+    // Non-fatal: continue without local config
+    console.warn(`[Eli] Warning: ${e.message}`);
+    tenantConfig = { name: TENANT_SLUG };
+  }
+
+  // 2. Fetch WP credentials from Supabase vault (via CC's Vercel endpoint)
+  let wpConfig;
+  try {
+    wpConfig = await fetchWPCredentials(TENANT_SLUG);
+    console.log(`[Eli] WP credentials loaded: ${wpConfig.url} / user: ${wpConfig.username}`);
+  } catch (e) {
+    const msg = `❌ <b>Eli no puede arrancar</b> — error al leer credenciales del vault.\n<code>${e.message}</code>`;
+    console.error('[Eli] Vault error:', e.message);
+    await sendTelegram(msg);
     process.exit(1);
   }
 
-  const completedAt = new Date().toISOString();
-  const mdPath = join(OUTPUT_DIR, `${runId}.md`);
-  await writeFile(mdPath, claudeOut, "utf8");
+  // 3. Fetch pending rows from Content_Queue
+  let rows;
+  try {
+    rows = await fetchContentQueue(TENANT_SLUG, MAX_POSTS);
+    console.log(`[Eli] Found ${rows.length} row(s) with status="ready_to_publish"`);
+  } catch (e) {
+    const msg = `❌ <b>Eli — error Airtable</b>: ${e.message}`;
+    console.error('[Eli] Airtable error:', e.message);
+    await sendTelegram(msg);
+    process.exit(1);
+  }
 
-  // Status after completion depends on mode
-  let finalStatus = "Review";
-  if (args.mode === "atp_mine")   finalStatus = "Research";
-  if (args.mode === "plan_week")  finalStatus = "Planned";
-  if (args.mode === "draft_article" || args.mode === "on_demand") finalStatus = "Review";
+  // 4. Nothing to publish
+  if (rows.length === 0) {
+    console.log('[Eli] No rows ready to publish. Exiting cleanly.');
+    await sendTelegram(
+      `ℹ️ <b>Eli (Escriba)</b>: No hay posts listos para publicar en <b>${TENANT_SLUG}</b>.`
+    );
+    return;
+  }
 
-  const commonFields = {
-    status: finalStatus,
-    body_md: claudeOut.slice(0, 100000),
-    review_notes: `Raw saved to ${mdPath}`,
-    tokens_used: Math.round(claudeOut.length / 4), // rough estimate; real token usage tracked separately
-  };
+  // 5. Publish each row
+  let published = 0;
+  let failed    = 0;
 
-  await airtableUpsert(cfg, cqTable, runId, commonFields);
+  for (const row of rows) {
+    const recordId  = row.id;
+    const postTitle = row.fields?.title || recordId;
 
-  // Telegram summary (never includes full content — just pointer)
-  const label = {
-    atp_mine: "📋 ATP questions minadas",
-    plan_week: "📅 Content plan semanal",
-    draft_article: "📝 Draft listo para review",
-    on_demand: "📝 Draft on-demand listo",
-  }[args.mode];
+    console.log(`[Eli] Processing: "${postTitle}" (${recordId})`);
 
-  await telegramSend(cfg,
-    `${label} — *${cfg.tenant_name}*\n` +
-    `mode: \`${args.mode}\`\n` +
-    `run_id: \`${runId.slice(0, 8)}\`\n` +
-    `Review en Airtable Content_Queue.`
-  );
+    try {
+      const { id: wpId, link: wpLink } = await publishToWP(wpConfig, row, 'publish');
 
-  console.error(`[escriba] done run_id=${runId} status=${finalStatus} bytes=${claudeOut.length}`);
+      await updateAirtableRow(recordId, {
+        status:       'published',
+        wp_post_id:   String(wpId),
+        wp_url:       wpLink,
+        published_at: new Date().toISOString(),
+      });
+
+      await sendTelegram(
+        `✅ <b>Eli publicó borrador:</b> "${postTitle}"\n` +
+        `🔗 <a href="${wpLink}">Ver en WordPress</a>\n` +
+        `📋 WP Post ID: <code>${wpId}</code>`
+      );
+
+      console.log(`[Eli] ✅ Published: "${postTitle}" → WP ID ${wpId}`);
+      published++;
+
+    } catch (e) {
+      console.error(`[Eli] ❌ Failed: "${postTitle}" — ${e.message}`);
+
+      try {
+        await updateAirtableRow(recordId, {
+          status:         'publish_failed',
+          last_error:     e.message.slice(0, 250),
+          last_error_at:  new Date().toISOString(),
+        });
+      } catch (updateErr) {
+        console.error('[Eli] ❌ Could not update Airtable row either:', updateErr.message);
+      }
+
+      await sendTelegram(
+        `❌ <b>Eli falló al publicar:</b> "${postTitle}"\n` +
+        `Error: <code>${e.message.slice(0, 250)}</code>\n` +
+        `Record: <code>${recordId}</code>`
+      );
+
+      failed++;
+    }
+  }
+
+  // 6. Summary
+  console.log(`[Eli] Done — published: ${published}, failed: ${failed}`);
+
+  if (published > 0 && failed === 0) {
+    await sendTelegram(
+      `📝 <b>Eli (Escriba) — sesión completa</b>\n` +
+      `✅ Publicados: ${published} borrador(es) en geocarpentry.com\n` +
+      `⚠️ Revisalos en WP Admin antes de publicar.`
+    );
+  } else if (failed > 0) {
+    await sendTelegram(
+      `⚠️ <b>Eli — sesión con errores</b>\n` +
+      `✅ ${published} publicado(s) · ❌ ${failed} fallido(s)\n` +
+      `Revisa Airtable Content_Queue → status "publish_failed".`
+    );
+  }
 }
 
-main().catch((e) => { console.error("[escriba] FATAL:", e); process.exit(1); });
+main().catch(async (err) => {
+  console.error('[Eli] Fatal unhandled error:', err.message);
+  await sendTelegram(`❌ <b>Eli — error fatal</b>: <code>${err.message.slice(0, 300)}</code>`);
+  process.exit(1);
+});
