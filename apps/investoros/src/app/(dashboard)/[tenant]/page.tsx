@@ -97,11 +97,11 @@ async function loadGeoData(tenantSlug: string) {
     deriveAgentStatus("mercader", "Mercader", "📢", latestMarketing ?? null),
   ];
 
-  const hotLeads = leads.filter((l) => l["Heat"] === "Hot");
-  const warmLeads = leads.filter((l) => l["Heat"] === "Warm");
+  const hotLeads = leads.filter((l) => l["Urgency"] === "hot");
+  const warmLeads = leads.filter((l) => l["Urgency"] === "warm");
   const stageMap = new Map<string, number>();
   leads.forEach((l) => {
-    const s = l["Stage"] ?? "New";
+    const s = l["Lead Status"] ?? "New";
     stageMap.set(s, (stageMap.get(s) ?? 0) + 1);
   });
 

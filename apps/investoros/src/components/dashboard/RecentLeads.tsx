@@ -1,5 +1,8 @@
 /**
  * RecentLeads — table of latest leads for tenant.
+ *
+ * Refactored 2026-06-04 for Geo_Leads schema (Full Name / Phone / Lead Status / Urgency / Service Type).
+ * Previous version used Pinnacle-style fields (Heat / Stage / Lead title / Service) which don't exist.
  */
 import type { GeoLead } from "@/lib/airtable";
 
@@ -7,6 +10,17 @@ interface Lead extends GeoLead {
   id: string;
   createdTime: string;
 }
+
+const SERVICE_LABEL: Record<string, string> = {
+  kitchen_remodeling: "Kitchen Remodel",
+  bathroom_remodeling: "Bathroom Remodel",
+  deck_building: "Deck Building",
+  finish_carpentry: "Finish Carpentry",
+  home_renovation: "Home Renovation",
+  general_construction: "General Construction",
+  other: "Other",
+  unknown: "—",
+};
 
 function timeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -50,44 +64,49 @@ export function RecentLeads({ leads }: { leads: Lead[] }) {
         </div>
       ) : (
         <ul className="divide-y divide-[var(--color-border)]">
-          {leads.slice(0, 10).map((l) => (
-            <li key={l.id} className="px-5 py-3 hover:bg-[var(--color-muted)] transition-colors">
-              <div className="flex items-baseline justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium truncate">
-                    {l["Lead title"] || "Untitled lead"}
-                  </p>
-                  <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
-                    {l["Service"] ?? "Unspecified service"}
-                    {l["Source"] ? ` · ${l["Source"]}` : ""}
-                  </p>
+          {leads.slice(0, 10).map((l) => {
+            const urgency = String(l["Urgency"] ?? "unknown");
+            const status = String(l["Lead Status"] ?? "New");
+            const service = String(l["Service Type"] ?? "unknown");
+            const name = String(l["Full Name"] ?? "Untitled lead");
+            const source = l["Source"];
+            return (
+              <li key={l.id} className="px-5 py-3 hover:bg-[var(--color-muted)] transition-colors">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate">{name}</p>
+                    <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
+                      {SERVICE_LABEL[service] ?? service}
+                      {source ? ` · ${source}` : ""}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 text-right">
+                    <span
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                        urgency === "hot"
+                          ? "bg-red-100 text-red-700"
+                          : urgency === "warm"
+                          ? "bg-amber-100 text-amber-700"
+                          : status === "Qualified" || status === "Appointment Set"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : status === "Not Interested" || status === "DNC"
+                          ? "bg-slate-100 text-slate-700"
+                          : status === "New"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]"
+                      }`}
+                    >
+                      {urgency === "hot" ? "🔴 " : urgency === "warm" ? "🟡 " : ""}
+                      {status}
+                    </span>
+                    <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                      {timeAgo(l.createdTime)}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-shrink-0 text-right">
-                  <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                      l["Heat"] === "Hot"
-                        ? "bg-red-100 text-red-700"
-                        : l["Heat"] === "Warm"
-                        ? "bg-amber-100 text-amber-700"
-                        : l["Stage"] === "Won"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : l["Stage"] === "Lost"
-                        ? "bg-red-100 text-red-800"
-                        : l["Stage"] === "New"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-[var(--color-muted)] text-[var(--color-muted-foreground)]"
-                    }`}
-                  >
-                    {l["Heat"] === "Hot" ? "🔴 " : l["Heat"] === "Warm" ? "🟡 " : ""}
-                    {l["Stage"] ?? "—"}
-                  </span>
-                  <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-                    {timeAgo(l.createdTime)}
-                  </p>
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
