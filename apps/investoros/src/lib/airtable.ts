@@ -19,7 +19,10 @@ import { db } from "@/server/db";
 export const GEO_BASE_ID = "appAQpveuAec077jF";
 export const GEO_TABLES = {
   contacts: "tbldetnRGCnmHDgFw",
-  leads: "tblVqrROrVspFXniG",
+  // 2026-06-04 unified: was `tblVqrROrVspFXniG` (empty Pinnacle-style "Leads" table).
+  // Now points to `tblaH41HWeVG9ZXLn` (Geo_Leads) which has real rows + Geo-specific fields.
+  // Old table to be renamed _legacy_leads (kept for historical reference, no writes).
+  leads: "tblaH41HWeVG9ZXLn",
   jobs: "tblRlPhcwiGP7J8LS",
   subs: "tbldciY36E08UEEua",
   activities: "tblWbxNNyGzRhdIwF",
@@ -113,19 +116,26 @@ export async function listRecords<T = Record<string, unknown>>(
 
 /* ---------- Geo Carpentry typed accessors ---------- */
 
+// GeoLead reflects the actual Geo_Leads table schema (tblaH41HWeVG9ZXLn) — 2026-06-04.
+// All 17 fields included. Previous interface targeted the empty Pinnacle-style "Leads" table.
 export interface GeoLead {
-  "Lead title"?: string;
-  "Stage"?: string;
-  "Service"?: string;
-  "Estimated value"?: number;
-  "Created date"?: string;
-  "Contact"?: string[];
-  "Source"?: string;
-  "Heat"?: "Hot" | "Warm" | "Cold";
-  "Budget"?: number;
-  "ZIP"?: string;
+  "Full Name"?: string;
   "Phone"?: string;
+  "Phone2"?: string;
+  "Lead Status"?: "New" | "Contacted" | "Qualified" | "Appointment Set" | "Not Interested" | "DNC";
+  "Service Type"?: "kitchen_remodeling" | "bathroom_remodeling" | "deck_building" | "finish_carpentry" | "home_renovation" | "general_construction" | "other" | "unknown";
+  "Project Description"?: string;
+  "Home Address"?: string;
+  "City"?: string;
+  "Budget Range"?: "under_5k" | "5k_10k" | "10k_25k" | "25k_50k" | "over_50k" | "unknown";
+  "Timeline"?: "ASAP" | "1_month" | "2_3_months" | "6_months" | "no_rush" | "unknown";
+  "Urgency"?: "hot" | "warm" | "cold" | "unknown";
+  "Appointment Date"?: string;
+  "Language"?: "English" | "Spanish";
+  "Do Not Contact"?: boolean;
+  "Source"?: string;
   "Notes"?: string;
+  "Last Contact Date"?: string;
 }
 
 export interface GeoSubcontractor {
@@ -183,9 +193,9 @@ export interface GeoContentQueue {
 }
 
 export async function getGeoLeads(opts: FetchOpts = {}) {
+  // Geo_Leads has no "Created date" field — use built-in createdTime ordering by omitting sortField.
+  // Airtable returns most-recent-first by default when no explicit sort given.
   return listRecords<GeoLead>(GEO_BASE_ID, GEO_TABLES.leads, {
-    sortField: "Created date",
-    sortDirection: "desc",
     maxRecords: 100,
     ...opts,
   });
