@@ -11,7 +11,7 @@
  * Usage:
  *   node agents/supervisor/supervisor.mjs --tenant <slug> --mode <mode> [--dry-run]
  */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -22,10 +22,39 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = join(__dirname, "runs");
+const STATE_DIR = join(__dirname, "state");
 const VALID_MODES = ["heartbeat", "deep", "evolve", "incident"];
 const TABLE_KEY = "ops_health_table_id";
 const INSIGHTS_KEY = "ops_insights_table_id";
 const LESSONS_KEY = "lessons_learned_table_id";
+
+// ──────────────────────────────────────────────────────────────
+// Persistent heartbeat state — anti-spam dedup
+// ──────────────────────────────────────────────────────────────
+// File: <STATE_DIR>/<tenant>-heartbeat.json
+// Shape: { sig: string, cycles_in_state: int, first_seen_at: iso, last_alert_at: iso }
+// Purpose: when a heartbeat finds the SAME critical+warning set as the
+// previous cycle, skip Telegram and skip auto-escalation to incident.
+// Without this, an OpenPhone misconfig (or any other persistent issue) fires
+// 2 messages/hour for hours/days — exactly the symptom Jorge reported on 2026-06-05.
+async function loadHeartbeatState(tenant) {
+  try {
+    const path = join(STATE_DIR, `${tenant}-heartbeat.json`);
+    const raw = await readFile(path, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return null; // first run / no prior state
+  }
+}
+async function saveHeartbeatState(tenant, state) {
+  try {
+    await mkdir(STATE_DIR, { recursive: true });
+    const path = join(STATE_DIR, `${tenant}-heartbeat.json`);
+    await writeFile(path, JSON.stringify(state, null, 2), "utf8");
+  } catch (e) {
+    console.error(`[supervisor] failed to persist heartbeat state: ${e.message}`);
+  }
+}
 
 // ──────────────────────────────────────────────────────────────
 // Helpers
@@ -1176,47 +1205,81 @@ async function runInfrastructureChecks(cfg) {
     results[e.name] = r.ok ? 1 : 0;
   }));
 
-  // Retry helper: returns 1 if probeFn returns truthy on any attempt within budget.
-  // Eliminates false-positive RED from transient network/rate-limit blips.
+  // Retry helper: returns { ok: 1|0, status: 'ok' | 'missing_credential' | 'auth_fail'
+  //                | 'timeout' | 'http_error' | 'network_error' | 'unknown' }
+  // Eliminates false-positive RED from transient network/rate-limit blips AND lets
+  // the alerting layer distinguish "secret missing in .env" (config issue, actionable
+  // by setting env var) from "API genuinely down" (incident, escalate upstream).
   // Each attempt has a 5s timeout; backoff grows linearly (300ms, 600ms, 900ms).
   async function probeWithRetry(probeFn, retries = 2, delayMs = 300) {
+    let lastStatus = 'unknown';
     for (let i = 0; i <= retries; i++) {
       try {
-        const ok = await probeFn();
-        if (ok) return 1;
-      } catch { /* swallow, retry */ }
+        const r = await probeFn();
+        // probeFn may return boolean (legacy) OR { ok: bool, status: string }
+        if (typeof r === 'object' && r !== null) {
+          if (r.ok) return { ok: 1, status: r.status || 'ok' };
+          lastStatus = r.status || 'unknown';
+          // Don't retry on missing_credential or auth_fail — they won't self-heal.
+          if (lastStatus === 'missing_credential' || lastStatus === 'auth_fail') {
+            return { ok: 0, status: lastStatus };
+          }
+        } else if (r) {
+          return { ok: 1, status: 'ok' };
+        } else {
+          lastStatus = 'unknown';
+        }
+      } catch (e) {
+        const msg = (e && e.message) || String(e);
+        if (msg.includes('AbortError') || msg.includes('timeout') || msg.includes('TimeoutError')) {
+          lastStatus = 'timeout';
+        } else if (msg.includes('ENOTFOUND') || msg.includes('ECONNREFUSED') || msg.includes('ENETUNREACH')) {
+          lastStatus = 'network_error';
+        } else {
+          lastStatus = 'unknown';
+        }
+      }
       if (i < retries) await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
     }
-    return 0;
+    return { ok: 0, status: lastStatus };
+  }
+
+  // Convenience: write {name}_ok=0|1 and {name}_status=string into results.
+  function writeProbe(name, probeResult) {
+    results[`${name}_ok`] = probeResult.ok;
+    results[`${name}_status`] = probeResult.status;
   }
 
   // Airtable API probe (with retry)
-  results.airtable_api_ok = await probeWithRetry(async () => {
+  writeProbe('airtable_api', await probeWithRetry(async () => {
     const r = await airtableFetch(cfg, "leads_table_id", "maxRecords=1");
-    return Array.isArray(r.records);
-  });
+    return { ok: Array.isArray(r.records), status: Array.isArray(r.records) ? 'ok' : 'http_error' };
+  }));
 
   // Telegram bot probe (getMe, with retry)
-  results.telegram_bot_ok = await probeWithRetry(async () => {
+  writeProbe('telegram_bot', await probeWithRetry(async () => {
     const token = process.env[cfg.telegram?.bot_token_env || "TELEGRAM_BOT_TOKEN"];
-    if (!token) return false;
+    if (!token) return { ok: false, status: 'missing_credential' };
     const r = await fetch(`https://api.telegram.org/bot${token}/getMe`, {
       signal: AbortSignal.timeout(5000),
     });
+    if (r.status === 401 || r.status === 403) return { ok: false, status: 'auth_fail' };
+    if (!r.ok) return { ok: false, status: 'http_error' };
     const j = await r.json();
-    return !!j.ok;
-  });
+    return { ok: !!j.ok, status: j.ok ? 'ok' : 'http_error' };
+  }));
 
   // OpenPhone API probe (with retry)
-  results.openphone_api_ok = await probeWithRetry(async () => {
+  writeProbe('openphone_api', await probeWithRetry(async () => {
     const key = process.env.QUO_API_KEY;
-    if (!key) return false;
+    if (!key) return { ok: false, status: 'missing_credential' };
     const r = await fetch("https://api.openphone.com/v1/phone-numbers", {
       headers: { Authorization: key },
       signal: AbortSignal.timeout(5000),
     });
-    return r.ok;
-  });
+    if (r.status === 401 || r.status === 403) return { ok: false, status: 'auth_fail' };
+    return { ok: r.ok, status: r.ok ? 'ok' : 'http_error' };
+  }));
 
   // Log freshness from fer_agent.log
   const { lines } = await fetchLog(cfg);
@@ -1390,9 +1453,43 @@ function scoreHealth(infra, pipeline, cfg) {
   const critical = [];
   const warnings = [];
 
-  if (!infra.airtable_api_ok)       critical.push("Airtable API no responde");
-  if (checkOpenphone && !infra.openphone_api_ok)      critical.push("OpenPhone API no responde");
-  if (!infra.telegram_bot_ok)       critical.push("Telegram bot token inválido");
+  // Translate the {api}_status field (set by runInfrastructureChecks) into
+  // actionable, human-readable messages. The Telegram operator needs to know
+  // WHETHER to fix config vs investigate an upstream outage — not just that
+  // the probe failed.
+  const explainProbe = (probeName, statusField, displayName, envVarHint) => {
+    switch (statusField) {
+      case 'missing_credential':
+        return `${displayName}: credencial faltante en .env${envVarHint ? ` (setear ${envVarHint})` : ''} — config, no incident`;
+      case 'auth_fail':
+        return `${displayName}: API key rechazada (401/403) — rotar o revocar; revisar dashboard del provider`;
+      case 'timeout':
+        return `${displayName}: timeout — posible upstream lento o red`;
+      case 'http_error':
+        return `${displayName}: HTTP error — provider devolvió 4xx/5xx`;
+      case 'network_error':
+        return `${displayName}: DNS/connection refused — outage del provider o red del VPS`;
+      default:
+        return `${displayName}: status=${statusField || 'unknown'}`;
+    }
+  };
+
+  if (!infra.airtable_api_ok) {
+    critical.push(explainProbe('airtable_api', infra.airtable_api_status, 'Airtable API', 'AIRTABLE_TOKEN'));
+  }
+  if (checkOpenphone && !infra.openphone_api_ok) {
+    // missing_credential is a config gap, not an outage — downgrade to WARNING
+    // to stop the "OpenPhone API no responde" RED spam every heartbeat when
+    // the operator simply hasn't set QUO_API_KEY yet.
+    const msg = explainProbe('openphone_api', infra.openphone_api_status, 'OpenPhone API', 'QUO_API_KEY');
+    if (infra.openphone_api_status === 'missing_credential') warnings.push(msg);
+    else                                                     critical.push(msg);
+  }
+  if (!infra.telegram_bot_ok) {
+    const msg = explainProbe('telegram_bot', infra.telegram_bot_status, 'Telegram bot', 'TELEGRAM_BOT_TOKEN');
+    if (infra.telegram_bot_status === 'missing_credential') warnings.push(msg);
+    else                                                    critical.push(msg);
+  }
   if (checkFerEndpoints && !infra.cron_first_contact_ok) warnings.push("fer_first_contact.php endpoint no responde a HEAD");
   if (checkFerEndpoints && !infra.cron_seguimiento_ok)   warnings.push("fer_seguimiento.php endpoint no responde a HEAD");
 
@@ -1678,11 +1775,42 @@ Log freshness: fc=${infra.last_fc_hours ?? "?"}h seg=${infra.last_seg_hours ?? "
     }
   }
 
+  // ── Heartbeat dedup: track persistent state across cycles ──
+  // Build a stable signature of the current critical+warning set so we can
+  // tell whether THIS run's failures are the same as the LAST run's.
+  // Only used in heartbeat mode — other modes have their own dedup logic.
+  const currentSig = `${currentCriticals}::${currentWarnings}`;
+  let heartbeatPrev = null;
+  let heartbeatStateChanged = true; // default: assume changed (=alert) for non-heartbeat modes
+  let heartbeatCycles = 1;
+  if (args.mode === "heartbeat") {
+    heartbeatPrev = await loadHeartbeatState(cfg.tenant_id);
+    if (heartbeatPrev && heartbeatPrev.sig === currentSig) {
+      heartbeatStateChanged = false;
+      heartbeatCycles = (heartbeatPrev.cycles_in_state || 1) + 1;
+    }
+  }
+
   let shouldAlert = false;
   let alertReason = "";
 
   if (score.health === "red") {
-    shouldAlert = true; alertReason = "red_health";
+    if (args.mode === "heartbeat" && !heartbeatStateChanged) {
+      // Same RED state as previous heartbeat — don't re-spam Telegram.
+      // Exception: every 48 cycles (~24h at xx:30 cadence) send a "still RED"
+      // reminder so it doesn't get silently ignored forever.
+      if (heartbeatCycles % 48 === 0) {
+        shouldAlert = true;
+        alertReason = `red_health_24h_reminder_cycle_${heartbeatCycles}`;
+      } else {
+        shouldAlert = false;
+        alertReason = `suppressed_heartbeat_unchanged_cycle_${heartbeatCycles}`;
+        console.error(`[supervisor] heartbeat alert suppressed — RED state unchanged for ${heartbeatCycles} cycles`);
+      }
+    } else {
+      shouldAlert = true;
+      alertReason = args.mode === "heartbeat" && heartbeatPrev ? "red_health_state_changed" : "red_health";
+    }
   } else if (args.mode === "evolve") {
     shouldAlert = true; alertReason = "evolve_mode";
   } else if (repair.applied > 0) {
@@ -1771,9 +1899,11 @@ Log freshness: fc=${infra.last_fc_hours ?? "?"}h seg=${infra.last_seg_hours ?? "
   }).catch(() => { /* phase3_* and alerted fields optional — ignore if missing */ });
 
   // Auto-escalation: heartbeat detected RED → spawn incident deep-dive in background.
-  // Guardrail: only from heartbeat mode (avoid recursion from an incident run itself).
-  if (score.health === "red" && args.mode === "heartbeat") {
-    console.error(`[supervisor] RED detected in heartbeat → auto-triggering incident mode`);
+  // Guardrail 1: only from heartbeat mode (avoid recursion from an incident run itself).
+  // Guardrail 2: only escalate when the RED state is NEW or CHANGED — escalating every
+  // 30 min for the same persistent critical wastes LLM credits AND spam-doubles Telegram.
+  if (score.health === "red" && args.mode === "heartbeat" && heartbeatStateChanged) {
+    console.error(`[supervisor] RED detected in heartbeat (state changed) → auto-triggering incident mode`);
     try {
       const { spawn } = await import("node:child_process");
       const child = spawn(process.argv[0], [
@@ -1789,6 +1919,22 @@ Log freshness: fc=${infra.last_fc_hours ?? "?"}h seg=${infra.last_seg_hours ?? "
     } catch (e) {
       console.error(`[supervisor] failed to spawn incident: ${e.message}`);
     }
+  } else if (score.health === "red" && args.mode === "heartbeat" && !heartbeatStateChanged) {
+    console.error(`[supervisor] RED detected but state unchanged for ${heartbeatCycles} cycles — incident NOT spawned`);
+  }
+
+  // Persist heartbeat state for next-cycle dedup. Only heartbeat mode writes
+  // this file; other modes don't read it, so it can't cross-pollute.
+  if (args.mode === "heartbeat") {
+    await saveHeartbeatState(cfg.tenant_id, {
+      sig: currentSig,
+      cycles_in_state: heartbeatCycles,
+      first_seen_at: heartbeatStateChanged ? new Date().toISOString() : (heartbeatPrev?.first_seen_at || new Date().toISOString()),
+      last_alert_at: shouldAlert ? new Date().toISOString() : (heartbeatPrev?.last_alert_at || null),
+      health: score.health,
+      criticals_count: score.critical.length,
+      warnings_count: score.warnings.length,
+    });
   }
 
   console.error(`[supervisor] done run_id=${runId} health=${score.health} duration=${duration}s`);
