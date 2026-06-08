@@ -390,7 +390,7 @@ async function main() {
 
   if (pending.length === 0) {
     console.error("[reescritor] no Oráculo-rejected records pending");
-    await telegramSend(cfg, `✍️ *El Reescritor* — ${cfg.tenant_name}\nNo hay rejections pendientes de rewrite.`);
+    // 2026-06-08: silenced empty-state Telegram (was spamming hourly). Only alert on actual work done.
     return;
   }
 

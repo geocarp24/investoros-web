@@ -1898,6 +1898,30 @@ Log freshness: fc=${infra.last_fc_hours ?? "?"}h seg=${infra.last_seg_hours ?? "
     phase3_breaker_open: phase3Result.breaker?.open ? 1 : 0,
   }).catch(() => { /* phase3_* and alerted fields optional — ignore if missing */ });
 
+
+  // Atlas state-bridge (2026-06-08): write a tiny state file so Atlas can read
+  // criticals + warnings without needing Airtable Ops_Health (which is not
+  // configured for all tenants). One file per tenant. Atlas polls this.
+  try {
+    const atlasBridgePath = join(__dirname, `last_run_${cfg.tenant_id.replace(/-/g, "_")}.json`);
+    await writeFile(atlasBridgePath, JSON.stringify({
+      tenant: cfg.tenant_id,
+      run_id: runId,
+      completed_at: completedAt,
+      health: score.health,
+      critical: score.critical,
+      warnings: score.warnings,
+      mode: args.mode,
+      pipeline: {
+        contacts_new: pipeline.contacts_new,
+        contacts_tbc: pipeline.contacts_tbc,
+        contacts_contacted: pipeline.contacts_contacted,
+      },
+    }, null, 2), "utf8");
+  } catch (e) {
+    console.error(`[supervisor] atlas state-bridge write failed: ${e.message}`);
+  }
+
   // Auto-escalation: heartbeat detected RED → spawn incident deep-dive in background.
   // Guardrail 1: only from heartbeat mode (avoid recursion from an incident run itself).
   // Guardrail 2: only escalate when the RED state is NEW or CHANGED — escalating every

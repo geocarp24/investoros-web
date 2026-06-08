@@ -530,7 +530,7 @@ async function main() {
 
   if (pending.length === 0) {
     console.error("[oraculo] no records pending review");
-    await telegramSend(cfg, `🔮 *El Oráculo* — ${cfg.tenant_name}\nNo hay ideas pendientes de review.`);
+    // 2026-06-08: silenced empty-state Telegram (was spamming hourly). Only alert on actual work done.
     return;
   }
 
