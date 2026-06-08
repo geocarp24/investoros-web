@@ -378,9 +378,11 @@
     "phase": "F1 \u2014 Identidad parcial, awaiting F2-F8 buildout",
     "notes": "Tenant 1 de InvestorOS. Pinnacle = tenant 0. Schema validado vs Pinnacle. Falta: brand colors confirmados (workflows a\u00fan usan viejos), Airtable base IDs, GBP place_id."
   },
-  "place_id": "ChIJCOOv5_H06v6lhAEQ7eq1npKKvYn0AQ",
+  "place_id": "ChIJ49c5TIf7S4QRbXXNl1H0EvQ",
   "place_id_cid": "17587388124165404013",
   "place_id_fid": "0x844bfb574e39d7e3:0xf412f45123cd756d",
   "place_id_source_url": "https://www.google.com/maps?cid=17587388124165404013",
-  "place_id_verified": false
+  "place_id_verified": true,
+  "place_id_verified_at": "2026-06-08T22:00:00Z",
+  "place_id_verified_source": "Google Place ID Finder (Jorge confirmed)"
 }
