@@ -3,7 +3,9 @@
   "tenant_name": "Geo Carpentry LLC",
   "industry": "construction-contractor",
   "primary_language": "en",
-  "secondary_languages": ["es"],
+  "secondary_languages": [
+    "es"
+  ],
   "website": "https://geocarpentry.com",
   "phone": "(920) 367-1272",
   "whatsapp": "+19209340351",
@@ -13,7 +15,6 @@
   "year_founded": 2014,
   "owner": "Jorge Cruz",
   "structure": "LLC",
-
   "brand": {
     "navy_primary": "#1B2A4A",
     "orange_accent": "#FF6B00",
@@ -21,7 +22,6 @@
     "voice": "warm + professional + bilingual-friendly",
     "logo_url": "https://geocarpentry.com/wp-content/uploads/logo.png"
   },
-
   "markets": [
     {
       "state": "WI",
@@ -47,14 +47,14 @@
       ]
     }
   ],
-
   "regional_scope": {
     "primary": "Northeast WI (100mi radius from Green Bay)",
-    "secondary": ["UP Michigan"],
+    "secondary": [
+      "UP Michigan"
+    ],
     "primary_weight": 0.85,
     "secondary_weight": 0.15
   },
-
   "search_engines": [
     "google",
     "bing",
@@ -65,52 +65,95 @@
     "ai-overviews",
     "google-sge"
   ],
-
   "seo_goals": {
     "per_page_target_rank": 1,
     "primary_priority": "Local SEO Green Bay + NE Wisconsin contractor Google Maps dominance",
     "secondary_priority": "Service-specific long-tail keywords (kitchen/bathroom/deck remodel + city combinations)"
   },
-
   "services": [
     {
       "slug": "finish-carpentry",
       "name": "Finish Carpentry & Trim",
-      "ticket_range_usd": [500, 8000],
-      "keywords": ["finish carpentry green bay", "trim carpenter wisconsin", "crown molding contractor green bay", "trim installation green bay", "baseboards installation wisconsin", "door trim contractor green bay"]
+      "ticket_range_usd": [
+        500,
+        8000
+      ],
+      "keywords": [
+        "finish carpentry green bay",
+        "trim carpenter wisconsin",
+        "crown molding contractor green bay",
+        "trim installation green bay",
+        "baseboards installation wisconsin",
+        "door trim contractor green bay"
+      ]
     },
     {
       "slug": "kitchen-remodeling",
       "name": "Kitchen Remodeling",
-      "ticket_range_usd": [5000, 30000],
-      "keywords": ["kitchen remodel green bay", "kitchen renovation wisconsin", "kitchen cabinet installer green bay"]
+      "ticket_range_usd": [
+        5000,
+        30000
+      ],
+      "keywords": [
+        "kitchen remodel green bay",
+        "kitchen renovation wisconsin",
+        "kitchen cabinet installer green bay"
+      ]
     },
     {
       "slug": "bathroom-remodeling",
       "name": "Bathroom Remodeling",
-      "ticket_range_usd": [3000, 15000],
-      "keywords": ["bathroom remodel green bay", "shower installation wisconsin", "bathroom renovation contractor"]
+      "ticket_range_usd": [
+        3000,
+        15000
+      ],
+      "keywords": [
+        "bathroom remodel green bay",
+        "shower installation wisconsin",
+        "bathroom renovation contractor"
+      ]
     },
     {
       "slug": "deck-building",
       "name": "Deck Building",
-      "ticket_range_usd": [2000, 12000],
-      "keywords": ["deck builder green bay", "deck construction wisconsin", "composite deck contractor green bay", "wood deck builder"]
+      "ticket_range_usd": [
+        2000,
+        12000
+      ],
+      "keywords": [
+        "deck builder green bay",
+        "deck construction wisconsin",
+        "composite deck contractor green bay",
+        "wood deck builder"
+      ]
     },
     {
       "slug": "home-renovation",
       "name": "Home Renovation",
-      "ticket_range_usd": [5000, 50000],
-      "keywords": ["home renovation green bay", "house remodel wisconsin", "home addition contractor"]
+      "ticket_range_usd": [
+        5000,
+        50000
+      ],
+      "keywords": [
+        "home renovation green bay",
+        "house remodel wisconsin",
+        "home addition contractor"
+      ]
     },
     {
       "slug": "general-construction",
       "name": "General Construction",
-      "ticket_range_usd": [3000, 100000],
-      "keywords": ["general contractor green bay", "construction company wisconsin", "home addition builder"]
+      "ticket_range_usd": [
+        3000,
+        100000
+      ],
+      "keywords": [
+        "general contractor green bay",
+        "construction company wisconsin",
+        "home addition builder"
+      ]
     }
   ],
-
   "content_goals": {
     "theme_bank_path": "agents/tenants/geo-carpentry-theme-bank.json",
     "programmatic_seo_active": true,
@@ -120,14 +163,29 @@
     "target_word_count_min": 800,
     "target_word_count_max": 1500,
     "tone": "homeowner-friendly + educational + Wisconsin local",
-    "languages": ["en", "es"],
+    "languages": [
+      "en",
+      "es"
+    ],
     "publish_to_wordpress": true,
     "wp_default_status": "draft",
     "content_types": [
-      {"type": "blog_post", "weight": 0.5},
-      {"type": "service_page", "weight": 0.3},
-      {"type": "q_and_a_page", "weight": 0.15},
-      {"type": "pillar_page", "weight": 0.05}
+      {
+        "type": "blog_post",
+        "weight": 0.5
+      },
+      {
+        "type": "service_page",
+        "weight": 0.3
+      },
+      {
+        "type": "q_and_a_page",
+        "weight": 0.15
+      },
+      {
+        "type": "pillar_page",
+        "weight": 0.05
+      }
     ],
     "topic_pillars": [
       "How to choose a contractor in Green Bay",
@@ -166,15 +224,13 @@
       ]
     }
   },
-
   "competitors": [
     {
-      "name": "TBD — research with /seo audit local",
+      "name": "TBD \u2014 research with /seo audit local",
       "url": null,
       "notes": "El Posicionador identifica top 5 competitors locales en primer seo_deep run"
     }
   ],
-
   "airtable": {
     "base_id": "appAQpveuAec077jF",
     "contacts_table_id": "tbldetnRGCnmHDgFw",
@@ -188,30 +244,33 @@
     "marketing_table_id": "tbld7LtJzeN5QTHPo",
     "token_env": "AIRTABLE_TOKEN_GEO"
   },
-
   "telegram": {
     "bot_token_env": "TELEGRAM_BOT_TOKEN",
     "chat_id_env": "TELEGRAM_CHAT_ID_GEO",
     "fallback_chat_id_env": "TELEGRAM_CHAT_ID"
   },
-
   "alert_thresholds": {
     "critical_score": 60,
     "warn_score": 75,
     "regression_delta_points": 10,
     "improvement_delta_points": 10
   },
-
   "skills": {
-    "seo_health": ["seo-audit"],
-    "seo_deep": ["seo-audit", "seo-technical", "seo-local", "seo-maps", "seo-content"]
+    "seo_health": [
+      "seo-audit"
+    ],
+    "seo_deep": [
+      "seo-audit",
+      "seo-technical",
+      "seo-local",
+      "seo-maps",
+      "seo-content"
+    ]
   },
-
   "claude": {
     "binary_path": "/usr/local/bin/claude",
     "auth_mode": "subscription"
   },
-
   "embajador": {
     "enabled": false,
     "icp_search_queries": [
@@ -229,29 +288,57 @@
     ],
     "tone": "warm-professional, value-first, never salesy, bilingual EN/ES on request",
     "value_props": [
-      "Run a remodel/construction shop in Northeast WI — happy contractor resource for investor networks",
-      "Bilingual team (EN/ES) — useful for diverse markets",
-      "12+ years in Northeast WI — know local code, permits, suppliers"
+      "Run a remodel/construction shop in Northeast WI \u2014 happy contractor resource for investor networks",
+      "Bilingual team (EN/ES) \u2014 useful for diverse markets",
+      "12+ years in Northeast WI \u2014 know local code, permits, suppliers"
     ]
   },
-
   "foro": {
     "enabled": false,
     "subreddits": [
-      {"name": "HomeImprovement", "weight": 1.0},
-      {"name": "Wisconsin", "weight": 1.5},
-      {"name": "GreenBay", "weight": 2.0},
-      {"name": "RealEstate", "weight": 0.8},
-      {"name": "HomeOwners", "weight": 0.9}
+      {
+        "name": "HomeImprovement",
+        "weight": 1.0
+      },
+      {
+        "name": "Wisconsin",
+        "weight": 1.5
+      },
+      {
+        "name": "GreenBay",
+        "weight": 2.0
+      },
+      {
+        "name": "RealEstate",
+        "weight": 0.8
+      },
+      {
+        "name": "HomeOwners",
+        "weight": 0.9
+      }
     ],
     "intent_keywords": [
-      "kitchen remodel cost", "deck permit", "contractor recommendations",
-      "bathroom renovation", "home addition", "carpenter near me",
-      "framing cost", "trim installation", "finish carpentry"
+      "kitchen remodel cost",
+      "deck permit",
+      "contractor recommendations",
+      "bathroom renovation",
+      "home addition",
+      "carpenter near me",
+      "framing cost",
+      "trim installation",
+      "finish carpentry"
     ],
     "geo_modifiers": [
-      "wisconsin", "green bay", "brown county", "ne wisconsin", "northeast wi",
-      "appleton", "oshkosh", "howard wi", "de pere", "sheboygan"
+      "wisconsin",
+      "green bay",
+      "brown county",
+      "ne wisconsin",
+      "northeast wi",
+      "appleton",
+      "oshkosh",
+      "howard wi",
+      "de pere",
+      "sheboygan"
     ],
     "weekly_target_drafts": 10,
     "monthly_original_post_drafts": 1,
@@ -259,7 +346,6 @@
     "ratio_helpful_to_self_mention": 10,
     "karma_threshold_for_self_mention": 100
   },
-
   "google_business_profile": {
     "place_id_cid": "17587388124165404013",
     "feature_id": "/g/11zjpk3xt_",
@@ -274,25 +360,27 @@
       "Construction company"
     ]
   },
-
   "social_media": {
     "facebook_page": "https://www.facebook.com/profile.php?id=61578160947198",
     "instagram": "https://www.instagram.com/geocarpentryllc2026",
     "tiktok": null,
     "linkedin": null
   },
-
   "hostinger": {
     "wp_path": "$HOME/domains/geocarpentry.com/public_html",
     "ssh_host": "156.67.74.243",
     "ssh_port": 65002,
     "ssh_user": "u433637438"
   },
-
   "_meta": {
     "created": "2026-05-14",
     "created_by": "ALEX",
-    "phase": "F1 — Identidad parcial, awaiting F2-F8 buildout",
-    "notes": "Tenant 1 de InvestorOS. Pinnacle = tenant 0. Schema validado vs Pinnacle. Falta: brand colors confirmados (workflows aún usan viejos), Airtable base IDs, GBP place_id."
-  }
+    "phase": "F1 \u2014 Identidad parcial, awaiting F2-F8 buildout",
+    "notes": "Tenant 1 de InvestorOS. Pinnacle = tenant 0. Schema validado vs Pinnacle. Falta: brand colors confirmados (workflows a\u00fan usan viejos), Airtable base IDs, GBP place_id."
+  },
+  "place_id": "ChIJCOOv5_H06v6lhAEQ7eq1npKKvYn0AQ",
+  "place_id_cid": "17587388124165404013",
+  "place_id_fid": "0x844bfb574e39d7e3:0xf412f45123cd756d",
+  "place_id_source_url": "https://www.google.com/maps?cid=17587388124165404013",
+  "place_id_verified": false
 }

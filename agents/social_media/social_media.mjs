@@ -310,6 +310,119 @@ Each idea schema:
 
 Themes: T1 Dark Premium (default educational), T2 White Clean (data/FAQ), T3 Gold Black (urgency/foreclosure), T4 Soft Cream (testimonios/herencia), T5 Vibrant Blue (high engagement young).`;
 
+  // Geo Carpentry branch (2026-06-08): tenant-aware prompt + topics.
+  // Pinnacle path (else) is preserved bit-for-bit to avoid regression.
+  const isGeo = cfg.tenant_id === "geo-carpentry";
+  console.error(`[generate_ideas] tenant=${cfg.tenant_id} isGeo=${isGeo}`);
+
+  let newSystemPrompt, picks, recentTitles, userPrompt, topicsBlock;
+
+  if (isGeo) {
+    // Load persona file (deployed at agents/tenants/geo-carpentry_persona.md)
+    let personaText = "";
+    try {
+      const { readFile } = await import("node:fs/promises");
+      const { join: joinPath } = await import("node:path");
+      const { fileURLToPath: fu } = await import("node:url");
+      const { dirname: dn } = await import("node:path");
+      const __dirhere = dn(fu(import.meta.url));
+      personaText = await readFile(joinPath(__dirhere, "..", "tenants", "geo-carpentry_persona.md"), "utf8");
+    } catch (e) {
+      return { created: 0, error: `geo persona load failed: ${e.message}` };
+    }
+
+    newSystemPrompt = `You are the Social Media Agent for Geo Carpentry LLC, a licensed general contractor serving Green Bay and Northeast Wisconsin. Owner: Jorge Cruz. Phone: (920) 367-1272. Web: geocarpentry.com.
+
+You generate post ideas optimized for Instagram + Facebook. Audience: homeowners 35-65 in NE Wisconsin (Green Bay, Appleton, Oshkosh, De Pere, Howard) with dated 1990s kitchens, 1980s bathrooms, sagging decks, looking for a licensed bilingual contractor who shows up on time. 70% educational, 20% promotional, 10% personal.
+
+PERSONA REFERENCE (use these details for copy + tone):
+${personaText.slice(0, 3500)}
+
+VIDEO LENGTH RULE (Jorge 2026-05-07): Reels MUST be 8-10 seconds = exactly 5 slides x 2s. NEVER more. If a concept needs more time, split into series "Topic — Parte 1", "Topic — Parte 2", etc.${lessonsBlock}
+
+Output ONLY a JSON object: { "ideas": [...] }. No prose outside JSON.
+
+Each idea schema (BILINGUAL — generate BOTH es and en for every field):
+{
+  "format": "Post" | "Reel" | "Video",
+  "tipo": "Educativo" | "Promocional" | "Testimonio" | "Mito" | "Pregunta" | "Personal",
+  "segment_anchor": "Kitchen-Remodel" | "Bathroom-Remodel" | "Deck-Build" | "Finish-Carpentry" | "Home-Renovation" | "General-Construction",
+  "title_es": "string", "title_en": "string",
+  "hook_es": "string", "hook_en": "string",
+  "caption_es": "200-400 chars ES, perfecta ortografia, ends with CTA + phone (920) 367-1272",
+  "caption_en": "200-400 chars EN, ends with CTA + phone (920) 367-1272",
+  "cta_es": "single line", "cta_en": "single line",
+  "hashtags_es": "5 hashtags including #GreenBayWI #ContratistaGreenBay",
+  "hashtags_en": "5 hashtags including #GreenBayWI #GeneralContractor",
+  "theme_code": "T1"|"T2"|"T3"|"T4"|"T5",
+  "visual_concept": "Pexels query OR FLUX prompt — for Posts only",
+  "reel": {
+    "template": "hybrid|pip|voiceover|editorial",
+    "music": "chill|cinematic|upbeat-1",
+    "slides_es": [
+      {"hook": "5-7 PALABRAS espanol"},
+      {"text": "8-14 palabras espanol, sustantivo", "visual": "pexels query | flux: prompt"},
+      {"text": "8-14 palabras espanol", "visual": "..."},
+      {"text": "8-14 palabras espanol", "visual": "..."},
+      {"cta": "5-7 palabras espanol con (920) 367-1272"}
+    ],
+    "slides_en": [
+      {"hook": "5-7 WORDS English"},
+      {"text": "8-14 words English, substantive", "visual": "pexels query | flux: prompt"},
+      {"text": "8-14 words English", "visual": "..."},
+      {"text": "8-14 words English", "visual": "..."},
+      {"cta": "5-7 words English with (920) 367-1272"}
+    ]
+  }
+}
+
+HARD RULES (Reel idea is REJECTED if any violated):
+- For Reels you MUST include reel.slides_es AND reel.slides_en — ALWAYS BOTH, ALWAYS 5 elements each.
+- Slides 2/3/4 MUST have non-empty "text" field (8-14 words) — NEVER blank.
+- Each slide_2/3/4 visual MUST have format "<pexels query> | flux: <flux prompt>".
+- Slide 1 MUST have "hook" field. Slide 5 MUST have "cta" field including phone (920) 367-1272.
+- For Posts: include hook + caption + cta + visual_concept (no "reel" key).
+- For Videos: include hook + caption + main_message + script_outline + cta (no "reel" key).
+- ALL bilingual fields require BOTH _es and _en populated.
+
+KEYWORD RULE: use "General Contractor" as primary identifier — never "remodeler" alone. Use "Crown Molding", "Cedar Deck", "Custom Cabinetry", "Walk-in Tile Shower" as service hooks.
+
+NEVER mention: real estate, cash buying, foreclosure, divorce, back taxes, distressed property — that is a different business. Geo Carpentry is CONSTRUCTION + REMODELING.`;
+
+    // Simple curated Geo topic catalog — 10 topics across 6 service pillars.
+    // Replaces Pinnacle's theme_bank_loader (which has homeowner-distress topics).
+    const geoTopics = [
+      { pillar: "Kitchen Remodel", subtopic: "5 signs your kitchen needs a full remodel vs cosmetic refresh", funnel: "Awareness", format: "Reel" },
+      { pillar: "Bathroom Remodel", subtopic: "Walk-in tile shower vs tub: which fits your NE Wisconsin home", funnel: "Awareness", format: "Post" },
+      { pillar: "Deck Building", subtopic: "Cedar vs composite deck — what lasts in Wisconsin winters", funnel: "Consideration", format: "Post" },
+      { pillar: "Finish Carpentry", subtopic: "Crown molding installation: when DIY vs pro makes sense", funnel: "Awareness", format: "Reel" },
+      { pillar: "Home Renovation", subtopic: "Adding a 4-season room: permits, costs, and timeline in Brown County", funnel: "Decision", format: "Post" },
+      { pillar: "General Contractor", subtopic: "How to verify a Wisconsin contractor is actually licensed (5-min check)", funnel: "Trust", format: "Reel" },
+      { pillar: "Bilingual", subtopic: "Como elegir un contratista bilingue en Green Bay sin que te estafen", funnel: "Trust", format: "Post" },
+      { pillar: "Testimonio", subtopic: "Recent Green Bay kitchen completion — before/after with timeline", funnel: "Trust", format: "Post" },
+      { pillar: "Seasonal", subtopic: "Spring 2026 deck booking window — why lock in by April", funnel: "Decision", format: "Reel" },
+      { pillar: "Personal", subtopic: "Jorge at a job site — 12 years building in NE Wisconsin", funnel: "Awareness", format: "Post" },
+    ];
+    picks = geoTopics.slice(0, Math.min(geoTopics.length, count));
+    recentTitles = await getRecentTitles();
+
+    topicsBlock = picks.map((p, i) => `
+${i + 1}. PILLAR: ${p.pillar}
+   TITLE/SUBTOPIC: ${p.subtopic}
+   FUNNEL_STAGE: ${p.funnel}
+   FORMAT_HINT: ${p.format}
+   COLOR_THEME: T1`).join("\n");
+
+    userPrompt = `Generate exactly ${picks.length} ideas — ONE for EACH topic listed below. Titles are reference; refine wording but keep the spirit.
+
+${topicsBlock}
+
+Avoid duplicating these recent titles (last 14 days):
+${recentTitles.join(" / ") || "(none)"}
+
+Return JSON only — for EACH topic, generate one idea with both ES and EN versions in EVERY bilingual field. Phone is (920) 367-1272. Audience: Green Bay / Appleton / Oshkosh homeowners considering construction/remodeling work.`;
+
+  } else {
   // Updated system prompt for 3-table schema with bilingual split.
   // Each idea generates 2 records: 1 ES + 1 EN linked by Source_Idea_ID.
   const newSystemPrompt = `You are the Social Media Agent for Pinnacle Holdings Group LLC, a real estate cash home buyer in Wisconsin. Owner: Jorge Cruz. Phone: (920) 777-9886. Web: pinnaclegroupwi.com.
@@ -391,12 +504,16 @@ ${recentTitles.join(" / ") || "(none)"}
 
 Return JSON only — for EACH topic above, generate one idea with both ES and EN versions in EVERY bilingual field. Use the SUBTOPIC_ID as a reference but DO NOT include it in the output JSON.`;
 
+  }
+
   // Larger batch needs higher max_tokens. ~600 tokens per bilingual idea worst-case.
   const maxTokens = Math.min(64000, Math.max(4000, count * 700));
   const { text, error } = await callAnthropic(newSystemPrompt, userPrompt, maxTokens);
-  if (error) return { created: 0, error };
+  if (error) { console.error(`[generate_ideas DEBUG] anthropic error: ${error}`); return { created: 0, error }; }
+  console.error(`[generate_ideas DEBUG] LLM returned ${text.length} chars; sample=${(text||"").substring(0,300)}`);
   const ideas = parseAllJSON(text);
-  if (ideas.length === 0) return { created: 0, error: "no ideas parsed", raw: text.slice(0, 200) };
+  console.error(`[generate_ideas DEBUG] parsed ${ideas.length} ideas`);
+  if (ideas.length === 0) return { created: 0, error: "no ideas parsed", raw: text.slice(0, 400) };
 
   // Sprint A6 (2026-05-08): assign Target_Platform alternating per idea so each
   // batch produces a balanced FB/IG mix. Source_Idea_ID groups ES + EN variants.
@@ -406,7 +523,8 @@ Return JSON only — for EACH topic above, generate one idea with both ES and EN
   const templateNext = makeTemplateRotator(0);
 
   const created = [];
-  for (const idea of ideas.slice(0, count)) {
+  for (const [ix, idea] of ideas.slice(0, count).entries()) {
+    console.error(`[gen DEBUG] idea ${ix}: format=${idea.format} tipo=${idea.tipo} title_es=${(idea.title_es||"").slice(0,40)}`);
     const format = String(idea.format || "Post");
     const sourceId = String(Date.now()) + Math.floor(Math.random()*1000).toString().padStart(3,"0");
     const targetPlatform = platformNext();  // FB or IG, alternating
@@ -506,12 +624,21 @@ Return JSON only — for EACH topic above, generate one idea with both ES and EN
 
     try {
       const esRes = await smCreateIn(tableId, esFields);
-      if (esRes.id) created.push({ id: esRes.id, lang: "ES", format });
+      if (esRes.id) {
+        created.push({ id: esRes.id, lang: "ES", format });
+      } else {
+        console.error(`[sm DEBUG] ES create returned no id. response=${JSON.stringify(esRes).slice(0,500)}`);
+        console.error(`[sm DEBUG] ES fields attempted: ${JSON.stringify(Object.keys(esFields))}`);
+      }
     } catch (e) { console.error(`[sm] ES create failed: ${e.message}`); }
 
     try {
       const enRes = await smCreateIn(tableId, enFields);
-      if (enRes.id) created.push({ id: enRes.id, lang: "EN", format });
+      if (enRes.id) {
+        created.push({ id: enRes.id, lang: "EN", format });
+      } else {
+        console.error(`[sm DEBUG] EN create returned no id. response=${JSON.stringify(enRes).slice(0,500)}`);
+      }
     } catch (e) { console.error(`[sm] EN create failed: ${e.message}`); }
   }
   return { created: created.length, records: created };
