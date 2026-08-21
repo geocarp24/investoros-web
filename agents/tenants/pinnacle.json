@@ -6,11 +6,15 @@
     "binary_path": "/usr/local/bin/claude"
   },
   "airtable": {
-    "base_id": "appAQpveuAec077jF",
+    "base_id": "appfQbDA750Oihy9J",
     "token_env": "AIRTABLE_TOKEN_PINNACLE",
-    "table_id": "tblpiN42pK3YFxGEW",
-    "content_queue_table_id": "tblpiN42pK3YFxGEW",
-    "decisions_log_table_id": "tbluHpgWlVNqSveVi"
+    "table_id": "FALTA_CREAR_EN_BASE_PINNACLE",
+    "content_queue_table_id": "FALTA_CREAR_EN_BASE_PINNACLE",
+    "decisions_log_table_id": "FALTA_CREAR_EN_BASE_PINNACLE",
+    "social_base_id": "appU9s3kGkVpdrJkw",
+    "posts_table_id": "tblE3lz6XNcBNgpg5",
+    "reels_table_id": "tblhbg4JSm2iND3Cs",
+    "videos_table_id": "tblbjYosR1tpnjRV0"
   },
   "social": {
     "fb_page_id": "965320503341457",
@@ -32,5 +36,6 @@
       "en",
       "es"
     ]
-  }
+  },
+  "_separacion_brief_00": "base_id apuntaba a appAQpveuAec077jF, que es la base 'Geo Carpentry CRM' de otro negocio. Las tablas de contenido de Pinnacle todavia no existen en sus propias bases; quedan marcadas FALTA_CREAR_EN_BASE_PINNACLE a proposito para que el agente falle en vez de escribir en la base de Geo Carpentry. Las tablas sociales si existen y ya apuntan a 'Pinnacle Social Media'."
 }

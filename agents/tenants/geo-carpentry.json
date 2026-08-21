@@ -226,7 +226,7 @@
   },
   "competitors": [
     {
-      "name": "TBD \u2014 research with /seo audit local",
+      "name": "TBD — research with /seo audit local",
       "url": null,
       "notes": "El Posicionador identifica top 5 competitors locales en primer seo_deep run"
     }
@@ -234,7 +234,7 @@
   "airtable": {
     "base_id": "appAQpveuAec077jF",
     "contacts_table_id": "tbldetnRGCnmHDgFw",
-    "leads_table_id": "tblVqrROrVspFXniG",
+    "leads_table_id": "tblaH41HWeVG9ZXLn",
     "jobs_table_id": "tblRlPhcwiGP7J8LS",
     "subs_table_id": "tbldciY36E08UEEua",
     "activities_table_id": "tblWbxNNyGzRhdIwF",
@@ -242,7 +242,8 @@
     "seo_table_id": "tbl53FPGfpa4OtafX",
     "content_queue_table_id": "tblpiN42pK3YFxGEW",
     "marketing_table_id": "tbld7LtJzeN5QTHPo",
-    "token_env": "AIRTABLE_TOKEN_GEO"
+    "token_env": "AIRTABLE_TOKEN_GEO",
+    "_leads_table_id_anterior": "tblVqrROrVspFXniG era '_legacy_leads', tabla vacia y deprecada con estructura heredada de Pinnacle. Los leads reales de Geo Carpentry viven en 'Geo_Leads' tblaH41HWeVG9ZXLn."
   },
   "telegram": {
     "bot_token_env": "TELEGRAM_BOT_TOKEN",
@@ -288,9 +289,9 @@
     ],
     "tone": "warm-professional, value-first, never salesy, bilingual EN/ES on request",
     "value_props": [
-      "Run a remodel/construction shop in Northeast WI \u2014 happy contractor resource for investor networks",
-      "Bilingual team (EN/ES) \u2014 useful for diverse markets",
-      "12+ years in Northeast WI \u2014 know local code, permits, suppliers"
+      "Run a remodel/construction shop in Northeast WI — happy contractor resource for investor networks",
+      "Bilingual team (EN/ES) — useful for diverse markets",
+      "12+ years in Northeast WI — know local code, permits, suppliers"
     ]
   },
   "foro": {
@@ -375,8 +376,8 @@
   "_meta": {
     "created": "2026-05-14",
     "created_by": "ALEX",
-    "phase": "F1 \u2014 Identidad parcial, awaiting F2-F8 buildout",
-    "notes": "Tenant 1 de InvestorOS. Pinnacle = tenant 0. Schema validado vs Pinnacle. Falta: brand colors confirmados (workflows a\u00fan usan viejos), Airtable base IDs, GBP place_id."
+    "phase": "F1 — Identidad parcial, awaiting F2-F8 buildout",
+    "notes": "Tenant 1 de InvestorOS. Pinnacle = tenant 0. Schema validado vs Pinnacle. Falta: brand colors confirmados (workflows aún usan viejos), Airtable base IDs, GBP place_id."
   },
   "place_id": "ChIJ49c5TIf7S4QRbXXNl1H0EvQ",
   "place_id_cid": "17587388124165404013",
@@ -384,5 +385,12 @@
   "place_id_source_url": "https://www.google.com/maps?cid=17587388124165404013",
   "place_id_verified": true,
   "place_id_verified_at": "2026-06-08T22:00:00Z",
-  "place_id_verified_source": "Google Place ID Finder (Jorge confirmed)"
+  "place_id_verified_source": "Google Place ID Finder (Jorge confirmed)",
+  "social": {
+    "fb_page_id": "",
+    "ig_account_id": "",
+    "fb_page_token_env": "META_PAGE_ACCESS_TOKEN_GEO",
+    "meta_user_token_env": "META_USER_TOKEN_GEO",
+    "_nota": "Bloque ausente hasta BRIEF-00. Al no existir, los agentes caian en el FB_PAGE_ID por defecto, que era la pagina de Pinnacle Holdings Group. Rellenar fb_page_id con la pagina real de Geo Carpentry LLC."
+  }
 }

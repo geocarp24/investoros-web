@@ -64,7 +64,24 @@ const SM_TOKEN = SHARED_SM_TOKEN
 //   For non-Pinnacle tenants, set FB_PAGE_ID + META_PAGE_ACCESS_TOKEN in cron command via vault fetch.
 const META_USER_TOKEN = process.env.META_USER_TOKEN || "";
 const META_PAGE_TOKEN = process.env.META_PAGE_ACCESS_TOKEN || "";
-const FB_PAGE_ID      = process.env.FB_PAGE_ID || "965320503341457";  // default Pinnacle Holdings Group
+// BRIEF-00 separacion de negocios: prohibido el valor por defecto.
+// Antes esta linea caia en 965320503341457, la pagina de Facebook de
+// Pinnacle Holdings Group LLC. geo-carpentry.json no declara bloque social,
+// asi que Geo Carpentry LLC publicaba en la pagina de otro negocio.
+// Cada negocio declara su propia pagina o el agente no arranca.
+const FB_PAGE_ID = (() => {
+  const v = process.env.FB_PAGE_ID;
+  if (!v) {
+    throw new Error(
+      "FB_PAGE_ID no definido. Cada negocio debe declarar su propia pagina de " +
+      "Facebook en su archivo de tenant. No hay valor por defecto a proposito: " +
+      "antes se usaba la pagina de Pinnacle Holdings Group y el contenido de " +
+      "Geo Carpentry se publicaba en el negocio equivocado."
+    );
+  }
+  return v;
+})();  // default Pinnacle Holdings Group
+
 
 // ── Airtable field names (source of truth, kept in one place for easy rename) ──
 // NOTE 2026-05-07: legacy field names "Blotato_*" still hold the data — Jorge will rename in Airtable UI.

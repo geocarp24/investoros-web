@@ -1,5 +1,3 @@
- 
- 
 #!/usr/bin/env node
 /**
  * El Auditor Meta — health + engagement baseline audit of FB Page + IG account.
@@ -31,7 +29,24 @@ const VALID_MODES = ["batch"];
 
 const META_USER_TOKEN = process.env.META_USER_TOKEN || "";
 const META_PAGE_TOKEN = process.env.META_PAGE_ACCESS_TOKEN || "";
-let FB_PAGE_ID = process.env.FB_PAGE_ID || "965320503341457"; // default Pinnacle; overridden per tenant below
+// BRIEF-00 separacion de negocios: prohibido el valor por defecto.
+// Antes esta linea caia en 965320503341457, la pagina de Facebook de
+// Pinnacle Holdings Group LLC. geo-carpentry.json no declara bloque social,
+// asi que Geo Carpentry LLC publicaba en la pagina de otro negocio.
+// Cada negocio declara su propia pagina o el agente no arranca.
+let FB_PAGE_ID = (() => {
+  const v = process.env.FB_PAGE_ID;
+  if (!v) {
+    throw new Error(
+      "FB_PAGE_ID no definido. Cada negocio debe declarar su propia pagina de " +
+      "Facebook en su archivo de tenant. No hay valor por defecto a proposito: " +
+      "antes se usaba la pagina de Pinnacle Holdings Group y el contenido de " +
+      "Geo Carpentry se publicaba en el negocio equivocado."
+    );
+  }
+  return v;
+})();  // default Pinnacle; overridden per tenant below
+
 const META_API        = "https://graph.facebook.com/v21.0";
 
 async function gget(path, token) {

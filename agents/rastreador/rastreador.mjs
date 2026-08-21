@@ -1,4 +1,3 @@
- 
 #!/usr/bin/env node
 /**
  * El Rastreador — web scraper for lead research.
@@ -33,7 +32,12 @@ import { extractPhoneFromText, normalizeName, normalizeAddress } from "./src/nor
 
 const VALID_MODES = ["legal_records", "fsbo_listings", "allies_directory", "batch"];
 
-const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN || process.env.AIRTABLE_TOKEN_GEO || process.env.AIRTABLE_TOKEN_PINNACLE || "";
+// BRIEF-00 separacion de negocios: se elimina la cadena cruzada de tokens.
+// Antes: AIRTABLE_TOKEN || AIRTABLE_TOKEN_GEO || AIRTABLE_TOKEN_PINNACLE.
+// Un token de Airtable da acceso a la base completa, no a una tabla. Con esa
+// cadena, si faltaba el token de un negocio el agente usaba el del otro y
+// escribia en la base ajena. Cada tenant pasa su propio token, sin respaldo.
+const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN || "";
 
 /**
  * Generic HTML record extractor for endpoints without a dedicated parser.
