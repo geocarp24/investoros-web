@@ -16,11 +16,8 @@ no hace falta ponerlo en el `.env`. `QUO_FROM_NUMBER` queda solo como override.
 
 El +1 920 934 0351 que figura en el tenant JSON es el de WhatsApp, no el emisor de SMS.
 
-Lo único que falta agregar:
-
-```bash
-echo 'GOOGLE_REVIEW_URL=https://g.page/r/CW11zSNR9BL0EBM/review' >> /opt/alex-bot/.env
-```
+El link de reseña (`https://g.page/r/CW11zSNR9BL0EBM/review`) también vive en el tenant
+config, en `google_business_profile.review_url`. **No hay nada que agregar al `.env`.**
 
 **No hay dependencias npm.** El agente pega directo contra la API de Quo con `fetch`.
 

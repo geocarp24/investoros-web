@@ -13,7 +13,7 @@
  *   AIRTABLE_TOKEN_GEO      token del tenant (nombre real sale de tenant.airtable.token_env)
  *   QUO_API_KEY             obligatorio para envío real (el mismo que usa El Supervisor)
  *   QUO_FROM_NUMBER         número E.164 emisor, o tenant.quo.from_number
- *   GOOGLE_REVIEW_URL       link corto de reseña de Google
+ *   GOOGLE_REVIEW_URL       override del link; por default sale del tenant config
  *   DRY_RUN=true            no envía, no escribe en Airtable, solo imprime
  *   REVIEW_REQUEST_LOG      override del log (default /opt/alex-bot/logs/review_request.log)
  *
@@ -289,8 +289,9 @@ async function main() {
   const cfg = await loadTenant(args.tenant);
   const c = atCtx(cfg);
 
-  const reviewUrl = process.env.GOOGLE_REVIEW_URL;
-  if (!reviewUrl) die(2, "GOOGLE_REVIEW_URL no está seteada en .env");
+  // El link vive en el tenant config; la env var queda como override.
+  const reviewUrl = process.env.GOOGLE_REVIEW_URL || cfg.google_business_profile?.review_url;
+  if (!reviewUrl) die(2, "falta el link: tenant.google_business_profile.review_url o GOOGLE_REVIEW_URL");
 
   const record = await fetchLead(c, args.leadId);
   const f = record.fields ?? {};

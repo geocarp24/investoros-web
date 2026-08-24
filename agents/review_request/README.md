@@ -23,7 +23,7 @@ Flags: `--tenant <slug>` (default `geo-carpentry`), `--dry-run`, `--lead-id <rec
 | Variable | Obligatoria | Para qué |
 |---|---|---|
 | `AIRTABLE_TOKEN_GEO` | sí | leer/escribir Geo_Leads (el nombre sale de `tenant.airtable.token_env`) |
-| `GOOGLE_REVIEW_URL` | sí | link que va en el mensaje |
+| `GOOGLE_REVIEW_URL` | no | override del link; por default sale de `tenant.google_business_profile.review_url` |
 | `QUO_API_KEY` | sí (envío real) | el mismo que ya usa El Supervisor |
 | `QUO_FROM_NUMBER` | no | override del emisor; por default sale de `tenant.quo.from_number` (+1 920 367 1272) |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | no | aviso a Jorge cuando sale un envío |
