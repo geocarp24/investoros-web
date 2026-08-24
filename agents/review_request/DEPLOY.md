@@ -10,9 +10,11 @@ grep -E '^(QUO_API_KEY|QUO_FROM_NUMBER|GOOGLE_REVIEW_URL)=' /opt/alex-bot/.env
 ```
 
 `QUO_API_KEY` ya debería estar — es la que usa El Supervisor para sondear la API.
-El número emisor es **+1 920 934 0351**, confirmado por Jorge el 2026-08-23, y ya vive en
-`agents/tenants/geo-carpentry.json` como `quo.from_number`, así que no hace falta ponerlo
-en el `.env`. `QUO_FROM_NUMBER` queda solo como override.
+El número emisor es **+1 920 367 1272**, el teléfono del negocio, confirmado por Jorge el
+2026-08-23. Ya vive en `agents/tenants/geo-carpentry.json` como `quo.from_number`, así que
+no hace falta ponerlo en el `.env`. `QUO_FROM_NUMBER` queda solo como override.
+
+El +1 920 934 0351 que figura en el tenant JSON es el de WhatsApp, no el emisor de SMS.
 
 Lo único que falta agregar:
 

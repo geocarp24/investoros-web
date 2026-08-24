@@ -247,7 +247,7 @@
   },
   "quo": {
     "api_key_env": "QUO_API_KEY",
-    "from_number": "+19209340351"
+    "from_number": "+19203671272"
   },
   "telegram": {
     "bot_token_env": "TELEGRAM_BOT_TOKEN",
