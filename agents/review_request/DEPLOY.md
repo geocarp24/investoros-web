@@ -9,17 +9,16 @@ llave SSH autorizada, así que estos pasos quedan pendientes de ejecutar allá.
 grep -E '^(QUO_API_KEY|QUO_FROM_NUMBER|GOOGLE_REVIEW_URL)=' /opt/alex-bot/.env
 ```
 
-`QUO_API_KEY` ya debería estar — es la que usa El Supervisor para sondear la API. Lo que
-seguro falta es el número emisor y el link:
+`QUO_API_KEY` ya debería estar — es la que usa El Supervisor para sondear la API.
+El número emisor es **+1 920 934 0351**, confirmado por Jorge el 2026-08-23, y ya vive en
+`agents/tenants/geo-carpentry.json` como `quo.from_number`, así que no hace falta ponerlo
+en el `.env`. `QUO_FROM_NUMBER` queda solo como override.
+
+Lo único que falta agregar:
 
 ```bash
-echo 'QUO_FROM_NUMBER=+1XXXXXXXXXX' >> /opt/alex-bot/.env
 echo 'GOOGLE_REVIEW_URL=https://g.page/r/CW11zSNR9BL0EBM/review' >> /opt/alex-bot/.env
 ```
-
-**Jorge tiene que confirmar el número.** El teléfono del negocio en el tenant config es
-(920) 367-1272, pero no está verificado que ese sea el inbox de Quo. Sale de
-`GET https://api.openphone.com/v1/phone-numbers` con la key en `Authorization`.
 
 **No hay dependencias npm.** El agente pega directo contra la API de Quo con `fetch`.
 
