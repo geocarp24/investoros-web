@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Secretos — nunca commitear.
+# El VPS (/opt/alex-bot) tiene .env y varios .env.bak-* en el working tree, y
+# este repo es publico. Sin estas lineas, un `git add -A` en el servidor
+# publica el token de Airtable, la key de Quo, el WEBHOOK_SECRET, el bot de
+# Telegram y la clave de Anthropic de una sola vez.
+# ─────────────────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# Copias de seguridad que dejan los scripts al editar en el servidor
+*.bak
+*.bak-*
+*.bak.*
+*.before-*
+
+# Generado en runtime
+__pycache__/
+*.pyc
+node_modules/
+*.log
+runs/
