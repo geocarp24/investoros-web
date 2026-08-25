@@ -235,6 +235,7 @@
     "base_id": "appAQpveuAec077jF",
     "contacts_table_id": "tbldetnRGCnmHDgFw",
     "leads_table_id": "tblVqrROrVspFXniG",
+    "geo_leads_table_id": "tblaH41HWeVG9ZXLn",
     "jobs_table_id": "tblRlPhcwiGP7J8LS",
     "subs_table_id": "tbldciY36E08UEEua",
     "activities_table_id": "tblWbxNNyGzRhdIwF",
@@ -243,6 +244,10 @@
     "content_queue_table_id": "tblpiN42pK3YFxGEW",
     "marketing_table_id": "tbld7LtJzeN5QTHPo",
     "token_env": "AIRTABLE_TOKEN_GEO"
+  },
+  "quo": {
+    "api_key_env": "QUO_API_KEY",
+    "from_number": "+19203671272"
   },
   "telegram": {
     "bot_token_env": "TELEGRAM_BOT_TOKEN",
@@ -347,6 +352,7 @@
     "karma_threshold_for_self_mention": 100
   },
   "google_business_profile": {
+    "review_url": "https://g.page/r/CW11zSNR9BL0EBM/review",
     "place_id_cid": "17587388124165404013",
     "feature_id": "/g/11zjpk3xt_",
     "place_id": "TBD",
