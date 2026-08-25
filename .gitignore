@@ -21,3 +21,18 @@ __pycache__/
 node_modules/
 *.log
 runs/
+
+# Entornos y carpetas pesadas que solo viven en el VPS
+venv/
+venv-*/
+rebuild-*/
+backups/
+
+# Estado local: bases de datos con correos, calendario y conversaciones reales,
+# mas los archivos de sesion de Telegram (son credenciales de hecho).
+*.db
+data/
+telegram_bot/sessions/
+agents/supervisor/state/
+agents/supervisor/last_run_*.json
+agents/supervisor/_last7.txt
